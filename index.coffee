@@ -10,7 +10,7 @@ slack = new SlackClient()
 # slack.connect()
 
 # Set port
-app.set 'port', process.env.PORT || 3000
+app.set 'port', process.env.PORT || 5000
 
 # Routing
 app.get '/', (req, res) ->
