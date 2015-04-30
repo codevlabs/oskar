@@ -11,7 +11,7 @@ module.exports = (grunt) ->
           '**/*.coffee'   # Watch everything
           '!node_modules' # ...except dependencies
         ]
-        tasks: ['shell:test']
+        tasks: ['coffee']
 
     shell:
       test:
