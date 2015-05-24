@@ -40,11 +40,10 @@ slack.on('presence', function(data) {
         return;
       }
       userLocalDate = timeHelper.getLocalDate(null, user.tz_offset / 3600);
-      if (!timeHelper.isDateInsideInterval(18, 20, userLocalDate)) {
+      if (!timeHelper.isDateInsideInterval(20, 22, userLocalDate)) {
         return;
       }
       if (res === null || timeHelper.hasTimestampExpired(20, res)) {
-        console.log('ask user for status');
         return slack.askUserForStatus(data.userId);
       }
     });

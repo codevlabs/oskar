@@ -40,17 +40,16 @@ slack.on 'presence', (data) ->
         return
 
       # if it's weekend, skip
-      # if timeHelper.isWeekend()
-      #   return
+      if timeHelper.isWeekend()
+        return
 
       # if current time is not in interval, skip
       userLocalDate = timeHelper.getLocalDate null, user.tz_offset / 3600
-      if !timeHelper.isDateInsideInterval 18, 20, userLocalDate
+      if !timeHelper.isDateInsideInterval 8, 11, userLocalDate
         return
 
       # if last activity (res) is null or timestamp has expired, ask for status
       if (res is null || timeHelper.hasTimestampExpired 20, res)
-        console.log 'ask user for status'
         slack.askUserForStatus data.userId
 
 # Set port
