@@ -39,8 +39,11 @@ slack.on('presence', function(data) {
       if (data.status !== 'active') {
         return;
       }
+      if (timeHelper.isWeekend()) {
+        return;
+      }
       userLocalDate = timeHelper.getLocalDate(null, user.tz_offset / 3600);
-      if (!timeHelper.isDateInsideInterval(20, 22, userLocalDate)) {
+      if (!timeHelper.isDateInsideInterval(8, 11, userLocalDate)) {
         return;
       }
       if (res === null || timeHelper.hasTimestampExpired(20, res)) {
