@@ -239,16 +239,17 @@ class Client extends EventEmitter
 
   #
   # Post message
-  # 
+  #
 
   postMessage: (channelId, message, callback) ->
     params = {
       "channel": channelId,
-      "text": message
+      "text": message,
+      "as_user": true
     }
 
     @_apiCall 'chat.postMessage', params, =>
-      callback arguments...    
+      callback arguments...
 
   #
   # Utility functions
@@ -498,7 +499,7 @@ class Client extends EventEmitter
 
       when 'star_added'
           @emit 'star_added', message
-      
+
       when 'star_removed'
           @emit 'star_removed', message
 
@@ -546,7 +547,7 @@ class Client extends EventEmitter
 
     post_data = querystring.stringify(params)
 
-    options = 
+    options =
       hostname: @host,
       method: 'POST',
       path: '/api/' + method,

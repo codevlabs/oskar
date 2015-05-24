@@ -1,0 +1,228 @@
+var Mongo, MongoClient, Promise;
+
+Mongo = require('mongodb').MongoClient;
+
+Promise = require('promise');
+
+MongoClient = (function() {
+  MongoClient.db = null;
+
+  MongoClient.collection = null;
+
+  function MongoClient() {
+    this.url = '***REMOVED***';
+  }
+
+  MongoClient.prototype.connect = function() {
+    var promise;
+    return promise = new Promise((function(_this) {
+      return function(resolve, reject) {
+        return Mongo.connect(_this.url, function(err, db) {
+          if (err === null) {
+            _this.collection = db.collection('users');
+            return resolve(db);
+          } else {
+            db.close();
+            return reject();
+          }
+        });
+      };
+    })(this));
+  };
+
+  MongoClient.prototype.userExists = function(userId) {
+    var promise;
+    return promise = new Promise((function(_this) {
+      return function(resolve, reject) {
+        return _this.collection.find({
+          id: userId
+        }).toArray(function(err, docs) {
+          return resolve(docs.length > 0);
+        });
+      };
+    })(this));
+  };
+
+  MongoClient.prototype.saveUser = function(user) {
+    var promise;
+    return promise = new Promise((function(_this) {
+      return function(resolve, reject) {
+        return _this.userExists(user.id).then(function(res) {
+          var userObj;
+          if (res === true) {
+            return resolve(user);
+          }
+          userObj = {
+            id: user.id,
+            name: user.name,
+            real_name: user.real_name,
+            tz: user.tz,
+            tz_offset: user.tz_offset,
+            image_48: user.profile.image_48
+          };
+          return _this.collection.insert(userObj, function(err, result) {
+            if (err === null) {
+              return resolve(result);
+            } else {
+              return reject();
+            }
+          });
+        });
+      };
+    })(this));
+  };
+
+  MongoClient.prototype.saveUserStatus = function(userId, status) {
+    var promise;
+    return promise = new Promise((function(_this) {
+      return function(resolve, reject) {
+        var update, user;
+        user = {
+          id: userId
+        };
+        update = {
+          $push: {
+            activity: {
+              status: status,
+              timestamp: Date.now()
+            }
+          }
+        };
+        return _this.collection.update(user, update, function(err, result) {
+          if (err === null) {
+            return resolve(result);
+          } else {
+            return reject();
+          }
+        });
+      };
+    })(this));
+  };
+
+  MongoClient.prototype.saveUserFeedback = function(userId, feedback) {
+    var promise;
+    return promise = new Promise((function(_this) {
+      return function(resolve, reject) {
+        var update, user;
+        user = {
+          id: userId
+        };
+        update = {
+          $push: {
+            feedback: {
+              status: feedback,
+              timestamp: Date.now()
+            }
+          }
+        };
+        return _this.collection.update(user, update, function(err, result) {
+          if (err === null) {
+            return resolve(result);
+          } else {
+            return reject();
+          }
+        });
+      };
+    })(this));
+  };
+
+  MongoClient.prototype.saveUserFeedbackMessage = function(userId, feedbackMessage) {
+    var promise;
+    return promise = new Promise((function(_this) {
+      return function(resolve, reject) {
+        return _this.getLatestUserTimestampForProperty('feedback', userId).then(function(res) {
+          var find, update;
+          find = {
+            id: userId,
+            feedback: {
+              $elemMatch: {
+                timestamp: res
+              }
+            }
+          };
+          update = {
+            $set: {
+              'feedback.$.message': feedbackMessage
+            }
+          };
+          return _this.collection.update(find, update, function(err, result) {
+            if (err === null) {
+              return resolve(result);
+            } else {
+              return reject();
+            }
+          });
+        });
+      };
+    })(this));
+  };
+
+  MongoClient.prototype.getLatestUserFeedback = function(userId) {
+    var promise;
+    return promise = new Promise((function(_this) {
+      return function(resolve, reject) {
+        return _this.collection.find({
+          id: userId
+        }).toArray(function(err, docs) {
+          var feedback, obj, timestamp, _i, _len, _ref;
+          if (err === !null) {
+            return reject();
+          }
+          if (docs.length === 0) {
+            return resolve(false);
+          }
+          if (!docs[0].hasOwnProperty('feedback')) {
+            return resolve(null);
+          }
+          timestamp = 0;
+          feedback = null;
+          _ref = docs[0].feedback;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            obj = _ref[_i];
+            if (obj.timestamp > timestamp) {
+              timestamp = obj.timestamp;
+              feedback = obj;
+            }
+          }
+          return resolve(feedback);
+        });
+      };
+    })(this));
+  };
+
+  MongoClient.prototype.getLatestUserTimestampForProperty = function(property, userId) {
+    var promise;
+    return promise = new Promise((function(_this) {
+      return function(resolve, reject) {
+        return _this.collection.find({
+          id: userId
+        }).toArray(function(err, docs) {
+          var obj, timestamp, _i, _len, _ref;
+          if (err === !null) {
+            return reject();
+          }
+          if (docs.length === 0) {
+            return resolve(false);
+          }
+          if (!docs[0].hasOwnProperty(property)) {
+            return resolve(null);
+          }
+          timestamp = 0;
+          _ref = docs[0][property];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            obj = _ref[_i];
+            if (obj.timestamp > timestamp) {
+              timestamp = obj.timestamp;
+            }
+          }
+          return resolve(timestamp);
+        });
+      };
+    })(this));
+  };
+
+  return MongoClient;
+
+})();
+
+module.exports = MongoClient;

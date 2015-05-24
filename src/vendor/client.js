@@ -301,7 +301,8 @@ Client = (function(_super) {
     var params;
     params = {
       "channel": channelId,
-      "text": message
+      "text": message,
+      "as_user": true
     };
     return this._apiCall('chat.postMessage', params, (function(_this) {
       return function() {

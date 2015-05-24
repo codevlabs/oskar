@@ -26,17 +26,17 @@ module.exports = (grunt) ->
       index:
         files:
           'index.js': 'index.coffee'
-      examples:
-        expand: true
-        cwd: 'examples'
-        src: ['*.coffee']
-        dest: 'examples'
-        ext: '.js'
       classes:
         expand: true
         cwd: 'src'
         src: ['*.coffee']
         dest: 'src'
+        ext: '.js'
+      helper:
+        expand: true
+        cwd: 'src/helper'
+        src: ['*.coffee']
+        dest: 'src/helper'
         ext: '.js'
 
   grunt.registerTask 'prepublish', ['coffee']
