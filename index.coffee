@@ -3,7 +3,7 @@ express = require 'express'
 app = express()
 
 # Set up Mongo client
-MongoClient = require './src/MongoClient'
+MongoClient = require './src/mongoClient'
 mongo = new MongoClient()
 mongo.connect()
 

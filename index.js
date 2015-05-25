@@ -4,7 +4,7 @@ express = require('express');
 
 app = express();
 
-MongoClient = require('./src/MongoClient');
+MongoClient = require('./src/mongoClient');
 
 mongo = new MongoClient();
 
