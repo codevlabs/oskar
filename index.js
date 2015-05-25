@@ -43,7 +43,7 @@ slack.on('presence', function(data) {
         return;
       }
       userLocalDate = timeHelper.getLocalDate(null, user.tz_offset / 3600);
-      if (!timeHelper.isDateInsideInterval(8, 11, userLocalDate)) {
+      if (!timeHelper.isDateInsideInterval(11, 13, userLocalDate)) {
         return;
       }
       if (res === null || timeHelper.hasTimestampExpired(20, res)) {
