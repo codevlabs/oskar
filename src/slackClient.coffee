@@ -17,7 +17,7 @@ class SlackClient extends EventEmitter
 		@users = []
 		@channels = []
 		@disabledUsers = ['***REMOVED***', '***REMOVED***', 'USLACKBOT']
-		@disabledChannels = []
+		@disabledChannels = ['***REMOVED***']
 		if mongo? then @mongo = mongo
 
 	connect: () ->
@@ -90,7 +90,7 @@ class SlackClient extends EventEmitter
 			return false
 
 		# disable messages from watercooler
-		if (message.channel is '***REMOVED***')
+		if (@disabledChannels.indexOf(message.channel) isnt -1)
 			return
 
 		# if user is asking for feedback from a specific person

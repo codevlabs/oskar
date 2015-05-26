@@ -35,7 +35,7 @@ SlackClient = (function(_super) {
     this.users = [];
     this.channels = [];
     this.disabledUsers = ['***REMOVED***', '***REMOVED***', 'USLACKBOT'];
-    this.disabledChannels = [];
+    this.disabledChannels = ['***REMOVED***'];
     if (mongo != null) {
       this.mongo = mongo;
     }
@@ -148,7 +148,7 @@ SlackClient = (function(_super) {
     if ((this.getUser(message.user)) === void 0) {
       return false;
     }
-    if (message.channel === '***REMOVED***') {
+    if (this.disabledChannels.indexOf(message.channel) !== -1) {
       return;
     }
     if (user = InputHelper.isAskingForUserStatus(message.text)) {
