@@ -133,12 +133,14 @@ SlackClient = (function(_super) {
     if ((this.getUser(message.user)) === void 0) {
       return false;
     }
+    if (message.channel === '***REMOVED***') {
+      return;
+    }
     if (user = InputHelper.isAskingForUserStatus(message.text)) {
       if (user === 'channel') {
         statusMsg = '';
         this.mongo.getAllUserFeedback(['U025QPNRP', 'U025P99EH']).then((function(_this) {
           return function(res) {
-            console.log(res);
             res.forEach(function(user) {
               var userObj;
               userObj = _this.getUser(user.id);

@@ -24,6 +24,9 @@ slack.on 'presence', (data) ->
 
   user = slack.getUser(data.userId)
 
+  # if disabled user, return
+
+
   # if user doesn't exist, create new one
   mongo.saveUser(user).then (res) ->
 

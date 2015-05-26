@@ -80,13 +80,16 @@ class SlackClient extends EventEmitter
 		if ((@getUser message.user) is undefined)
 			return false
 
+		# disable messages from watercooler
+		if (message.channel is '***REMOVED***')
+			return
+
 		# if user is asking for feedback from a specific person
 		if user = InputHelper.isAskingForUserStatus(message.text)
 			# check if user asked for channel
 			if user is 'channel'
 				statusMsg = ''
 				@mongo.getAllUserFeedback(['U025QPNRP', 'U025P99EH']).then (res) =>
-					console.log res
 					res.forEach (user) =>
 						userObj = @getUser user.id
 						statusMsg += "#{userObj.profile.first_name} is feeling *#{user.feedback.status}*"
