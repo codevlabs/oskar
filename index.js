@@ -31,7 +31,6 @@ slack.on('presence', function(data) {
   user = slack.getUser(data.userId);
   return mongo.saveUser(user).then(function(res) {
     return mongo.getLatestUserTimestampForProperty('feedback', data.userId).then(function(res) {
-      var userLocalDate;
       if (res === false) {
         return;
       }
@@ -40,10 +39,6 @@ slack.on('presence', function(data) {
         return;
       }
       if (timeHelper.isWeekend()) {
-        return;
-      }
-      userLocalDate = timeHelper.getLocalDate(null, user.tz_offset / 3600);
-      if (!timeHelper.isDateInsideInterval(8, 12, userLocalDate)) {
         return;
       }
       if (res === null || timeHelper.hasTimestampExpired(20, res)) {
