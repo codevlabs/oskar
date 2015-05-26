@@ -43,6 +43,10 @@ describe 'SlackClient', ->
     it 'should return a list of users', ->
       users.length.should.be.greaterThan(0)
 
+    it 'should get the IDs of all users', ->
+      users = slackClient.getUserIds()
+      users[0].should.match(/^U\w+$/)
+
     it 'should return the user presence', ->
       isPresent = slackClient.isUserPresent('U025P99EH')
       isPresent.should.match(/^active|away$/)

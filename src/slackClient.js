@@ -66,7 +66,18 @@ SlackClient = (function(_super) {
   };
 
   SlackClient.prototype.getUsers = function() {
-    return this.users;
+    var users;
+    users = this.users.filter(function(user) {
+      return user.id !== 'USLACKBOT';
+    });
+    return users;
+  };
+
+  SlackClient.prototype.getUserIds = function() {
+    var users;
+    return users = this.getUsers().map(function(user) {
+      return user.id;
+    });
   };
 
   SlackClient.prototype.getUser = function(userId) {
@@ -129,7 +140,7 @@ SlackClient = (function(_super) {
   };
 
   SlackClient.prototype.onMessageHandler = function(message) {
-    var statusMsg, user, userObj;
+    var statusMsg, user, userObj, users;
     if ((this.getUser(message.user)) === void 0) {
       return false;
     }
@@ -139,7 +150,8 @@ SlackClient = (function(_super) {
     if (user = InputHelper.isAskingForUserStatus(message.text)) {
       if (user === 'channel') {
         statusMsg = '';
-        this.mongo.getAllUserFeedback(['U025QPNRP', 'U025P99EH']).then((function(_this) {
+        users = this.getUserIds();
+        this.mongo.getAllUserFeedback(users).then((function(_this) {
           return function(res) {
             res.forEach(function(user) {
               var userObj;

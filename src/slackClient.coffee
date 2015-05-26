@@ -36,7 +36,14 @@ class SlackClient extends EventEmitter
 			@slack.login()
 
 	getUsers: () ->
-		return @users
+		# remove slackbot
+		users = @users.filter (user) ->
+			return user.id != 'USLACKBOT'
+		return users
+
+	getUserIds: () ->
+    users = @getUsers().map (user) ->
+    	return user.id
 
 	getUser: (userId) ->
 		filteredUsers = (user for user in @users when user.id is userId)
@@ -89,7 +96,8 @@ class SlackClient extends EventEmitter
 			# check if user asked for channel
 			if user is 'channel'
 				statusMsg = ''
-				@mongo.getAllUserFeedback(['U025QPNRP', 'U025P99EH']).then (res) =>
+				users = @getUserIds()
+				@mongo.getAllUserFeedback(users).then (res) =>
 					res.forEach (user) =>
 						userObj = @getUser user.id
 						statusMsg += "#{userObj.profile.first_name} is feeling *#{user.feedback.status}*"
