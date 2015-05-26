@@ -129,15 +129,33 @@ SlackClient = (function(_super) {
   };
 
   SlackClient.prototype.onMessageHandler = function(message) {
-    var user, userObj;
-    if (message.username === 'bot') {
+    var statusMsg, user, userObj;
+    if ((this.getUser(message.user)) === void 0) {
       return false;
     }
     if (user = InputHelper.isAskingForUserStatus(message.text)) {
+      if (user === 'channel') {
+        statusMsg = '';
+        this.mongo.getAllUserFeedback(['U025QPNRP', 'U025P99EH']).then((function(_this) {
+          return function(res) {
+            console.log(res);
+            res.forEach(function(user) {
+              var userObj;
+              userObj = _this.getUser(user.id);
+              statusMsg += "" + userObj.profile.first_name + " is feeling *" + user.feedback.status + "*";
+              if (user.feedback.message) {
+                statusMsg += " (" + user.feedback.message + ")";
+              }
+              return statusMsg += ".\r\n";
+            });
+            return _this.askUserForStatus(message.user, statusMsg);
+          };
+        })(this));
+        return;
+      }
       userObj = this.getUser(user);
       this.mongo.getLatestUserFeedback(user).then((function(_this) {
         return function(res) {
-          var statusMsg;
           if (!res) {
             statusMsg = "Oh, it looks like I haven\'t heard from " + userObj.profile.first_name + " for a while. Sorry!";
             _this.askUserForStatus(message.user, statusMsg);

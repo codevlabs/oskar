@@ -190,6 +190,33 @@ MongoClient = (function() {
     })(this));
   };
 
+  MongoClient.prototype.getAllUserFeedback = function(userIds) {
+    var promise;
+    return promise = new Promise((function(_this) {
+      return function(resolve, reject) {
+        return _this.collection.find({
+          id: {
+            $in: userIds
+          }
+        }).toArray(function(err, docs) {
+          var users;
+          if (err !== null) {
+            reject();
+          }
+          users = docs.map(function(elem) {
+            var feedback, res;
+            feedback = elem.feedback.pop();
+            return res = {
+              id: elem.id,
+              feedback: feedback
+            };
+          });
+          return resolve(users);
+        });
+      };
+    })(this));
+  };
+
   MongoClient.prototype.getLatestUserTimestampForProperty = function(property, userId) {
     var promise;
     return promise = new Promise((function(_this) {

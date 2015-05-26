@@ -76,11 +76,25 @@ class SlackClient extends EventEmitter
 
 	onMessageHandler: (message) =>
 
-		if (message.username is 'bot')
+		# if user is bot, return
+		if ((@getUser message.user) is undefined)
 			return false
 
 		# if user is asking for feedback from a specific person
 		if user = InputHelper.isAskingForUserStatus(message.text)
+			# check if user asked for channel
+			if user is 'channel'
+				statusMsg = ''
+				@mongo.getAllUserFeedback(['U025QPNRP', 'U025P99EH']).then (res) =>
+					console.log res
+					res.forEach (user) =>
+						userObj = @getUser user.id
+						statusMsg += "#{userObj.profile.first_name} is feeling *#{user.feedback.status}*"
+						if user.feedback.message
+							statusMsg += " (#{user.feedback.message})"
+						statusMsg += ".\r\n"
+					@askUserForStatus(message.user, statusMsg)
+				return
 			userObj = @getUser user
 			# check if user has feedback
 			@mongo.getLatestUserFeedback(user).then (res) =>

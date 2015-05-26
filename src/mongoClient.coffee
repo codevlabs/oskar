@@ -140,6 +140,27 @@ class MongoClient
 
 				resolve(feedback)
 
+	getAllUserFeedback: (userIds) ->
+
+		promise = new Promise (resolve, reject) =>
+
+			@collection.find({ id: { $in: userIds } }).toArray (err, docs) =>
+
+				if (err isnt null)
+					reject()
+
+				users = docs.map (elem) ->
+
+					# get latest feedback
+					feedback = elem.feedback.pop()
+
+					res =
+						id: elem.id
+						feedback: feedback
+
+				resolve(users)
+
+
 	getLatestUserTimestampForProperty: (property, userId) ->
 
 		promise = new Promise (resolve, reject) =>

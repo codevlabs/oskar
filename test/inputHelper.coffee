@@ -33,3 +33,8 @@ describe 'InputHelper', ->
     text = 'How do you think is matt'
     response = InputHelper.isAskingForUserStatus(text)
     should(response).be.equal(null)
+
+  it 'should return "channel" if user is asking for channel status', ->
+    text = 'How is <!channel>?'
+    response = InputHelper.isAskingForUserStatus(text)
+    should(response).be.equal('channel')

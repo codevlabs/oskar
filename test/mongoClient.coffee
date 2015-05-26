@@ -148,3 +148,20 @@ describe 'MongoClient', ->
             res.status.should.be.equal(5)
             res.message.should.be.equal('Another feedback message')
             done()
+
+    it 'should return feedback for all users', (done) ->
+      userId = 'U025P99EH'
+      feedback = 6
+
+      userIds = ['U025QPNRP', 'U025P99EH']
+      mongoClient.saveUserFeedback(userId, feedback).then (res) ->
+        mongoClient.getAllUserFeedback(userIds).then (res) ->
+          res[0].id.should.be.equal('U025P99EH')
+          res[1].id.should.be.equal('U025QPNRP')
+          res[0].should.have.property('feedback')
+          res[1].should.have.property('feedback')
+          res[1].feedback.should.have.property('status')
+          res[1].feedback.should.have.property('timestamp')
+          res[1].feedback.should.have.property('message')
+          done()
+

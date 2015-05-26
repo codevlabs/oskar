@@ -14,7 +14,7 @@ InputHelper = (function() {
 
   InputHelper.isAskingForUserStatus = function(input) {
     var response, userPattern;
-    userPattern = /^How is <@(\w+)>\s?\??$/i;
+    userPattern = /^How is <[@|\!](\w+)>\s?\??$/i;
     response = input.match(userPattern);
     if (response != null) {
       return response[1];
