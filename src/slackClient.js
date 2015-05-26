@@ -34,6 +34,8 @@ SlackClient = (function(_super) {
     this.autoMark = true;
     this.users = [];
     this.channels = [];
+    this.disabledUsers = ['***REMOVED***', '***REMOVED***', 'USLACKBOT'];
+    this.disabledChannels = [];
     if (mongo != null) {
       this.mongo = mongo;
     }
@@ -67,9 +69,11 @@ SlackClient = (function(_super) {
 
   SlackClient.prototype.getUsers = function() {
     var users;
-    users = this.users.filter(function(user) {
-      return user.id !== 'USLACKBOT';
-    });
+    users = this.users.filter((function(_this) {
+      return function(user) {
+        return _this.disabledUsers.indexOf(user.id) === -1;
+      };
+    })(this));
     return users;
   };
 

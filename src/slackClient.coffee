@@ -16,6 +16,8 @@ class SlackClient extends EventEmitter
 		@autoMark = true
 		@users = []
 		@channels = []
+		@disabledUsers = ['***REMOVED***', '***REMOVED***', 'USLACKBOT']
+		@disabledChannels = []
 		if mongo? then @mongo = mongo
 
 	connect: () ->
@@ -36,9 +38,9 @@ class SlackClient extends EventEmitter
 			@slack.login()
 
 	getUsers: () ->
-		# remove slackbot
-		users = @users.filter (user) ->
-			return user.id != 'USLACKBOT'
+		# remove slackbot and disabled users
+		users = @users.filter (user) =>
+			return @disabledUsers.indexOf(user.id) is -1
 		return users
 
 	getUserIds: () ->

@@ -47,6 +47,11 @@ describe 'SlackClient', ->
       users = slackClient.getUserIds()
       users[0].should.match(/^U\w+$/)
 
+    it 'should not contain IDs of disabled users', ->
+      users = slackClient.getUserIds()
+      users.indexOf('***REMOVED***').should.be.equal(-1)
+      users.indexOf('***REMOVED***').should.be.equal(-1)
+
     it 'should return the user presence', ->
       isPresent = slackClient.isUserPresent('U025P99EH')
       isPresent.should.match(/^active|away$/)

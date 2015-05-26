@@ -1,36 +1,33 @@
-# Node.js Slack Client Library
-
-## Travis-CI Build Status
-
-[![Build Status](https://travis-ci.org/slackhq/node-slack-client.png?branch=master)](https://travis-ci.org/slackhq/node-slack-client)
+# Oscar - the Slack satisfaction coach
 
 ## Description
 
-This is a Slack client library for Node.js. It is intended to expose all of the functionality of [Slack's Real Time Messaging API](https://api.slack.com/rtm) while providing some common abstractions and generally making your life easier, if you want it to.
+Oscar is a Slackbot that tracks satisfaction of your team members. Every day it asks people for their current mood. This metric is stored in a database and tracked over time, allowing the team to understand which members are struggling or doing extremely well.
 
-This code has been built to support our [hubot-slack](https://github.com/slackhq/hubot-slack) adapter. Most other functionality isn't yet supported, and documentation is minimal, at best. A simple example of how to use this module from Node.js can be found in the `examples` directory.
+Everyone can ask Oscar for another team member's status, or a list of all team member's current status, and what they struggle with.
 
-## Contribute
+It is not meant to be a way of comparing people but to surface issues, unblock each other and eliminate isolation (especially in remote teams).
 
-Here's the most direct way to get your work merged into the project.
+## How to
 
-1. Fork the project
-2. Clone down your fork
-3. Create a feature branch
-4. Hack away and add tests, not necessarily in that order
-5. Make sure everything still passes by running tests
-6. If necessary, rebase your commits into logical chunks without errors
-7. Add yourself to package.json as a contributor
-8. Push the branch up to your fork
-9. Send a pull request for your branch
+Oscar automatically asks people within an interval of 24 hours how they are doing. People can reply to question message with a number between 0-9. If the feedback is less than 5 Oscar will ask if the person is having any issues, and saves the reply to the database.
 
-## Copyright
+Team members can use the following commands:
+- `How is @member?` - Tells you how a specific team member is doing
+- `How is @channel?` - Returns the current status for the whole group
 
-Copyright &copy; Slack Technologies, Inc. MIT License; see LICENSE for further details.
+In order to disable specific channels or users, go to `src/slackClient.coffee` and add them to the variables `@disabledUsers` and `@disabledChannels`
 
-## TODOs
+## Tech stack
 
-1. Better/any timeouts on initial websocket connection
-2. Better/any timeouts on API calls
-3. Document the connection options, etc
-4. Emit more events around unreads and mentions
+- Oscar is build on node.js with express.js.
+- Such as the node slack client (and because of it), it is written in CoffeeScript.
+- It uses a MongoDB database to store team member feedback
+- It runs on Heroku (https://polar-temple-7947.herokuapp.com/)
+
+## Installation
+
+- To install all necessary dependencies, use `npm install`
+- In `src/mongoClient.coffee`, replace the url in the constructor with the URL of your mongoDB (to create a mongoDB on Heroku, go to https://elements.heroku.com/addons/mongolab)
+- In `src/slackClient.coffee`, replace the @token variable in the constructur with the one of your Slackbot (to create a slack bot go to https://yourteam.slack.com/services/new/bot)
+- Run `grunt watch` to make changes to the code, as it will compile stuff from CoffeeScript to JS.
