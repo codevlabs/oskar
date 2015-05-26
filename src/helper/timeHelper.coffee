@@ -9,8 +9,8 @@ class TimeHelper
     else
       return false
 
-  @isWeekend: (timestamp) ->
-    date = new Date(timestamp)
+  @isWeekend: (timestamp, diff) ->
+    date = @getLocalDate timestamp, diff
     return date.getDay() is (6 or 7)
 
   @getUTCDate: ->

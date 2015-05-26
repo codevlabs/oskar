@@ -14,9 +14,9 @@ TimeHelper = (function() {
     }
   };
 
-  TimeHelper.isWeekend = function(timestamp) {
+  TimeHelper.isWeekend = function(timestamp, diff) {
     var date;
-    date = new Date(timestamp);
+    date = this.getLocalDate(timestamp, diff);
     return date.getDay() === (6 || 7);
   };
 

@@ -26,12 +26,27 @@ describe 'TimeHelper', ->
 
   it 'should return true when date is a day of the weekend', ->
     timestamp = Date.parse('Sat, 02 May 2015 15:00:00 GMT');
-    isWeekend = timeHelper.isWeekend(timestamp)
+    isWeekend = timeHelper.isWeekend(timestamp, 0)
     isWeekend.should.be.equal(true)
 
   it 'should return false when date is not a day of the weekend', ->
     timestamp = Date.parse('Fri, 01 May 2015 15:00:00 GMT');
     isWeekend = timeHelper.isWeekend(timestamp)
+    isWeekend.should.be.equal(false)
+
+  it 'should return true when date is already a day of the weekend in a specific timezone', ->
+    timestamp = Date.parse('Fri, 22 May 2015 20:00:00 GMT')
+    isWeekend = timeHelper.isWeekend(timestamp, 8)
+    isWeekend.should.be.equal(true)
+
+  it 'should return false when date is not anymore a day of the weekend in a specific timezone', ->
+    timestamp = Date.parse('Sun, 24 May 2015 20:00:00 GMT')
+    isWeekend = timeHelper.isWeekend(timestamp, 8)
+    isWeekend.should.be.equal(false)
+
+  it 'should return false when date is not yet a day of the weekend in a specific timezone', ->
+    timestamp = Date.parse('Sat, 23 May 2015 02:00:00 GMT')
+    isWeekend = timeHelper.isWeekend(timestamp, -8)
     isWeekend.should.be.equal(false)
 
   it 'should return the current local time for a UTC date plus timezone difference', ->
