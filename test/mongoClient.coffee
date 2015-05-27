@@ -163,5 +163,6 @@ describe 'MongoClient', ->
           res[1].feedback.should.have.property('status')
           res[1].feedback.should.have.property('timestamp')
           res[1].feedback.should.have.property('message')
+          res[1].feedback.status.should.be.equal(5)
           done()
 

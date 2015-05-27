@@ -209,6 +209,9 @@ MongoClient = (function() {
           }
           users = docs.map(function(elem) {
             var feedback, res;
+            elem.feedback.sort(function(a, b) {
+              return a.timestamp > b.timestamp;
+            });
             feedback = elem.feedback.pop();
             return res = {
               id: elem.id,
@@ -228,7 +231,6 @@ MongoClient = (function() {
         return _this.collection.find({
           id: userId
         }).toArray(function(err, docs) {
-          var obj, timestamp, _i, _len, _ref;
           if (err === !null) {
             return reject();
           }
@@ -238,15 +240,10 @@ MongoClient = (function() {
           if (!docs[0].hasOwnProperty(property)) {
             return resolve(null);
           }
-          timestamp = 0;
-          _ref = docs[0][property];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            obj = _ref[_i];
-            if (obj.timestamp > timestamp) {
-              timestamp = obj.timestamp;
-            }
-          }
-          return resolve(timestamp);
+          docs[0][property].sort(function(a, b) {
+            return a.timestamp > b.timestamp;
+          });
+          return resolve(docs[0][property].pop().timestamp);
         });
       };
     })(this));

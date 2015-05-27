@@ -154,7 +154,9 @@ class MongoClient
 
 				users = docs.map (elem) ->
 
-					# get latest feedback
+					elem.feedback.sort (a, b) ->
+						a.timestamp > b.timestamp
+
 					feedback = elem.feedback.pop()
 
 					res =
@@ -179,11 +181,9 @@ class MongoClient
 				if !docs[0].hasOwnProperty property
 					return resolve(null)
 
-				timestamp = 0
+				docs[0][property].sort (a, b) ->
+					a.timestamp > b.timestamp
 
-				for obj in docs[0][property]
-					timestamp = obj.timestamp if obj.timestamp > timestamp
-
-				resolve(timestamp)
+				resolve docs[0][property].pop().timestamp
 
 module.exports = MongoClient
