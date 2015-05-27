@@ -1,12 +1,15 @@
 express = require 'express'
-MongoClient = require './src/mongoClient'
-SlackClient = require './src/slackClient'
-TimeHelper = require './src/helper/timeHelper'
+MongoClient = require './mongoClient'
+SlackClient = require './slackClient'
+TimeHelper = require './helper/timeHelper'
 
 class Oscar
 
   constructor: () ->
     @app = express()
+    @app.set 'view engine', 'ejs'
+    @app.set 'views', 'src/views/'
+    @app.use '/public', express.static(__dirname + '/public')
     @mongo = new MongoClient()
     @mongo.connect()
     @slack = new SlackClient(@mongo)
@@ -29,8 +32,17 @@ class Oscar
 
   setupRoutes: () ->
     @app.set 'port', process.env.PORT || 5000
-    @app.get '/', (req, res) ->
-      res.send 'i am awake'
+
+    @app.get '/', (req, res) =>
+      users = @slack.getUsers()
+      userIds = users.map (user) ->
+        return user.id
+      @mongo.getAllUserFeedback(userIds).then (statuses) =>
+        filteredStatuses = []
+        statuses.forEach (status) ->
+          filteredStatuses[status.id] = status.feedback
+        res.render('pages/index', { users: users, statuses: filteredStatuses })
+
     @app.listen @app.get('port'), ->
       console.log "Node app is running on port 5000"
 

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <% include ../partials/head %>
+  </head>
+  <body class="container-fluid">
+
+    <main>
+        <div class="jumbotron">
+            <h1>Hi, I'm Oscar</h1>
+            <p>Your slack satisfaction coach</p>
+        </div>
+
+        <div class="row">
+
+          <div class="col-md-12">
+
+            <h1>Here's how your team is currently doing</h1>
+
+            <ul class="list-group">
+            <% users.forEach(function(user) { %>
+              <li class="list-group-item">
+                <img src="<%= user.profile.image_48 %>" class="img-circle" />
+                <span class="name"><%= user.profile.first_name %></span>
+                <span class="badge">
+                  <% if(statuses[user.id] && statuses[user.id].status) {%>
+                    <%= statuses[user.id].status %>
+                  <% } else { %>
+                    ?
+                  <% } %>
+                </span>
+              </li>
+            <% }); %>
+            </ul>
+
+          </div>
+
+        </div>
+
+    </main>
+
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+
+  </body>
+</html>

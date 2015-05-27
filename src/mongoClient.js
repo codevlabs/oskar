@@ -209,10 +209,13 @@ MongoClient = (function() {
           }
           users = docs.map(function(elem) {
             var feedback, res;
-            elem.feedback.sort(function(a, b) {
-              return a.timestamp > b.timestamp;
-            });
-            feedback = elem.feedback.pop();
+            feedback = null;
+            if (elem.feedback) {
+              elem.feedback.sort(function(a, b) {
+                return a.timestamp > b.timestamp;
+              });
+              feedback = elem.feedback.pop();
+            }
             return res = {
               id: elem.id,
               feedback: feedback

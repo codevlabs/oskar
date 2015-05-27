@@ -25,7 +25,7 @@ module.exports = (grunt) ->
         bare: true
       index:
         files:
-          'oscar.js': 'oscar.coffee'
+          'src/oscar.js': 'src/oscar.coffee'
       classes:
         expand: true
         cwd: 'src'

@@ -154,10 +154,13 @@ class MongoClient
 
 				users = docs.map (elem) ->
 
-					elem.feedback.sort (a, b) ->
-						a.timestamp > b.timestamp
+					feedback = null
 
-					feedback = elem.feedback.pop()
+					if elem.feedback
+						elem.feedback.sort (a, b) ->
+							a.timestamp > b.timestamp
+
+						feedback = elem.feedback.pop()
 
 					res =
 						id: elem.id

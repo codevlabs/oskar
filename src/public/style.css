@@ -1,0 +1,18 @@
+.name {
+  display: inline-block;
+  margin-left: 1em;
+  font-size: 1.5em;
+  line-height: 1;
+  padding: 1em;
+}
+
+.badge {
+  margin-top: 11px;
+  padding: 1em;
+  border-radius: 50%;
+  font-size: 1em;
+}
+
+img {
+  margin-top: -6px;
+}

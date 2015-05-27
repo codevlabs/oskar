@@ -3,16 +3,19 @@ var MongoClient, Oscar, SlackClient, TimeHelper, express, oscar,
 
 express = require('express');
 
-MongoClient = require('./src/mongoClient');
+MongoClient = require('./mongoClient');
 
-SlackClient = require('./src/slackClient');
+SlackClient = require('./slackClient');
 
-TimeHelper = require('./src/helper/timeHelper');
+TimeHelper = require('./helper/timeHelper');
 
 Oscar = (function() {
   function Oscar() {
     this.presenceHandler = __bind(this.presenceHandler, this);
     this.app = express();
+    this.app.set('view engine', 'ejs');
+    this.app.set('views', 'src/views/');
+    this.app.use('/public', express["static"](__dirname + '/public'));
     this.mongo = new MongoClient();
     this.mongo.connect();
     this.slack = new SlackClient(this.mongo);
@@ -34,9 +37,26 @@ Oscar = (function() {
 
   Oscar.prototype.setupRoutes = function() {
     this.app.set('port', process.env.PORT || 5000);
-    this.app.get('/', function(req, res) {
-      return res.send('i am awake');
-    });
+    this.app.get('/', (function(_this) {
+      return function(req, res) {
+        var userIds, users;
+        users = _this.slack.getUsers();
+        userIds = users.map(function(user) {
+          return user.id;
+        });
+        return _this.mongo.getAllUserFeedback(userIds).then(function(statuses) {
+          var filteredStatuses;
+          filteredStatuses = [];
+          statuses.forEach(function(status) {
+            return filteredStatuses[status.id] = status.feedback;
+          });
+          return res.render('pages/index', {
+            users: users,
+            statuses: filteredStatuses
+          });
+        });
+      };
+    })(this));
     return this.app.listen(this.app.get('port'), function() {
       return console.log("Node app is running on port 5000");
     });
