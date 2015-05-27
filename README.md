@@ -31,3 +31,15 @@ In order to disable specific channels or users, go to `src/slackClient.coffee` a
 - In `src/mongoClient.coffee`, replace the url in the constructor with the URL of your mongoDB (to create a mongoDB on Heroku, go to https://elements.heroku.com/addons/mongolab)
 - In `src/slackClient.coffee`, replace the @token variable in the constructur with the one of your Slackbot (to create a slack bot go to https://yourteam.slack.com/services/new/bot)
 - Run `grunt watch` to make changes to the code, as it will compile stuff from CoffeeScript to JS.
+
+## Unit tests
+
+Oscar is being tested with [Mocha](http://mochajs.org/) and [should.js](https://github.com/tj/should.js/)
+
+Run the unit tests for all modules be running `npm test`.
+To run only a single unit test call the test file explicitly, such as `npm test test/inputHelper.coffee`
+
+For the mongo tests to pass, you'll have to run a mongo database under `mongodb://localhost:27017`. If you have mongo installed, just run `mongod` on the command line.
+See here for more instructions: http://docs.mongodb.org/manual/installation/
+
+You can modify the test parameters in `package.json` under `scripts.test`.

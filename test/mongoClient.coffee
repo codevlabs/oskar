@@ -40,7 +40,7 @@ users = [zsolt, arnas]
 describe 'MongoClient', ->
 
   before ->
-    mongoClient = new MongoClient()
+    mongoClient = new MongoClient('mongodb://localhost:27017')
     connect = mongoClient.connect()
 
   this.timeout(3000);

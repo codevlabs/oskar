@@ -6,8 +6,11 @@ class MongoClient
 	@db = null
 	@collection = null
 
-	constructor: () ->
-		@url = '***REMOVED***'
+	constructor: (url) ->
+		if url
+			@url = url
+		else
+			@url = '***REMOVED***'
 
 	connect: () ->
 

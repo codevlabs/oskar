@@ -9,8 +9,12 @@ MongoClient = (function() {
 
   MongoClient.collection = null;
 
-  function MongoClient() {
-    this.url = '***REMOVED***';
+  function MongoClient(url) {
+    if (url) {
+      this.url = url;
+    } else {
+      this.url = '***REMOVED***';
+    }
   }
 
   MongoClient.prototype.connect = function() {
