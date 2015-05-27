@@ -1,8 +1,8 @@
 {
-  "name": "slack-client",
-  "version": "1.4.0",
-  "description": "A library for creating a full Slack client",
-  "main": "./index",
+  "name": "oscar",
+  "version": "0.0.1",
+  "description": "A satisfaction coach bot for Slack",
+  "main": "./oscar",
   "scripts": {
     "test": "mocha --compilers coffee:coffee-script/register --reporter spec",
     "prepublish": "grunt prepublish"
@@ -10,7 +10,7 @@
   "keywords": [
     "slack"
   ],
-  "author": "Slack Technologies, Inc.",
+  "author": "Hanno",
   "licenses": [
     {
       "type": "MIT",
@@ -19,16 +19,17 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/slackhq/node-slack-client.git"
+    "url": "git://git@github.com:wearehanno/oscar.git"
   },
   "bugs": {
-    "url": "http://github.com/slackhq/node-slack-client/issues"
+    "url": "https://github.com/wearehanno/oscar/issues"
   },
   "dependencies": {
     "coffee-script": "~1.9.0",
     "express": "^4.12.3",
     "log": "1.4.0",
     "mongodb": "^2.0.28",
+    "node-schedule": "^0.2.7",
     "promise": "^7.0.1",
     "ws": "0.4.31"
   },
