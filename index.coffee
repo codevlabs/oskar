@@ -20,12 +20,8 @@ slack.on 'feedback', (data) ->
 slack.on 'feedbackMessage', (data) ->
   mongo.saveUserFeedbackMessage data.user, data.text
 
-slack.on 'presence', (data) ->
-
+presenceHandler = (data) ->
   user = slack.getUser(data.userId)
-
-  # if disabled user, return
-
 
   # if user doesn't exist, create new one
   mongo.saveUser(user).then (res) ->
@@ -55,12 +51,23 @@ slack.on 'presence', (data) ->
       if (res is null || timeHelper.hasTimestampExpired 20, res)
         slack.askUserForStatus data.userId
 
+slack.on 'presence', presenceHandler
+
 # Set port
 app.set 'port', process.env.PORT || 5000
 
 # Routing
 app.get '/', (req, res) ->
   res.send 'i am awake'
+
+app.get '/checkUsers', (req, res) ->
+  userIds = slack.getUserIds()
+  userIds.forEach (userId) ->
+    data =
+      userId: userId
+      status: 'triggered'
+    slack.emit 'presence', data
+  res.send userIds
 
 app.listen app.get('port'), ->
   console.log "Node app is running on port: #{app.get('port')}"

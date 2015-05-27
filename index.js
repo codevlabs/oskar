@@ -1,4 +1,4 @@
-var MongoClient, SlackClient, app, express, mongo, slack, timeHelper;
+var MongoClient, SlackClient, app, express, mongo, presenceHandler, slack, timeHelper;
 
 express = require('express');
 
@@ -26,7 +26,7 @@ slack.on('feedbackMessage', function(data) {
   return mongo.saveUserFeedbackMessage(data.user, data.text);
 });
 
-slack.on('presence', function(data) {
+presenceHandler = function(data) {
   var user;
   user = slack.getUser(data.userId);
   return mongo.saveUser(user).then(function(res) {
@@ -46,12 +46,28 @@ slack.on('presence', function(data) {
       }
     });
   });
-});
+};
+
+slack.on('presence', presenceHandler);
 
 app.set('port', process.env.PORT || 5000);
 
 app.get('/', function(req, res) {
   return res.send('i am awake');
+});
+
+app.get('/checkUsers', function(req, res) {
+  var userIds;
+  userIds = slack.getUserIds();
+  userIds.forEach(function(userId) {
+    var data;
+    data = {
+      userId: userId,
+      status: 'triggered'
+    };
+    return slack.emit('presence', data);
+  });
+  return res.send(userIds);
 });
 
 app.listen(app.get('port'), function() {
