@@ -23,7 +23,9 @@ Oscar = (function() {
     this.slack.connect();
     this.setupEvents();
     this.setupRoutes();
-    setInterval(this.checkForUserStatus, 3600 * 1000);
+    setInterval(function() {
+      return this.checkForUserStatus(this.slack);
+    }, 3600 * 1000);
   }
 
   Oscar.prototype.setupEvents = function() {
@@ -87,16 +89,16 @@ Oscar = (function() {
     })(this));
   };
 
-  Oscar.prototype.checkForUserStatus = function() {
+  Oscar.prototype.checkForUserStatus = function(slack) {
     var userIds;
-    userIds = this.slack.getUserIds();
+    userIds = slack.getUserIds();
     return userIds.forEach(function(userId) {
       var data;
       data = {
         userId: userId,
         status: 'triggered'
       };
-      return this.slack.emit('presence', data);
+      return slack.emit('presence', data);
     });
   };
 

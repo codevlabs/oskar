@@ -19,7 +19,9 @@ class Oscar
     @setupRoutes()
 
     # check for user's status every hour
-    setInterval @checkForUserStatus, 3600 * 1000
+    setInterval ->
+      @checkForUserStatus (@slack)
+    , 3600 * 1000
 
   setupEvents: () ->
     @slack.on 'feedback', (data) ->
@@ -78,12 +80,12 @@ class Oscar
         if (res is null || TimeHelper.hasTimestampExpired 20, res)
           @slack.askUserForStatus data.userId
 
-  checkForUserStatus: () =>
-    userIds = @slack.getUserIds()
+  checkForUserStatus: (slack) =>
+    userIds = slack.getUserIds()
     userIds.forEach (userId) ->
       data =
         userId: userId
         status: 'triggered'
-      @slack.emit 'presence', data
+      slack.emit 'presence', data
 
 oscar = new Oscar()
