@@ -72,12 +72,15 @@ class Oscar
         # userLocalDate = timeHelper.getLocalDate null, user.tz_offset / 3600
         # if !timeHelper.isDateInsideInterval 8, 12, userLocalDate
         #   return
+        #
+
+        console.log(TimeHelper.hasTimestampExpired 20, res)
 
         # if last activity (res) is null or timestamp has expired, ask for status
         if (res is null || TimeHelper.hasTimestampExpired 20, res)
           @slack.askUserForStatus data.userId
 
-  checkForUserStatus: () ->
+  checkForUserStatus: () =>
     userIds = @slack.getUserIds()
     userIds.forEach (userId) ->
       data =
