@@ -11,6 +11,7 @@ TimeHelper = require('./helper/timeHelper');
 
 Oscar = (function() {
   function Oscar() {
+    this.checkForUserStatus = __bind(this.checkForUserStatus, this);
     this.presenceHandler = __bind(this.presenceHandler, this);
     this.app = express();
     this.app.set('view engine', 'ejs');
@@ -65,23 +66,25 @@ Oscar = (function() {
   Oscar.prototype.presenceHandler = function(data) {
     var user;
     user = this.slack.getUser(data.userId);
-    return this.mongo.saveUser(user).then(function(res) {
-      return this.mongo.getLatestUserTimestampForProperty('feedback', data.userId).then(function(res) {
-        if (res === false) {
-          return;
-        }
-        this.mongo.saveUserStatus(data.userId, data.status);
-        if (data.status !== 'active') {
-          return;
-        }
-        if (TimeHelper.isWeekend()) {
-          return;
-        }
-        if (res === null || TimeHelper.hasTimestampExpired(20, res)) {
-          return this.slack.askUserForStatus(data.userId);
-        }
-      });
-    });
+    return this.mongo.saveUser(user).then((function(_this) {
+      return function(res) {
+        return _this.mongo.getLatestUserTimestampForProperty('feedback', data.userId).then(function(res) {
+          if (res === false) {
+            return;
+          }
+          _this.mongo.saveUserStatus(data.userId, data.status);
+          if (data.status !== 'active' && data.status !== 'triggered') {
+            return;
+          }
+          if (TimeHelper.isWeekend()) {
+            return;
+          }
+          if (res === null || TimeHelper.hasTimestampExpired(20, res)) {
+            return _this.slack.askUserForStatus(data.userId);
+          }
+        });
+      };
+    })(this));
   };
 
   Oscar.prototype.checkForUserStatus = function() {

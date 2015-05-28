@@ -50,9 +50,9 @@ class Oscar
     user = @slack.getUser(data.userId)
 
     # if user doesn't exist, create new one
-    @mongo.saveUser(user).then (res) ->
+    @mongo.saveUser(user).then (res) =>
 
-      @mongo.getLatestUserTimestampForProperty('feedback', data.userId).then (res) ->
+      @mongo.getLatestUserTimestampForProperty('feedback', data.userId).then (res) =>
 
         # if user doesnt exist, skip
         if res is false
@@ -60,8 +60,8 @@ class Oscar
 
         @mongo.saveUserStatus data.userId, data.status
 
-        # if user switched to anything but active, skip
-        if data.status != 'active'
+        # if user switched to anything but active or triggered, skip
+        if data.status != 'active' && data.status != 'triggered'
           return
 
         # if it's weekend, skip
@@ -73,8 +73,6 @@ class Oscar
         # if !timeHelper.isDateInsideInterval 8, 12, userLocalDate
         #   return
         #
-
-        console.log(TimeHelper.hasTimestampExpired 20, res)
 
         # if last activity (res) is null or timestamp has expired, ask for status
         if (res is null || TimeHelper.hasTimestampExpired 20, res)
