@@ -4,7 +4,7 @@
 should = require 'should'
 
 # Client = require '../src/client'
-MongoClient = require '../src/mongoClient'
+MongoClient = require '../src/modules/mongoClient'
 
 # Generate a new instance for each test.
 mongoClient = null

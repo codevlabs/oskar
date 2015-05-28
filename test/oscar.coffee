@@ -2,6 +2,8 @@
 # Setup the tests
 ###################################################################
 should = require 'should'
+sinon = require 'sinon'
+{EventEmitter} = require 'events'
 
 # Client = require '../src/client'
 oscar = require '../src/oscar'
@@ -12,8 +14,13 @@ oscar = require '../src/oscar'
 
 describe 'oscar', ->
 
-  before ->
-    oscar = new Oscar()
+  it 'should trigger presence events for each user', ->
+    spy = sinon.spy()
+    emitter = new EventEmitter;
+    emitter.on('presence', spy);
 
-  it 'should trigger presence events for each user', (done) ->
-    oscar.checkForUserStatus()
+    emitter.getUserIds = () ->
+      ['123', '456']
+
+    oscar.checkForUserStatus(emitter)
+    sinon.assert.calledOnce(spy);

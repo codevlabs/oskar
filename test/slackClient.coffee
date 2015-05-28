@@ -2,9 +2,10 @@
 # Setup the tests
 ###################################################################
 should = require 'should'
+sinon = require 'sinon'
 
 # Client = require '../src/client'
-SlackClient = require '../src/slackClient'
+SlackClient = require '../src/modules/slackClient'
 
 # Generate a new instance for each test.
 slackClient = null
@@ -52,23 +53,42 @@ describe 'SlackClient', ->
       users.indexOf('***REMOVED***').should.be.equal(-1)
       users.indexOf('***REMOVED***').should.be.equal(-1)
 
-    it 'should return the user presence', ->
-      isPresent = slackClient.isUserPresent('U025P99EH')
-      isPresent.should.match(/^active|away$/)
+    it 'should send a presence event when user changes presence', ->
 
-    it 'should return the user timezone', ->
-      userTimezone = slackClient.getUserTimezone('U025P99EH')
-      userTimezone.should.equal('Europe/Amsterdam')
+        data =
+          userId: '***REMOVED***'
 
-    it 'should return the user timezone offset', ->
-      userTimezone = slackClient.getUserTimezoneOffset('U025P99EH')
-      userTimezone.should.equal(7200)
+        spy = sinon.spy()
+        slackClient.on('presence', spy);
+        slackClient.onPresenceChangeHandler data, 'away'
 
-    it 'should send a presence event when user changes presence', (done) ->
-      slackClient.on 'presence', (event) =>
-        event.should.be.an.Object
-        done()
-      slackClient.setPresence 'away'
+        spy.called.should.be.equal(true);
 
-    it 'should set the user property allowComment to true', ->
-      slackClient.allowUserComment('U025P99EH')
+      describe 'onMessageHandler', ->
+
+        it 'should return false when called with no user', ->
+          message =
+            user: undefined
+
+          response = slackClient.onMessageHandler(message)
+          response.should.be.equal(false)
+
+        it 'should return false for a disabled channel', ->
+          message =
+            channel = '***REMOVED***'
+
+          response = slackClient.onMessageHandler(message)
+          response.should.be.equal(false)
+
+        it 'should trigger a sendMessage event when a user ID is passed', ->
+
+          message =
+            user: '***REMOVED***'
+            text: 'How is <@***REMOVED***>?'
+
+          spy = sinon.spy()
+          slackClient.on('sendMessage', spy)
+
+          slackClient.onMessageHandler(message)
+          spy.called.should.be.equal(true)
+          # userStatus

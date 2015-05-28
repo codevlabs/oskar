@@ -32,6 +32,12 @@ module.exports = (grunt) ->
         src: ['*.coffee']
         dest: 'src'
         ext: '.js'
+      modules:
+        expand: true
+        cwd: 'src/modules'
+        src: ['*.coffee']
+        dest: 'src/modules'
+        ext: '.js'
       helper:
         expand: true
         cwd: 'src/helper'
