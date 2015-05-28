@@ -39,4 +39,4 @@ module.exports = (grunt) ->
         dest: 'src/helper'
         ext: '.js'
 
-  grunt.registerTask 'prepublish', ['coffee']
+  grunt.registerTask 'default', ['coffee']
