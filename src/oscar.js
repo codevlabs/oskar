@@ -1,4 +1,4 @@
-var MongoClient, Oscar, SlackClient, TimeHelper, express, oscar,
+var InputHelper, MongoClient, Oscar, SlackClient, TimeHelper, express,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 express = require('express');
@@ -9,22 +9,24 @@ SlackClient = require('./modules/slackClient');
 
 TimeHelper = require('./helper/timeHelper');
 
+InputHelper = require('./helper/inputHelper');
+
 Oscar = (function() {
-  function Oscar() {
+  function Oscar(mongo, slack) {
     this.checkForUserStatus = __bind(this.checkForUserStatus, this);
     this.handleFeedbackMessage = __bind(this.handleFeedbackMessage, this);
     this.revealStatusForUser = __bind(this.revealStatusForUser, this);
     this.revealStatusForChannel = __bind(this.revealStatusForChannel, this);
     this.revealStatus = __bind(this.revealStatus, this);
-    this.inputHandler = __bind(this.inputHandler, this);
+    this.messageHandler = __bind(this.messageHandler, this);
     this.presenceHandler = __bind(this.presenceHandler, this);
     this.app = express();
     this.app.set('view engine', 'ejs');
     this.app.set('views', 'src/views/');
     this.app.use('/public', express["static"](__dirname + '/public'));
-    this.mongo = new MongoClient();
+    this.mongo = mongo || new MongoClient();
     this.mongo.connect();
-    this.slack = new SlackClient(this.mongo);
+    this.slack = slack || new SlackClient();
     this.slack.connect();
     this.setupEvents();
     this.setupRoutes();
@@ -66,71 +68,80 @@ Oscar = (function() {
   };
 
   Oscar.prototype.presenceHandler = function(data) {
-    var user;
-    user = this.slack.getUser(data.userId);
-    return this.mongo.saveUser(user).then((function(_this) {
+    return this.mongo.userExists(data.userId).then((function(_this) {
       return function(res) {
-        return _this.mongo.getLatestUserTimestampForProperty('feedback', data.userId).then(function(res) {
-          if (res === false) {
-            return;
-          }
-          _this.mongo.saveUserStatus(data.userId, data.status);
-          if (data.status !== 'active' && data.status !== 'triggered') {
-            return;
-          }
-          if (TimeHelper.isWeekend()) {
-            return;
-          }
-          if (res === null || TimeHelper.hasTimestampExpired(20, res)) {
-            return _this.slack.sendMessage(data.userId);
-          }
-        });
+        var user;
+        if (!res) {
+          user = _this.slack.getUser(data.userId);
+          _this.mongo.saveUser(user).then(function(res) {});
+        }
+        return _this.requestUserFeedback(data.userId, data.status);
       };
     })(this));
   };
 
-  Oscar.prototype.inputHandler = function(input) {
+  Oscar.prototype.messageHandler = function(message) {
     var userId;
-    if (userId = InputHelper.isAskingForUserStatus(input.text)) {
-      return this.revealStatus(userId, input);
+    if (userId = InputHelper.isAskingForUserStatus(message.text)) {
+      return this.revealStatus(userId, message);
     }
-    if (this.slack.isUserCommentAllowed(input.user)) {
-      return this.handleFeedbackMessage(input);
+    if (this.slack.isUserCommentAllowed(message.user)) {
+      return this.handleFeedbackMessage(message);
     }
-    return this.mongo.getLatestUserTimestampForProperty('feedback', input.user).then((function(_this) {
+    return this.mongo.getLatestUserTimestampForProperty('feedback', message.user).then((function(_this) {
       return function(timestamp) {
-        return _this.evaluateFeedback(input, timestamp);
+        return _this.evaluateFeedback(message, timestamp);
+      };
+    })(this));
+  };
+
+  Oscar.prototype.requestUserFeedback = function(userId, status) {
+    return this.mongo.getLatestUserTimestampForProperty('feedback', userId).then((function(_this) {
+      return function(res) {
+        if (res === false) {
+          return;
+        }
+        _this.mongo.saveUserStatus(userId, status);
+        if (status !== 'active' && status !== 'triggered') {
+          return;
+        }
+        if (TimeHelper.isWeekend()) {
+          return;
+        }
+        if (res === null || TimeHelper.hasTimestampExpired(20, res)) {
+          return _this.composeMessage(userId, 'requestFeedback');
+        }
       };
     })(this));
   };
 
   Oscar.prototype.evaluateFeedback = function(message, latestFeedbackTimestamp) {
-    if (res && !timeHelper.hasTimestampExpired(20, latestFeedbackTimestamp)) {
+    if (latestFeedbackTimestamp && !TimeHelper.hasTimestampExpired(20, latestFeedbackTimestamp)) {
       return this.composeMessage(message.user, 'alreadySubmitted');
     }
     if (!InputHelper.isValidStatus(message.text)) {
       return this.composeMessage(message.user, 'invalidInput');
     }
+    this.mongo.saveUserFeedback(message.user, message.text);
     if (parseInt(message.text) < 5) {
       this.slack.allowUserComment(message.user);
-      this.mongo.saveUserFeedback(message.user, message.text);
       return this.composeMessage(message.user, 'lowFeedback');
     }
     return this.composeMessage(message.user, 'feedbackReceived');
   };
 
-  Oscar.prototype.revealStatus = function(userId, input) {
-    if (user === 'channel') {
-      return this.revealStatusForChannel(input.user);
+  Oscar.prototype.revealStatus = function(userId, message) {
+    if (userId === 'channel') {
+      return this.revealStatusForChannel(message.user);
     } else {
-      return this.revealStatusForUser(input.user, userId);
+      return this.revealStatusForUser(message.user, userId);
     }
   };
 
   Oscar.prototype.revealStatusForChannel = function(userId) {
-    var users;
-    users = this.slack.getUserIds();
-    return this.mongo.getAllUserFeedback(users).then((function(_this) {
+    var userIds;
+    userIds = this.slack.getUserIds();
+    return this.mongo.getAllUserFeedback(userIds).then((function(_this) {
       return function(res) {
         return _this.composeMessage(userId, 'channelStatus', res);
       };
@@ -139,7 +150,7 @@ Oscar = (function() {
 
   Oscar.prototype.revealStatusForUser = function(userId, targetUserId) {
     var userObj;
-    userObj = this.slack.getUser(targetUser);
+    userObj = this.slack.getUser(targetUserId);
     return this.mongo.getLatestUserFeedback(targetUserId).then((function(_this) {
       return function(res) {
         res.user = userObj;
@@ -148,14 +159,17 @@ Oscar = (function() {
     })(this));
   };
 
-  Oscar.prototype.handleFeedbackMessage = function(input) {
-    this.slack.disallowUserComment(input.user);
-    this.mongo.saveUserFeedbackMessage(input.user, input.text);
-    return this.composeMessage(input.user, 'feedbackMessageReceived');
+  Oscar.prototype.handleFeedbackMessage = function(message) {
+    this.slack.disallowUserComment(message.user);
+    this.mongo.saveUserFeedbackMessage(message.user, message.text);
+    return this.composeMessage(message.user, 'feedbackMessageReceived');
   };
 
   Oscar.prototype.composeMessage = function(userId, messageType, obj) {
     var statusMsg;
+    if (message.type === 'requestFeedback') {
+      statusMsg = '';
+    }
     if (messageType === 'revealChannelStatus') {
       obj.forEach((function(_this) {
         return function(user) {
@@ -188,6 +202,9 @@ Oscar = (function() {
     if (messageType === 'lowFeedback') {
       statusMsg = 'Feel free to share with me what\'s wrong. I will treat it with confidence';
     }
+    if (messageType === 'feedbackReceived') {
+      statusMsg = '';
+    }
     if (messageType === 'feedbackMessageReceived') {
       return statusMsg = 'Thanks, my friend. I really appreciate your openness.';
     }
@@ -210,6 +227,4 @@ Oscar = (function() {
 
 })();
 
-oscar = new Oscar();
-
-module.exports = oscar;
+module.exports = Oscar;

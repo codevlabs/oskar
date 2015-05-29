@@ -2,17 +2,20 @@ express = require 'express'
 MongoClient = require './modules/mongoClient'
 SlackClient = require './modules/slackClient'
 TimeHelper = require './helper/timeHelper'
+InputHelper = require './helper/inputHelper'
 
 class Oscar
 
-  constructor: () ->
+  constructor: (mongo, slack) ->
     @app = express()
     @app.set 'view engine', 'ejs'
     @app.set 'views', 'src/views/'
     @app.use '/public', express.static(__dirname + '/public')
-    @mongo = new MongoClient()
+
+    @mongo = mongo || new MongoClient()
     @mongo.connect()
-    @slack = new SlackClient(@mongo)
+
+    @slack = slack || new SlackClient()
     @slack.connect()
 
     @setupEvents()
@@ -44,92 +47,102 @@ class Oscar
       console.log "Node app is running on port 5000"
 
   presenceHandler: (data) =>
-    user = @slack.getUser(data.userId)
 
-    # if user doesn't exist, create new one
-    @mongo.saveUser(user).then (res) =>
+    @mongo.userExists(data.userId).then (res) =>
+      if !res
+        user = @slack.getUser(data.userId)
+        @mongo.saveUser(user).then (res) =>
+          # @presenceHandler data
+      @requestUserFeedback data.userId, data.status
 
-      @mongo.getLatestUserTimestampForProperty('feedback', data.userId).then (res) =>
-
-        # if user doesnt exist, skip
-        if res is false
-          return
-
-        @mongo.saveUserStatus data.userId, data.status
-
-        # if user switched to anything but active or triggered, skip
-        if data.status != 'active' && data.status != 'triggered'
-          return
-
-        # if it's weekend, skip
-        if TimeHelper.isWeekend()
-          return
-
-        # if current time is not in interval, skip
-        # userLocalDate = timeHelper.getLocalDate null, user.tz_offset / 3600
-        # if !timeHelper.isDateInsideInterval 8, 12, userLocalDate
-        #   return
-        #
-
-        # if last activity (res) is null or timestamp has expired, ask for status
-        if (res is null || TimeHelper.hasTimestampExpired 20, res)
-          @slack.sendMessage data.userId
-
-  inputHandler: (input) =>
+  messageHandler: (message) =>
 
     # if user is asking for feedback of user with ID
-    if userId = InputHelper.isAskingForUserStatus(input.text)
-      return @revealStatus(userId, input)
+    if userId = InputHelper.isAskingForUserStatus(message.text)
+      return @revealStatus userId, message
 
     # if comment is allowed, save in DB
-    if @slack.isUserCommentAllowed input.user
-      return @handleFeedbackMessage input
+    if @slack.isUserCommentAllowed message.user
+      return @handleFeedbackMessage message
 
     # check last feedback timestamp and evaluate feedback
-    @mongo.getLatestUserTimestampForProperty('feedback', input.user).then (timestamp) =>
-      @evaluateFeedback(input, timestamp)
+    @mongo.getLatestUserTimestampForProperty('feedback', message.user).then (timestamp) =>
+      @evaluateFeedback message, timestamp
+
+  requestUserFeedback: (userId, status) ->
+
+    @mongo.getLatestUserTimestampForProperty('feedback', userId).then (res) =>
+
+      # if user doesnt exist, skip
+      if res is false
+        return
+
+      @mongo.saveUserStatus userId, status
+
+      # if user switched to anything but active or triggered, skip
+      if status != 'active' && status != 'triggered'
+        return
+
+      # if it's weekend, skip
+      if TimeHelper.isWeekend()
+        return
+
+      # if current time is not in interval, skip
+      # userLocalDate = timeHelper.getLocalDate null, user.tz_offset / 3600
+      # if !timeHelper.isDateInsideInterval 8, 12, userLocalDate
+      #   return
+      #
+
+      # if last activity (res) is null or timestamp has expired, ask for status
+      if (res is null || TimeHelper.hasTimestampExpired 20, res)
+        @composeMessage userId, 'requestFeedback'
 
   evaluateFeedback: (message, latestFeedbackTimestamp) ->
 
     # if user has already submitted feedback in the last x hours, reject
-    if res && !timeHelper.hasTimestampExpired(20, latestFeedbackTimestamp)
+    if (latestFeedbackTimestamp && !TimeHelper.hasTimestampExpired 20, latestFeedbackTimestamp)
       return @composeMessage message.user, 'alreadySubmitted'
 
     # if user didn't send valid feedback
     if !InputHelper.isValidStatus message.text
       return @composeMessage message.user, 'invalidInput'
 
+    @mongo.saveUserFeedback message.user, message.text
+
     # if feedback is lower than 5, ask user for additional feedback
     if (parseInt(message.text) < 5)
       @slack.allowUserComment message.user
-      @mongo.saveUserFeedback message.user, message.text
       return @composeMessage message.user, 'lowFeedback'
 
     @composeMessage message.user, 'feedbackReceived'
 
-  revealStatus: (userId, input) =>
-    if user is 'channel'
-      @revealStatusForChannel(input.user)
+  revealStatus: (userId, message) =>
+    if userId is 'channel'
+      @revealStatusForChannel(message.user)
     else
-      @revealStatusForUser(input.user, userId)
+      @revealStatusForUser(message.user, userId)
 
   revealStatusForChannel: (userId) =>
-    users = @slack.getUserIds()
-    @mongo.getAllUserFeedback(users).then (res) =>
+    userIds = @slack.getUserIds()
+    @mongo.getAllUserFeedback(userIds).then (res) =>
       @composeMessage userId, 'channelStatus', res
 
   revealStatusForUser: (userId, targetUserId) =>
-    userObj = @slack.getUser targetUser
+    userObj = @slack.getUser targetUserId
     @mongo.getLatestUserFeedback(targetUserId).then (res) =>
       res.user = userObj
       @composeMessage userId, 'userStatus', res
 
-  handleFeedbackMessage: (input) =>
-    @slack.disallowUserComment input.user
-    @mongo.saveUserFeedbackMessage input.user, input.text
-    @composeMessage input.user, 'feedbackMessageReceived'
+  handleFeedbackMessage: (message) =>
+    @slack.disallowUserComment message.user
+    @mongo.saveUserFeedbackMessage message.user, message.text
+    @composeMessage message.user, 'feedbackMessageReceived'
 
   composeMessage: (userId, messageType, obj) ->
+
+    # request feedback
+    if message.type is 'requestFeedback'
+      statusMsg = ''
 
     # channel info
     if messageType is 'revealChannelStatus'
@@ -158,6 +171,9 @@ class Oscar
     if messageType is 'lowFeedback'
       statusMsg = 'Feel free to share with me what\'s wrong. I will treat it with confidence'
 
+    if messageType is 'feedbackReceived'
+      statusMsg = ''
+
     if messageType is 'feedbackMessageReceived'
       statusMsg = 'Thanks, my friend. I really appreciate your openness.'
 
@@ -169,6 +185,4 @@ class Oscar
         status: 'triggered'
       slack.emit 'presence', data
 
-oscar = new Oscar()
-
-module.exports = oscar
+module.exports = Oscar

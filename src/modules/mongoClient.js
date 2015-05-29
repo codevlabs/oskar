@@ -41,6 +41,7 @@ MongoClient = (function() {
         return _this.collection.find({
           id: userId
         }).toArray(function(err, docs) {
+          console.log(err);
           return resolve(docs.length > 0);
         });
       };

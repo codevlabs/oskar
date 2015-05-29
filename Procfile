@@ -1,1 +1,1 @@
-web: node src/oscar.js
+web: node src/index.js

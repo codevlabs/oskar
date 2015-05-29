@@ -41,54 +41,105 @@ describe 'SlackClient', ->
       connect.then ->
         users = slackClient.getUsers()
 
-    it 'should return a list of users', ->
-      users.length.should.be.greaterThan(0)
+    describe 'methods', ->
 
-    it 'should get the IDs of all users', ->
-      users = slackClient.getUserIds()
-      users[0].should.match(/^U\w+$/)
+      it 'should return a list of users', ->
+        users.length.should.be.greaterThan(0)
 
-    it 'should not contain IDs of disabled users', ->
-      users = slackClient.getUserIds()
-      users.indexOf('***REMOVED***').should.be.equal(-1)
-      users.indexOf('***REMOVED***').should.be.equal(-1)
+      it 'should get the IDs of all users', ->
+        users = slackClient.getUserIds()
+        users[0].should.match(/^U\w+$/)
 
-    it 'should send a presence event when user changes presence', ->
+      it 'should not contain IDs of disabled users', ->
+        users = slackClient.getUserIds()
+        users.indexOf('***REMOVED***').should.be.equal(-1)
+        users.indexOf('***REMOVED***').should.be.equal(-1)
+
+      it 'should get a user', ->
+        user = slackClient.getUser('U025P99EH')
+        user.name.should.be.equal('zsolt')
+        user.profile.first_name.should.be.equal('Zsolt')
+        user.profile.last_name.should.be.equal('Kocsmarszky')
+
+      it 'should allow a user comment for a user', ->
+        userId = 'U025P99EH'
+        slackClient.allowUserComment(userId)
+        user = slackClient.getUser(userId)
+        user.allowComment.should.be.equal(true)
+
+      it 'should allow a user comment for a user', ->
+        userId = 'U025P99EH'
+        slackClient.disallowUserComment(userId)
+        user = slackClient.getUser(userId)
+        user.allowComment.should.be.equal(false)
+
+      it 'should return false if user comment is not yet allowed', ->
+        userId = 'U025P99EH'
+        allowed = slackClient.isUserCommentAllowed(userId)
+        allowed.should.be.equal(false)
+
+      it 'should return true if user comment is allowed after setting it', ->
+        userId = 'U025P99EH'
+        slackClient.allowUserComment(userId)
+        allowed = slackClient.isUserCommentAllowed(userId)
+        allowed.should.be.equal(true)
+
+    describe 'handlers', ->
+
+      it 'should send a presence event when user changes presence', ->
 
         data =
-          userId: '***REMOVED***'
+          id: '***REMOVED***'
 
         spy = sinon.spy()
         slackClient.on('presence', spy);
-        slackClient.onPresenceChangeHandler data, 'away'
+        slackClient.presenceChangeHandler data, 'away'
 
         spy.called.should.be.equal(true);
+        spy.args[0][0].userId.should.be.equal('***REMOVED***')
+        spy.args[0][0].status.should.be.equal('away')
 
-      describe 'onMessageHandler', ->
+      it 'should return false when called with no user', ->
+        message =
+          user: undefined
 
-        it 'should return false when called with no user', ->
-          message =
-            user: undefined
+        response = slackClient.messageHandler(message)
+        response.should.be.equal(false)
 
-          response = slackClient.onMessageHandler(message)
-          response.should.be.equal(false)
+      it 'should return false for a disabled channel', ->
+        message =
+          channel = '***REMOVED***'
 
-        it 'should return false for a disabled channel', ->
-          message =
-            channel = '***REMOVED***'
+        response = slackClient.messageHandler(message)
+        response.should.be.equal(false)
 
-          response = slackClient.onMessageHandler(message)
-          response.should.be.equal(false)
+      it 'should return if user is slackbot', ->
 
-        it 'should trigger a sendMessage event when a user ID is passed', ->
+        message =
+          userId: 'USLACKBOT'
 
-          message =
-            user: '***REMOVED***'
-            text: 'How is <@***REMOVED***>?'
+        response = slackClient.messageHandler(message)
+        response.should.be.equal(false)
 
-          spy = sinon.spy()
-          slackClient.on('sendMessage', spy)
+      it 'should return false when channel is disabled', ->
 
-          slackClient.onMessageHandler(message)
-          spy.called.should.be.equal(true)
-          # userStatus
+        message =
+          channel = '***REMOVED***'
+
+        response = slackClient.messageHandler(message)
+        response.should.be.equal(false)
+
+      it 'should trigger a message event when a user and valid text is passed', ->
+
+        message =
+          userId: '***REMOVED***'
+          text: 'How is <@***REMOVED***>?'
+
+        spy = sinon.spy()
+        slackClient.on('message', spy)
+
+        slackClient.messageHandler(message)
+        spy.called.should.be.equal(true)
+        spy.args[0][0].type.should.be.equal('input')
+        spy.args[0][0].userId.should.be.equal('***REMOVED***')
+        spy.args[0][0].text.should.be.equal('How is <@***REMOVED***>?')
