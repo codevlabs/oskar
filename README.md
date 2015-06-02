@@ -1,3 +1,5 @@
+https://magnum.travis-ci.com/wearehanno/oskar.svg?token=LdpAvGamR6pf17d1ehyb&branch=master
+
 # Oskar - the Slack satisfaction coach
 
 ## Description
