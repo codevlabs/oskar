@@ -21,7 +21,6 @@ describe 'oscar', ->
   slack = new SlackClient()
 
   # slack stubs, because these methods are unit tested elsewhere
-  sendMessageStub = sinon.stub slack, 'sendMessage'
   getUserStub = sinon.stub slack, 'getUser'
   getUserIdsStub = sinon.stub slack, 'getUserIds'
   isUserCommentAllowedStub = sinon.stub slack, 'isUserCommentAllowed'
@@ -120,9 +119,13 @@ describe 'oscar', ->
       targetUserObj =
         id: 'USER2',
         name: 'matt'
+        user:
+          profile:
+            first_name: 'User 2'
 
       res =
-        feedback: 'good'
+        status: 8
+        message: 'feeling great'
 
       getUserStub.returns(targetUserObj)
       getLatestUserFeedbackStub.returns(whenLib res)
@@ -130,8 +133,9 @@ describe 'oscar', ->
       oscar.messageHandler message
       setTimeout ->
         composeMessageStub.args[0][0].should.be.equal('user1')
-        composeMessageStub.args[0][1].should.be.equal('userStatus')
-        composeMessageStub.args[0][2].feedback.should.be.equal(res.feedback)
+        composeMessageStub.args[0][1].should.be.equal('revealUserStatus')
+        composeMessageStub.args[0][2].status.should.be.equal(res.status)
+        composeMessageStub.args[0][2].message.should.be.equal(res.message)
         composeMessageStub.args[0][2].user.should.be.equal(targetUserObj)
         done()
       , 100
@@ -145,10 +149,14 @@ describe 'oscar', ->
       res =
         0:
           id: 'user2'
-          feedback: 'good'
+          feedback:
+            status: 4
+            message: 'bad mood'
         1:
           id: 'user3'
-          feedback: 'bad'
+          feedback:
+            status: 2
+            message: 'physically down'
 
       targetUserIds = [2, 3]
 
@@ -157,7 +165,7 @@ describe 'oscar', ->
 
       oscar.messageHandler message
       setTimeout ->
-        composeMessageStub.args[0][1].should.be.equal('channelStatus')
+        composeMessageStub.args[0][1].should.be.equal('revealChannelStatus')
         composeMessageStub.args[0][2].should.be.equal(res)
         done()
       , 100
@@ -248,3 +256,19 @@ describe 'oscar', ->
         disallowUserCommentStub.called.should.be.equal true
         done()
       , 100
+
+    it 'should trigger a presence event for each user', ->
+
+      spy = sinon.spy()
+
+      slack.on 'presence', spy
+      getUserIdsStub.returns ['testuser1', 'testuser2']
+
+      oscar.checkForUserStatus(slack)
+
+      spy.callCount.should.be.equal 2
+      spy.firstCall.args[0].userId.should.be.equal 'testuser1'
+      spy.firstCall.args[0].status.should.be.equal 'triggered'
+      spy.secondCall.args[0].userId.should.be.equal 'testuser2'
+      spy.secondCall.args[0].status.should.be.equal 'triggered'
+

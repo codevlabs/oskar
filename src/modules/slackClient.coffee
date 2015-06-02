@@ -74,7 +74,7 @@ class SlackClient extends EventEmitter
 	messageHandler: (message) =>
 
 		# if user is bot, return
-		if ((@getUser message.user) is undefined)
+		if ((@getUser message.userId) is undefined)
 			return false
 
 		# disable messages from watercooler
@@ -84,7 +84,7 @@ class SlackClient extends EventEmitter
 		message.type = 'input'
 		@emit 'message', message
 
-	sendMessage: (userId, message) ->
+	postMessage: (userId, message) ->
 
 		if (userId in @channels)
 			return @slack.postMessage @channels[userId].channel.id, message, () ->

@@ -99,21 +99,21 @@ describe 'SlackClient', ->
         spy.args[0][0].userId.should.be.equal('***REMOVED***')
         spy.args[0][0].status.should.be.equal('away')
 
-      it 'should return false when called with no user', ->
+      it 'should return false when message handler is called with no user', ->
         message =
           user: undefined
 
         response = slackClient.messageHandler(message)
         response.should.be.equal(false)
 
-      it 'should return false for a disabled channel', ->
+      it 'should return false when message handler is called for a disabled channel', ->
         message =
           channel = '***REMOVED***'
 
         response = slackClient.messageHandler(message)
         response.should.be.equal(false)
 
-      it 'should return if user is slackbot', ->
+      it 'should return false when message handler if user is slackbot', ->
 
         message =
           userId: 'USLACKBOT'
@@ -121,7 +121,7 @@ describe 'SlackClient', ->
         response = slackClient.messageHandler(message)
         response.should.be.equal(false)
 
-      it 'should return false when channel is disabled', ->
+      it 'should return false when message handler is called with a disabled channel', ->
 
         message =
           channel = '***REMOVED***'
@@ -129,17 +129,17 @@ describe 'SlackClient', ->
         response = slackClient.messageHandler(message)
         response.should.be.equal(false)
 
-      it 'should trigger a message event when a user and valid text is passed', ->
+      it 'should trigger a message event when message handler is called with a user and valid text is passed', ->
 
         message =
           userId: '***REMOVED***'
           text: 'How is <@***REMOVED***>?'
 
         spy = sinon.spy()
-        slackClient.on('message', spy)
+        slackClient.on 'message', spy
 
-        slackClient.messageHandler(message)
-        spy.called.should.be.equal(true)
-        spy.args[0][0].type.should.be.equal('input')
-        spy.args[0][0].userId.should.be.equal('***REMOVED***')
-        spy.args[0][0].text.should.be.equal('How is <@***REMOVED***>?')
+        slackClient.messageHandler message
+        spy.called.should.be.equal true
+        spy.args[0][0].type.should.be.equal 'input'
+        spy.args[0][0].userId.should.be.equal '***REMOVED***'
+        spy.args[0][0].text.should.be.equal 'How is <@***REMOVED***>?'

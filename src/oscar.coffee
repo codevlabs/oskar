@@ -57,6 +57,8 @@ class Oscar
 
   messageHandler: (message) =>
 
+    console.log message
+
     # if user is asking for feedback of user with ID
     if userId = InputHelper.isAskingForUserStatus(message.text)
       return @revealStatus userId, message
@@ -125,13 +127,14 @@ class Oscar
   revealStatusForChannel: (userId) =>
     userIds = @slack.getUserIds()
     @mongo.getAllUserFeedback(userIds).then (res) =>
-      @composeMessage userId, 'channelStatus', res
+      @composeMessage userId, 'revealChannelStatus', res
 
   revealStatusForUser: (userId, targetUserId) =>
     userObj = @slack.getUser targetUserId
     @mongo.getLatestUserFeedback(targetUserId).then (res) =>
-      res.user = userObj
-      @composeMessage userId, 'userStatus', res
+      if (res)
+        res.user = userObj
+      @composeMessage userId, 'revealUserStatus', res
 
   handleFeedbackMessage: (message) =>
     @slack.disallowUserComment message.user
@@ -141,13 +144,13 @@ class Oscar
   composeMessage: (userId, messageType, obj) ->
 
     # request feedback
-    if message.type is 'requestFeedback'
+    if messageType is 'requestFeedback'
       statusMsg = ''
 
     # channel info
     if messageType is 'revealChannelStatus'
       obj.forEach (user) =>
-        userObj = @getUser userId
+        userObj = @getUser user.id
         statusMsg += "#{userObj.profile.first_name} is feeling *#{user.feedback.status}*"
         if user.feedback.message
           statusMsg += " (#{user.feedback.message})"
@@ -155,27 +158,34 @@ class Oscar
 
     # user info
     if messageType is 'revealUserStatus'
-      if !res
-        statusMsg = "Oh, it looks like I haven\'t heard from #{userObj.profile.first_name} for a while. Sorry!"
-        return
-      statusMsg = "#{userObj.profile.first_name} is feeling *#{obj.status}* on a scale from 0 to 9."
-      if res.message
-        statusMsg += "\r\nThe last time I asked him what\'s up he replied: #{obj.message}"
+      if !obj
+        statusMsg = "Oh, it looks like I haven\'t heard from #{obj.user.profile.first_name} for a while. Sorry!"
+      else
+        statusMsg = "#{obj.user.profile.first_name} is feeling *#{obj.status}* on a scale from 0 to 9."
+        if res.message
+          statusMsg += "\r\nThe last time I asked him what\'s up he replied: #{obj.message}"
 
+    # already submitted
     if messageType is 'alreadySubmitted'
       statusMsg = 'Oops, looks like I\'ve already received some feedback from you in the last 20 hours.'
 
+    # invalid input
     if messageType is 'invalidInput'
       statusMsg = 'Oh it looks like you want to tell me how you feel, but unfortunately I only understand numbers between 0 and 9'
 
+    # low feedback
     if messageType is 'lowFeedback'
       statusMsg = 'Feel free to share with me what\'s wrong. I will treat it with confidence'
 
+    # feedback already received
     if messageType is 'feedbackReceived'
       statusMsg = ''
 
+    # feedback received
     if messageType is 'feedbackMessageReceived'
       statusMsg = 'Thanks, my friend. I really appreciate your openness.'
+
+    @slack.postMessage(userId, statusMsg)
 
   checkForUserStatus: (slack) =>
     userIds = slack.getUserIds()

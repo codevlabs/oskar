@@ -82,6 +82,7 @@ Oscar = (function() {
 
   Oscar.prototype.messageHandler = function(message) {
     var userId;
+    console.log(message);
     if (userId = InputHelper.isAskingForUserStatus(message.text)) {
       return this.revealStatus(userId, message);
     }
@@ -143,7 +144,7 @@ Oscar = (function() {
     userIds = this.slack.getUserIds();
     return this.mongo.getAllUserFeedback(userIds).then((function(_this) {
       return function(res) {
-        return _this.composeMessage(userId, 'channelStatus', res);
+        return _this.composeMessage(userId, 'revealChannelStatus', res);
       };
     })(this));
   };
@@ -153,8 +154,10 @@ Oscar = (function() {
     userObj = this.slack.getUser(targetUserId);
     return this.mongo.getLatestUserFeedback(targetUserId).then((function(_this) {
       return function(res) {
-        res.user = userObj;
-        return _this.composeMessage(userId, 'userStatus', res);
+        if (res) {
+          res.user = userObj;
+        }
+        return _this.composeMessage(userId, 'revealUserStatus', res);
       };
     })(this));
   };
@@ -167,14 +170,14 @@ Oscar = (function() {
 
   Oscar.prototype.composeMessage = function(userId, messageType, obj) {
     var statusMsg;
-    if (message.type === 'requestFeedback') {
+    if (messageType === 'requestFeedback') {
       statusMsg = '';
     }
     if (messageType === 'revealChannelStatus') {
       obj.forEach((function(_this) {
         return function(user) {
           var userObj;
-          userObj = _this.getUser(userId);
+          userObj = _this.getUser(user.id);
           statusMsg += "" + userObj.profile.first_name + " is feeling *" + user.feedback.status + "*";
           if (user.feedback.message) {
             statusMsg += " (" + user.feedback.message + ")";
@@ -184,13 +187,13 @@ Oscar = (function() {
       })(this));
     }
     if (messageType === 'revealUserStatus') {
-      if (!res) {
-        statusMsg = "Oh, it looks like I haven\'t heard from " + userObj.profile.first_name + " for a while. Sorry!";
-        return;
-      }
-      statusMsg = "" + userObj.profile.first_name + " is feeling *" + obj.status + "* on a scale from 0 to 9.";
-      if (res.message) {
-        statusMsg += "\r\nThe last time I asked him what\'s up he replied: " + obj.message;
+      if (!obj) {
+        statusMsg = "Oh, it looks like I haven\'t heard from " + obj.user.profile.first_name + " for a while. Sorry!";
+      } else {
+        statusMsg = "" + obj.user.profile.first_name + " is feeling *" + obj.status + "* on a scale from 0 to 9.";
+        if (res.message) {
+          statusMsg += "\r\nThe last time I asked him what\'s up he replied: " + obj.message;
+        }
       }
     }
     if (messageType === 'alreadySubmitted') {
@@ -206,8 +209,9 @@ Oscar = (function() {
       statusMsg = '';
     }
     if (messageType === 'feedbackMessageReceived') {
-      return statusMsg = 'Thanks, my friend. I really appreciate your openness.';
+      statusMsg = 'Thanks, my friend. I really appreciate your openness.';
     }
+    return this.slack.postMessage(userId, statusMsg);
   };
 
   Oscar.prototype.checkForUserStatus = function(slack) {
