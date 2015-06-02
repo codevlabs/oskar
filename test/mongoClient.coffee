@@ -153,7 +153,7 @@ describe 'MongoClient', ->
       userId = 'U025P99EH'
       feedback = 6
 
-      userIds = ['U025QPNRP', 'U025P99EH']
+      userIds = ['U025P99EH', 'U025QPNRP']
       mongoClient.saveUserFeedback(userId, feedback).then (res) =>
         mongoClient.getAllUserFeedback(userIds).then (res) =>
 
