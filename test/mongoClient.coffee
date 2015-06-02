@@ -43,7 +43,7 @@ describe 'MongoClient', ->
     mongoClient = new MongoClient('mongodb://127.0.0.1:27017')
     connect = mongoClient.connect()
 
-  this.timeout(3000);
+  this.timeout(10000);
 
   it 'should connect to the mongo client', (done) ->
     connect.then (res) ->
@@ -155,6 +155,9 @@ describe 'MongoClient', ->
 
       userIds = ['U025QPNRP', 'U025P99EH']
       mongoClient.saveUserFeedback(userId, feedback).then (res) ->
+
+        console.log res
+
         mongoClient.getAllUserFeedback(userIds).then (res) ->
           res[0].id.should.be.equal('U025P99EH')
           res[1].id.should.be.equal('U025QPNRP')
