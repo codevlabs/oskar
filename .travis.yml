@@ -7,3 +7,4 @@ services: mongodb
 deploy:
   provider: heroku
   api_key: "***REMOVED***"
+  app: ***REMOVED***
