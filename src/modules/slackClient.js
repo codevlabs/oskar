@@ -128,7 +128,7 @@ SlackClient = (function(_super) {
   };
 
   SlackClient.prototype.messageHandler = function(message) {
-    if ((this.getUser(message.userId)) === void 0) {
+    if ((this.getUser(message.user)) === void 0) {
       return false;
     }
     if (this.disabledChannels.indexOf(message.channel) !== -1) {

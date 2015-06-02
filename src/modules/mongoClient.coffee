@@ -32,7 +32,6 @@ class MongoClient
 		promise = new Promise (resolve, reject) =>
 
 			@collection.find({ id: userId }).toArray (err, docs) =>
-				console.log err
 				resolve(docs.length > 0)
 
 	saveUser: (user) ->

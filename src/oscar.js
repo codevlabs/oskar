@@ -82,7 +82,6 @@ Oscar = (function() {
 
   Oscar.prototype.messageHandler = function(message) {
     var userId;
-    console.log(message);
     if (userId = InputHelper.isAskingForUserStatus(message.text)) {
       return this.revealStatus(userId, message);
     }

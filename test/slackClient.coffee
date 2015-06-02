@@ -132,7 +132,7 @@ describe 'SlackClient', ->
       it 'should trigger a message event when message handler is called with a user and valid text is passed', ->
 
         message =
-          userId: '***REMOVED***'
+          user: '***REMOVED***'
           text: 'How is <@***REMOVED***>?'
 
         spy = sinon.spy()
@@ -140,6 +140,7 @@ describe 'SlackClient', ->
 
         slackClient.messageHandler message
         spy.called.should.be.equal true
+
         spy.args[0][0].type.should.be.equal 'input'
-        spy.args[0][0].userId.should.be.equal '***REMOVED***'
+        spy.args[0][0].user.should.be.equal '***REMOVED***'
         spy.args[0][0].text.should.be.equal 'How is <@***REMOVED***>?'

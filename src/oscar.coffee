@@ -57,8 +57,6 @@ class Oscar
 
   messageHandler: (message) =>
 
-    console.log message
-
     # if user is asking for feedback of user with ID
     if userId = InputHelper.isAskingForUserStatus(message.text)
       return @revealStatus userId, message
