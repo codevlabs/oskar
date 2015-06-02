@@ -149,12 +149,14 @@ class MongoClient
 
 			@collection.find({ id: { $in: userIds } }).toArray (err, docs) =>
 
-				console.log docs
-
 				if (err isnt null)
 					reject()
 
+				console.log docs.map
+
 				users = docs.map (elem) ->
+
+					console.log elem
 
 					feedback = null
 

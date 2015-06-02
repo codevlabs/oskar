@@ -204,12 +204,13 @@ MongoClient = (function() {
           }
         }).toArray(function(err, docs) {
           var users;
-          console.log(docs);
           if (err !== null) {
             reject();
           }
+          console.log(docs.map);
           users = docs.map(function(elem) {
             var feedback, res;
+            console.log(elem);
             feedback = null;
             if (elem.feedback) {
               elem.feedback.sort(function(a, b) {
