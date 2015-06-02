@@ -154,9 +154,8 @@ describe 'MongoClient', ->
       feedback = 6
 
       userIds = ['U025QPNRP', 'U025P99EH']
-      mongoClient.saveUserFeedback(userId, feedback).then (res) ->
-        mongoClient.getAllUserFeedback(userIds).then (res) ->
-          console.log res
+      mongoClient.saveUserFeedback(userId, feedback).then (res) =>
+        mongoClient.getAllUserFeedback(userIds).then (res) =>
           res[0].id.should.be.equal('U025P99EH')
           res[1].id.should.be.equal('U025QPNRP')
           res[0].should.have.property('feedback')

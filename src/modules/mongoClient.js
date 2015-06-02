@@ -221,8 +221,6 @@ MongoClient = (function() {
               feedback: feedback
             };
           });
-          console.log(users);
-          console.log(resolve);
           return resolve(users);
         });
       };
