@@ -207,10 +207,8 @@ MongoClient = (function() {
           if (err !== null) {
             reject();
           }
-          console.log(docs.map);
           users = docs.map(function(elem) {
             var feedback, res;
-            console.log(elem);
             feedback = null;
             if (elem.feedback) {
               elem.feedback.sort(function(a, b) {
@@ -218,11 +216,13 @@ MongoClient = (function() {
               });
               feedback = elem.feedback.pop();
             }
-            return res = {
+            res = {
               id: elem.id,
               feedback: feedback
             };
+            return console.log(res);
           });
+          console.log(users);
           return resolve(users);
         });
       };

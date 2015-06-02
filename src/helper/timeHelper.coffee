@@ -27,6 +27,6 @@ class TimeHelper
     new Date(date.setUTCHours newHours)
 
   @isDateInsideInterval: (min, max, date) ->
-    min <= date.getHours() < max
+    min <= date.getUTCHours() < max
 
 module.exports = TimeHelper

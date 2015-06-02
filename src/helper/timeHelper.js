@@ -39,7 +39,7 @@ TimeHelper = (function() {
 
   TimeHelper.isDateInsideInterval = function(min, max, date) {
     var _ref;
-    return (min <= (_ref = date.getHours()) && _ref < max);
+    return (min <= (_ref = date.getUTCHours()) && _ref < max);
   };
 
   return TimeHelper;

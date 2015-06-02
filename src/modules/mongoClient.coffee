@@ -152,11 +152,7 @@ class MongoClient
 				if (err isnt null)
 					reject()
 
-				console.log docs.map
-
 				users = docs.map (elem) ->
-
-					console.log elem
 
 					feedback = null
 
@@ -169,6 +165,10 @@ class MongoClient
 					res =
 						id: elem.id
 						feedback: feedback
+
+					console.log res
+
+				console.log users
 
 				resolve(users)
 
