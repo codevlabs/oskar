@@ -69,12 +69,14 @@ describe 'TimeHelper', ->
     intervalMin = 6
     intervalMax = 10
     date = new Date('Wed, 20 May 2015 08:30:00 GMT+02:00')
+    console.log date
     isInsideInterval = timeHelper.isDateInsideInterval(intervalMin, intervalMax, date)
     isInsideInterval.should.be.equal(true)
 
     intervalMin = 3
     intervalMax = 4
     date = new Date('Wed, 20 May 2015 03:59:59 GMT+02:00')
+    console.log date
     isInsideInterval = timeHelper.isDateInsideInterval(intervalMin, intervalMax, date)
     isInsideInterval.should.be.equal(true)
 

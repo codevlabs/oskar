@@ -149,6 +149,8 @@ class MongoClient
 
 			@collection.find({ id: { $in: userIds } }).toArray (err, docs) =>
 
+				console.log docs
+
 				if (err isnt null)
 					reject()
 

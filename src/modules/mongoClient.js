@@ -204,6 +204,7 @@ MongoClient = (function() {
           }
         }).toArray(function(err, docs) {
           var users;
+          console.log(docs);
           if (err !== null) {
             reject();
           }
