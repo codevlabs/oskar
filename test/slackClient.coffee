@@ -61,6 +61,10 @@ describe 'SlackClient', ->
         user.profile.first_name.should.be.equal('Zsolt')
         user.profile.last_name.should.be.equal('Kocsmarszky')
 
+      it 'should return null if user is disabled', ->
+        user = slackClient.getUser('***REMOVED***')
+        should(user).be.equal(null)
+
       it 'should allow a user comment for a user', ->
         userId = 'U025P99EH'
         slackClient.allowUserComment(userId)

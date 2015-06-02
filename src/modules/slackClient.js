@@ -86,6 +86,9 @@ SlackClient = (function(_super) {
 
   SlackClient.prototype.getUser = function(userId) {
     var filteredUsers, user;
+    if (this.disabledUsers.indexOf(userId) !== -1) {
+      return null;
+    }
     filteredUsers = (function() {
       var _i, _len, _ref, _results;
       _ref = this.users;

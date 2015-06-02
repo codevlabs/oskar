@@ -48,6 +48,10 @@ class SlackClient extends EventEmitter
     	return user.id
 
 	getUser: (userId) ->
+		# ignore disabled users
+		if @disabledUsers.indexOf(userId) isnt -1
+			return null
+
 		filteredUsers = (user for user in @users when user.id is userId)
 		filteredUsers[0]
 

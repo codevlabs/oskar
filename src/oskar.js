@@ -68,12 +68,17 @@ Oskar = (function() {
   };
 
   Oskar.prototype.presenceHandler = function(data) {
+    var user;
+    user = this.slack.getUser(data.userId);
+    if (user === null) {
+      return false;
+    }
     return this.mongo.userExists(data.userId).then((function(_this) {
       return function(res) {
-        var user;
         if (!res) {
-          user = _this.slack.getUser(data.userId);
-          _this.mongo.saveUser(user).then(function(res) {});
+          _this.mongo.saveUser(user).then(function(res) {
+            return _this.requestUserFeedback(data.userId, data.status);
+          });
         }
         return _this.requestUserFeedback(data.userId, data.status);
       };

@@ -22,6 +22,8 @@ describe 'oskar', ->
 
   # slack stubs, because these methods are unit tested elsewhere
   getUserStub = sinon.stub slack, 'getUser'
+  getUserStub.onCall(1).returns(null)
+
   getUserIdsStub = sinon.stub slack, 'getUserIds'
   isUserCommentAllowedStub = sinon.stub slack, 'isUserCommentAllowed'
   disallowUserCommentStub = sinon.stub slack, 'disallowUserComment'
@@ -61,6 +63,13 @@ describe 'oskar', ->
         saveUserStub.called.should.be.equal true
         done()
       , 100
+
+    it 'should return false if user is disabled', ->
+      data =
+        userId: '***REMOVED***'
+
+      res = oskar.presenceHandler data
+      res.should.be.equal(false)
 
     describe 'requestFeedback', ->
 

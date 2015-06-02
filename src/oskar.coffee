@@ -48,11 +48,15 @@ class Oskar
 
   presenceHandler: (data) =>
 
+    # return if disabled user
+    user = @slack.getUser(data.userId)
+    if user is null
+      return false
+
     @mongo.userExists(data.userId).then (res) =>
       if !res
-        user = @slack.getUser(data.userId)
         @mongo.saveUser(user).then (res) =>
-          # @presenceHandler data
+          @requestUserFeedback data.userId, data.status
       @requestUserFeedback data.userId, data.status
 
   messageHandler: (message) =>
