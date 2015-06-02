@@ -157,31 +157,17 @@ describe 'MongoClient', ->
       mongoClient.saveUserFeedback(userId, feedback).then (res) =>
         mongoClient.getAllUserFeedback(userIds).then (res) =>
 
-          console.log 'res'
-          console.log res
+          res[0].should.have.property 'id'
+          res[1].should.have.property 'id'
 
-          console.log 'check for user Ids'
+          res[0].should.have.property 'feedback'
+          res[1].should.have.property 'feedback'
 
-          # res[0].id.should.be.equal('U025P99EH')
-          # res[1].id.should.be.equal('U025QPNRP')
+          res[0].feedback.should.have.property 'status'
+          res[1].feedback.should.have.property 'status'
 
-          console.log 'check for feedback property'
+          res[0].feedback.should.have.property 'timestamp'
+          res[1].feedback.should.have.property 'timestamp'
 
-          res[0].should.have.property('feedback')
-          res[1].should.have.property('feedback')
-
-          console.log 'check for other properties'
-
-          # res[1].feedback.should.have.property('status')
-          # res[1].feedback.should.have.property('timestamp')
-          # res[1].feedback.should.have.property('message')
-
-          console.log 'check for status property'
-
-          # res[1].feedback.status.should.be.equal(5)
-
-          console.log 'done'
-
-          console.log done
           done()
 
