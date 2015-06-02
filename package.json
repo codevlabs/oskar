@@ -2,7 +2,7 @@
   "name": "oskar",
   "version": "0.0.1",
   "description": "A satisfaction coach bot for Slack",
-  "main": "./oscar",
+  "main": "./oskar",
   "scripts": {
     "test": "mocha --compilers coffee:coffee-script/register --reporter spec",
     "prepublish": "grunt prepublish"

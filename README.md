@@ -1,16 +1,16 @@
-# Oscar - the Slack satisfaction coach
+# Oskar - the Slack satisfaction coach
 
 ## Description
 
-Oscar is a Slackbot that tracks satisfaction of your team members. Every day it asks people for their current mood. This metric is stored in a database and tracked over time, allowing the team to understand which members are struggling or doing extremely well.
+Oskar is a Slackbot that tracks satisfaction of your team members. Every day it asks people for their current mood. This metric is stored in a database and tracked over time, allowing the team to understand which members are struggling or doing extremely well.
 
-Everyone can ask Oscar for another team member's status, or a list of all team member's current status, and what they struggle with.
+Everyone can ask Oskar for another team member's status, or a list of all team member's current status, and what they struggle with.
 
 It is not meant to be a way of comparing people but to surface issues, unblock each other and eliminate isolation (especially in remote teams).
 
 ## How to
 
-Oscar automatically asks people within an interval of 24 hours how they are doing. People can reply to question message with a number between 0-9. If the feedback is less than 5 Oscar will ask if the person is having any issues, and saves the reply to the database.
+Oskar automatically asks people within an interval of 24 hours how they are doing. People can reply to question message with a number between 0-9. If the feedback is less than 5 Oskar will ask if the person is having any issues, and saves the reply to the database.
 
 Team members can use the following commands:
 - `How is @member?` - Tells you how a specific team member is doing
@@ -20,7 +20,7 @@ In order to disable specific channels or users, go to `src/slackClient.coffee` a
 
 ## Tech stack
 
-- Oscar is build on node.js with express.js.
+- Oskar is build on node.js with express.js.
 - Such as the node slack client (and because of it), it is written in CoffeeScript.
 - It uses a MongoDB database to store team member feedback
 - It runs on Heroku (https://polar-temple-7947.herokuapp.com/)
@@ -34,7 +34,7 @@ In order to disable specific channels or users, go to `src/slackClient.coffee` a
 
 ## Unit tests
 
-Oscar is being tested with [Mocha](http://mochajs.org/) and [should.js](https://github.com/tj/should.js/)
+Oskar is being tested with [Mocha](http://mochajs.org/) and [should.js](https://github.com/tj/should.js/)
 
 Run the unit tests for all modules be running `npm test`.
 To run only a single unit test call the test file explicitly, such as `npm test test/inputHelper.coffee`

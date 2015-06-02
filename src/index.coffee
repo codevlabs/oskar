@@ -1,2 +1,2 @@
-Oscar = require('./oscar')
-oscar = new Oscar()
+Oskar = require('./oskar')
+oskar = new Oskar()

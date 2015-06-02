@@ -1,5 +1,5 @@
-var Oscar, oscar;
+var Oskar, oskar;
 
-Oscar = require('./oscar');
+Oskar = require('./oskar');
 
-oscar = new Oscar();
+oskar = new Oskar();
