@@ -216,13 +216,13 @@ MongoClient = (function() {
               });
               feedback = elem.feedback.pop();
             }
-            res = {
+            return res = {
               id: elem.id,
               feedback: feedback
             };
-            return console.log(res);
           });
           console.log(users);
+          console.log(resolve);
           return resolve(users);
         });
       };

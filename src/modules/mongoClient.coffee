@@ -166,9 +166,8 @@ class MongoClient
 						id: elem.id
 						feedback: feedback
 
-					console.log res
-
 				console.log users
+				console.log resolve
 
 				resolve(users)
 
