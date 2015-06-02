@@ -1,5 +1,5 @@
 {
-  "name": "oscar",
+  "name": "oskar",
   "version": "0.0.1",
   "description": "A satisfaction coach bot for Slack",
   "main": "./oscar",
@@ -19,10 +19,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://git@github.com:wearehanno/oscar.git"
+    "url": "git://git@github.com:wearehanno/oskar.git"
   },
   "bugs": {
-    "url": "https://github.com/wearehanno/oscar/issues"
+    "url": "https://github.com/wearehanno/oskar/issues"
   },
   "dependencies": {
     "coffee-script": "~1.9.0",
