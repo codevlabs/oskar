@@ -1,4 +1,4 @@
-https://magnum.travis-ci.com/wearehanno/oskar.svg?token=LdpAvGamR6pf17d1ehyb&branch=master
+[![Build Status](https://magnum.travis-ci.com/wearehanno/oskar.svg?token=LdpAvGamR6pf17d1ehyb&branch=master)](https://magnum.travis-ci.com/wearehanno/oskar)
 
 # Oskar - the Slack satisfaction coach
 
