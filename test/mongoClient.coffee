@@ -84,6 +84,8 @@ describe 'MongoClient', ->
             docs.length.should.be.equal(1)
             done()
 
+  describe 'MongoClientStatus', ->
+
     it 'should save user status in user object', (done) ->
       mongoClient.saveUserStatus(users[0].id, 'away').then (res) ->
         collection.find({ id: users[0].id }).toArray (err, docs) ->
@@ -109,6 +111,8 @@ describe 'MongoClient', ->
           res.should.be.equal(timestamp)
           done()
 
+  describe 'MongoClientActivity', ->
+
     it 'should return null if user has no activity', (done) ->
       mongoClient.getLatestUserTimestampForProperty('activity', 'U025QPNRP').then (res) ->
         should(res).be.exactly(null)
@@ -118,6 +122,8 @@ describe 'MongoClient', ->
       mongoClient.getLatestUserTimestampForProperty('activity', 'U0281LQKQ').then (res) ->
         should(res).be.exactly(false)
         done()
+
+  describe 'MongoClientFeedback', ->
 
     it 'should save user feedback', (done) ->
       userId = 'U025QPNRP'

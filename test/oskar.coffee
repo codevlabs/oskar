@@ -22,11 +22,10 @@ describe 'oskar', ->
 
   # slack stubs, because these methods are unit tested elsewhere
   getUserStub = sinon.stub slack, 'getUser'
-  getUserStub.onCall(1).returns(null)
-
   getUserIdsStub = sinon.stub slack, 'getUserIds'
   isUserCommentAllowedStub = sinon.stub slack, 'isUserCommentAllowed'
   disallowUserCommentStub = sinon.stub slack, 'disallowUserComment'
+  postMessageStub = sinon.stub slack, 'postMessage'
 
   # mongo stubs
   userExistsStub = sinon.stub mongo, 'userExists'
@@ -43,16 +42,52 @@ describe 'oskar', ->
   saveUserStub.returns(whenLib false)
   getLatestUserTimestampStub.returns(whenLib false)
 
-  oskar = new Oskar(mongo, slack)
+  # Oskar spy
+  presenceHandlerSpy = sinon.spy Oskar.prototype, 'presenceHandler'
 
-  # oskar stub
-  composeMessageStub = sinon.stub oskar, 'composeMessage'
+  oskar = new Oskar(mongo, slack)
+  composeMessageStub = null
 
   # timestamps
   today = Date.now()
   yesterday = today - (3600 * 1000 * 21)
 
+  ###################################################################
+  # HelperMethods
+  ###################################################################
+
+  describe 'HelperMethods', ->
+
+    it 'should post a message to slack', ->
+
+      userId = 'user1'
+      messageType = 'alreadySubmitted'
+
+      oskar.composeMessage userId, messageType
+
+      postMessageStub.called.should.be.equal true
+      postMessageStub.args[0][0].should.be.equal userId
+
+    it 'should send presence events when checkForUserStatus is called', (done) ->
+
+      targetUserIds = [2, 3]
+      getUserIdsStub.returns(targetUserIds)
+
+      oskar.checkForUserStatus(slack)
+
+      setTimeout ->
+        presenceHandlerSpy.callCount.should.be.equal 2
+        done()
+      , 100
+
+  ###################################################################
+  # Presence handler
+  ###################################################################
+
   describe 'presenceHandler', ->
+
+    before ->
+      presenceHandlerSpy.restore()
 
     it 'should save a non-existing user in mongo', (done) ->
       data =
@@ -68,10 +103,19 @@ describe 'oskar', ->
       data =
         userId: '***REMOVED***'
 
+      getUserStub.returns(null)
+
       res = oskar.presenceHandler data
       res.should.be.equal(false)
 
+    ###################################################################
+    # Presence handler > requestFeedback
+    ###################################################################
+
     describe 'requestFeedback', ->
+
+      before ->
+        composeMessageStub = sinon.stub oskar, 'composeMessage'
 
       data =
         userId: 'user1'
@@ -81,6 +125,11 @@ describe 'oskar', ->
         composeMessageStub.reset()
 
       it 'should request feedback from an existing user if timestamp expired', (done) ->
+
+        userObj =
+          id: 'user1'
+
+        getUserStub.returns userObj
 
         oskar.presenceHandler data
         getLatestUserTimestampStub.returns(whenLib yesterday)
@@ -112,6 +161,10 @@ describe 'oskar', ->
           composeMessageStub.called.should.be.equal false
           done()
         , 100
+
+  ###################################################################
+  # Message handler
+  ###################################################################
 
   describe 'messageHandler', ->
 
@@ -280,4 +333,3 @@ describe 'oskar', ->
       spy.firstCall.args[0].status.should.be.equal 'triggered'
       spy.secondCall.args[0].userId.should.be.equal 'testuser2'
       spy.secondCall.args[0].status.should.be.equal 'triggered'
-

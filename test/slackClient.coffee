@@ -41,7 +41,7 @@ describe 'SlackClient', ->
       connect.then ->
         users = slackClient.getUsers()
 
-    describe 'methods', ->
+    describe 'PublicMethods', ->
 
       it 'should return a list of users', ->
         users.length.should.be.greaterThan(0)
@@ -71,7 +71,7 @@ describe 'SlackClient', ->
         user = slackClient.getUser(userId)
         user.allowComment.should.be.equal(true)
 
-      it 'should allow a user comment for a user', ->
+      it 'should disallow a user comment for a user', ->
         userId = 'U025P99EH'
         slackClient.disallowUserComment(userId)
         user = slackClient.getUser(userId)
@@ -88,7 +88,7 @@ describe 'SlackClient', ->
         allowed = slackClient.isUserCommentAllowed(userId)
         allowed.should.be.equal(true)
 
-    describe 'handlers', ->
+    describe 'EventHandlers', ->
 
       it 'should send a presence event when user changes presence', ->
 
