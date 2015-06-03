@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" class=" js flexbox flexboxlegacy canvas canvastext webgl no-touch geolocation postmessage websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients cssreflections csstransforms csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers applicationcache svg inlinesvg smil svgclippaths">
+
+  <head>
+    <% include ../partials/head %>
+  </head>
+
+  <body class="home blog logged-in admin-bar customize-support">
+
+    <% include ../partials/header %>
+
+    <div class="main-content">
+      <section class="post-listing text-left feed">
+        <div class="row">
+          <div class="columns">
+
+            <% users.forEach(function(user) { %>
+              <article class="post-listing__listing-item hentry">
+                <a href="https://logbook.hanno.co/offline-first-matters-developers-know/">
+                  <div class="row">
+                    <div class="medium-1 columns hide-for-small">
+                      <img class="thumbnail post-listing__listing-item__thumbnail" src="<%= user.profile.image_48 %>">
+                    </div>
+                    <div class="medium-11 columns">
+                      <h2 class="post-listing__listing-item__entry-title entry-title">
+                        <%= user.profile.first_name %> is feeling <% if(statuses[user.id] && statuses[user.id].status) {%>
+                          <%= statuses[user.id].status %>
+                        <% } %></h2>
+                      <p class="entry-summary">
+                        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
+                        <% if(statuses[user.id] && statuses[user.id].message) {%>
+                          <%= statuses[user.id].message %>
+                        <% } %>
+                      </p>
+                    </div>
+                  </div>
+                </a>
+              </article>
+            <% }); %>
+
+          </div>
+        </div>
+      </section>
+    </div>
+
+</div>
+
+<!--     <main>
+        <div class="jumbotron">
+            <h1>Hi, I'm Oscar</h1>
+            <p>Your slack satisfaction coach</p>
+        </div>
+
+        <div class="row">
+
+          <div class="col-md-12">
+
+            <h1>Here's how your team is currently doing</h1>
+
+            <ul class="list-group">
+            <% users.forEach(function(user) { %>
+              <li class="list-group-item">
+                <img src="<%= user.profile.image_48 %>" class="img-circle" />
+                <span class="name"><%= user.profile.first_name %></span>
+                <span class="badge">
+                  <% if(statuses[user.id] && statuses[user.id].status) {%>
+                    <%= statuses[user.id].status %>
+                  <% } else { %>
+                    ?
+                  <% } %>
+                </span>
+              </li>
+            <% }); %>
+            </ul>
+
+          </div>
+
+        </div>
+
+    </main>
+ -->
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+
+  </body>
+</html>

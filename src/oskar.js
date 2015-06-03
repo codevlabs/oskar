@@ -28,8 +28,11 @@ Oskar = (function() {
     this.mongo.connect();
     this.slack = slack || new SlackClient();
     this.slack.connect();
-    this.setupEvents();
     this.setupRoutes();
+    if (process.env.NODE_ENV === 'development') {
+      return;
+    }
+    this.setupEvents();
     setInterval((function(_this) {
       return function() {
         return _this.checkForUserStatus(_this.slack);
@@ -46,6 +49,11 @@ Oskar = (function() {
     this.app.set('port', process.env.PORT || 5000);
     this.app.get('/', (function(_this) {
       return function(req, res) {
+        return res.render('pages/index');
+      };
+    })(this));
+    this.app.get('/dashboard', (function(_this) {
+      return function(req, res) {
         var userIds, users;
         users = _this.slack.getUsers();
         userIds = users.map(function(user) {
@@ -57,7 +65,7 @@ Oskar = (function() {
           statuses.forEach(function(status) {
             return filteredStatuses[status.id] = status.feedback;
           });
-          return res.render('pages/index', {
+          return res.render('pages/dashboard', {
             users: users,
             statuses: filteredStatuses
           });

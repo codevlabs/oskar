@@ -18,8 +18,13 @@ class Oskar
     @slack = slack || new SlackClient()
     @slack.connect()
 
-    @setupEvents()
     @setupRoutes()
+
+    # dev environment shouldnt run events or interval
+    if process.env.NODE_ENV is 'development'
+      return
+
+    @setupEvents()
 
     # check for user's status every hour
     setInterval =>
@@ -34,6 +39,9 @@ class Oskar
     @app.set 'port', process.env.PORT || 5000
 
     @app.get '/', (req, res) =>
+      res.render('pages/index')
+
+    @app.get '/dashboard', (req, res) =>
       users = @slack.getUsers()
       userIds = users.map (user) ->
         return user.id
@@ -41,7 +49,7 @@ class Oskar
         filteredStatuses = []
         statuses.forEach (status) ->
           filteredStatuses[status.id] = status.feedback
-        res.render('pages/index', { users: users, statuses: filteredStatuses })
+        res.render('pages/dashboard', { users: users, statuses: filteredStatuses })
 
     @app.listen @app.get('port'), ->
       console.log "Node app is running on port 5000"

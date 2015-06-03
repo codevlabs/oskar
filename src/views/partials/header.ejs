@@ -1,19 +1,22 @@
 <!-- views/partials/header.ejs -->
 
-<nav class="navbar navbar-default" role="navigation">
-    <div class="container-fluid">
+<div id="st-container" class="st-container st-hideatstart">
+  <div class="hide-for-small">
+    <nav id="nav-mini" class="nav-main nav-main--desktop top-nav mini">
+      <a class="left logo" href="/"><img src="https://logbook.hanno.co/wp-content/themes/logbook/assets/images/logo-logbook.svg" width="200" alt="Hanno logo" scale="0"></a>
+      <ul class="right inline-list">
+        <li><a href="http://hanno.co">Head to the main site →</a></li>
+      </ul>
+    </nav>
+  </div>
 
-        <div class="navbar-header">
-            <a class="navbar-brand" href="#">
-                <span class="glyphicon glyphicon glyphicon-tree-deciduous"></span>
-                EJS Is Fun
-            </a>
+  <div class="show-for-small">
+    <nav class="nav-main">
+      <div class="row">
+        <div class="columns">
+          <a class="left logo" href="/"><img src="https://logbook.hanno.co/wp-content/themes/logbook/assets/media/logos/hanno-title.svg" width="132" alt="Hanno logo" scale="0"> <small>→ The Logbook</small></a>
         </div>
-
-        <ul class="nav navbar-nav">
-            <li><a href="/">Home</a></li>
-            <li><a href="/about">About</a></li>
-        </ul>
-
-    </div>
-</nav>
+      </div>
+    </nav>
+  </div>
+</div>

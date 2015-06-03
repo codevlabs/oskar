@@ -3,6 +3,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-watch'
   grunt.loadNpmTasks 'grunt-shell'
   grunt.loadNpmTasks 'grunt-contrib-coffee'
+  grunt.loadNpmTasks 'grunt-env'
 
   grunt.initConfig
     watch:
@@ -13,12 +14,20 @@ module.exports = (grunt) ->
         ]
         tasks: ['coffee']
 
+    env:
+      dev:
+        NODE_ENV: 'development'
+
     shell:
       test:
         command: 'npm test'
         options:
           stdout: true
           stderr: true
+      run:
+        command: 'node src/index'
+        options:
+          stdout: true
 
     coffee:
       options:
@@ -46,3 +55,4 @@ module.exports = (grunt) ->
         ext: '.js'
 
   grunt.registerTask 'prepublish', ['coffee']
+  grunt.registerTask 'static', ['env', 'shell:run']
