@@ -30,9 +30,11 @@ Oskar = (function() {
     this.slack.connect();
     this.setupEvents();
     this.setupRoutes();
-    setInterval(function() {
-      return this.checkForUserStatus(this.slack);
-    }, 3600 * 1000);
+    setInterval((function(_this) {
+      return function() {
+        return _this.checkForUserStatus(_this.slack);
+      };
+    })(this), 3600 * 1000);
   }
 
   Oskar.prototype.setupEvents = function() {
@@ -173,15 +175,15 @@ Oskar = (function() {
   };
 
   Oskar.prototype.composeMessage = function(userId, messageType, obj) {
-    var statusMsg;
+    var statusMsg, userObj;
     if (messageType === 'requestFeedback') {
-      statusMsg = '';
+      userObj = this.slack.getUser(userId);
+      statusMsg = "Hey " + userObj.profile.first_name + ", how are you doing today? Please reply with a number between 0 and 9. I\'ll keep track of everything for you.";
     }
     if (messageType === 'revealChannelStatus') {
       obj.forEach((function(_this) {
         return function(user) {
-          var userObj;
-          userObj = _this.getUser(user.id);
+          userObj = _this.slack.getUser(user.id);
           statusMsg += "" + userObj.profile.first_name + " is feeling *" + user.feedback.status + "*";
           if (user.feedback.message) {
             statusMsg += " (" + user.feedback.message + ")";
@@ -210,12 +212,14 @@ Oskar = (function() {
       statusMsg = 'Feel free to share with me what\'s wrong. I will treat it with confidence';
     }
     if (messageType === 'feedbackReceived') {
-      statusMsg = '';
+      statusMsg = 'Thanks a lot, buddy! Keep up the good work!';
     }
     if (messageType === 'feedbackMessageReceived') {
       statusMsg = 'Thanks, my friend. I really appreciate your openness.';
     }
-    return this.slack.postMessage(userId, statusMsg);
+    if (userId && statusMsg) {
+      return this.slack.postMessage(userId, statusMsg);
+    }
   };
 
   Oskar.prototype.checkForUserStatus = function(slack) {

@@ -22,7 +22,7 @@ class Oskar
     @setupRoutes()
 
     # check for user's status every hour
-    setInterval ->
+    setInterval =>
       @checkForUserStatus (@slack)
     , 3600 * 1000
 
@@ -54,6 +54,7 @@ class Oskar
       return false
 
     @mongo.userExists(data.userId).then (res) =>
+
       if !res
         @mongo.saveUser(user).then (res) =>
           @requestUserFeedback data.userId, data.status
@@ -147,12 +148,13 @@ class Oskar
 
     # request feedback
     if messageType is 'requestFeedback'
-      statusMsg = ''
+      userObj = @slack.getUser userId
+      statusMsg = "Hey #{userObj.profile.first_name}, how are you doing today? Please reply with a number between 0 and 9. I\'ll keep track of everything for you."
 
     # channel info
     if messageType is 'revealChannelStatus'
       obj.forEach (user) =>
-        userObj = @getUser user.id
+        userObj = @slack.getUser user.id
         statusMsg += "#{userObj.profile.first_name} is feeling *#{user.feedback.status}*"
         if user.feedback.message
           statusMsg += " (#{user.feedback.message})"
@@ -181,13 +183,14 @@ class Oskar
 
     # feedback already received
     if messageType is 'feedbackReceived'
-      statusMsg = ''
+      statusMsg = 'Thanks a lot, buddy! Keep up the good work!'
 
     # feedback received
     if messageType is 'feedbackMessageReceived'
       statusMsg = 'Thanks, my friend. I really appreciate your openness.'
 
-    @slack.postMessage(userId, statusMsg)
+    if userId && statusMsg
+      @slack.postMessage(userId, statusMsg)
 
   checkForUserStatus: (slack) =>
     userIds = slack.getUserIds()
