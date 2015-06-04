@@ -235,7 +235,7 @@ describe 'oskar', ->
     it 'should save user feedback message', (done) ->
 
       message =
-        text: '7'
+        text: '5'
         user: 'user1'
 
       getLatestUserTimestampStub.returns(whenLib yesterday)
@@ -286,7 +286,7 @@ describe 'oskar', ->
     it 'should ask user for feedback message if feedback low', (done) ->
 
       message =
-        text: '3'
+        text: '2'
         user: 'user1'
 
       getLatestUserTimestampStub.returns(whenLib yesterday)
