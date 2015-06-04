@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class=" js flexbox flexboxlegacy canvas canvastext webgl no-touch geolocation postmessage websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients cssreflections csstransforms csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers applicationcache svg inlinesvg smil svgclippaths">
+<html lang="en">
 
   <head>
     <% include ../partials/internal-head %>
@@ -10,10 +10,50 @@
     <% include ../partials/internal-header %>
 
     <div class="main-content">
+      <section>
+        <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+      </section>
     </div>
 
     <footer>
-        <% include ../partials/footer %>
+        <% include ../partials/internal-footer %>
+
+      <script>
+        $(function () {
+            $('#container').highcharts({
+                chart: {
+                  backgroundColor: '#f5f7f8',
+                },
+                legend: {
+                  enabled: false
+                },
+                title: {
+                    text: 'How is <%= userData.real_name %> feeling?',
+                    x: -20, //center
+                    margin: 50
+                },
+                xAxis: {
+                  type: 'datetime',
+                  minRange: 7 * 24 * 3600000 // fourteen days
+                },
+                yAxis: {
+                    title: {
+                        text: 'Status'
+                    },
+                    min: 0,
+                    max: 9
+                },
+                tooltip: {
+                    valueSuffix: ''
+                },
+                series: [{
+                    name: '<%= userData.real_name %>',
+                    data: <%= graphData %>
+                }]
+            });
+        });
+      </script>
+
     </footer>
 
   </body>

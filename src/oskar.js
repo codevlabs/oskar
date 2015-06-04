@@ -61,7 +61,6 @@ Oskar = (function() {
         });
         return _this.mongo.getAllUserFeedback(userIds).then(function(statuses) {
           var filteredStatuses;
-          console.log(statuses);
           filteredStatuses = [];
           statuses.forEach(function(status) {
             filteredStatuses[status.id] = status.feedback;
@@ -76,7 +75,16 @@ Oskar = (function() {
     })(this));
     this.app.get('/status/:userId', (function(_this) {
       return function(req, res) {
-        return console.log(req);
+        return _this.mongo.getUserData(req.params.userId).then(function(data) {
+          var graphData;
+          graphData = data.feedback.map(function(row) {
+            return [row.timestamp, parseInt(row.status)];
+          });
+          return res.render('pages/status', {
+            userData: data,
+            graphData: JSON.stringify(graphData)
+          });
+        });
       };
     })(this));
     return this.app.listen(this.app.get('port'), function() {

@@ -1,0 +1,22 @@
+nav.top-nav.mini {
+  background-color: #999;
+  padding: 0.23333rem 1.66667rem !important;
+}
+
+.entry-summary span {
+  color: #AAA;
+}
+
+.top-nav li a {
+  font-weight: 300;
+}
+
+.nav-main--desktop .logo {
+  top: -4px;
+}
+
+@media only screen and (min-width: 40.063em) {
+  .main-content>section {
+    padding: 5rem 0;
+  }
+}
