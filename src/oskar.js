@@ -66,6 +66,9 @@ Oskar = (function() {
             filteredStatuses[status.id] = status.feedback;
             return filteredStatuses[status.id].date = new Date(status.feedback.timestamp);
           });
+          users.sort(function(a, b) {
+            return filteredStatuses[a.id].status < filteredStatuses[b.id].status;
+          });
           return res.render('pages/dashboard', {
             users: users,
             statuses: filteredStatuses
@@ -205,7 +208,8 @@ Oskar = (function() {
     var statusMsg, userObj;
     if (messageType === 'requestFeedback') {
       userObj = this.slack.getUser(userId);
-      statusMsg = "Hey " + userObj.profile.first_name + ", how are you doing today? Please reply with a number between 0 and 9. I\'ll keep track of everything for you.";
+      statusMsg = "Hey " + userObj.profile.first_name + ", How is it going? Just reply with a number between 1 and 5.\n";
+      statusMsg += '5) Awesome :heart_eyes_cat:\n 4) Alright :smile:\n 3) Somewhere in between :neutral_face:\n 2) A bit down :pensive:\n 1) Really shit :tired_face:\n';
     }
     if (messageType === 'revealChannelStatus') {
       statusMsg = "";
@@ -225,7 +229,7 @@ Oskar = (function() {
       if (!obj.status) {
         statusMsg = "Oh, it looks like I haven\'t heard from " + obj.user.profile.first_name + " for a while. Sorry!";
       } else {
-        statusMsg = "" + obj.user.profile.first_name + " is feeling *" + obj.status + "* on a scale from 0 to 9.";
+        statusMsg = "" + obj.user.profile.first_name + " is feeling *" + obj.status + "* on a scale from 1 to 5.";
         if (obj.message) {
           statusMsg += "\r\nThe last time I asked him what\'s up he replied: " + obj.message;
         }
@@ -235,7 +239,7 @@ Oskar = (function() {
       statusMsg = 'Oops, looks like I\'ve already received some feedback from you in the last 20 hours.';
     }
     if (messageType === 'invalidInput') {
-      statusMsg = 'Oh it looks like you want to tell me how you feel, but unfortunately I only understand numbers between 0 and 9';
+      statusMsg = 'Oh it looks like you want to tell me how you feel, but unfortunately I only understand numbers between 1 and 5';
     }
     if (messageType === 'lowFeedback') {
       statusMsg = 'Feel free to share with me what\'s wrong. I will treat it with confidence';

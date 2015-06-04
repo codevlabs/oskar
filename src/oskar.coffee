@@ -50,6 +50,9 @@ class Oskar
         statuses.forEach (status) ->
           filteredStatuses[status.id] = status.feedback
           filteredStatuses[status.id].date = new Date(status.feedback.timestamp)
+        users.sort (a, b) ->
+          filteredStatuses[a.id].status < filteredStatuses[b.id].status
+
         res.render('pages/dashboard', { users: users, statuses: filteredStatuses })
 
     @app.get '/status/:userId', (req, res) =>
@@ -170,7 +173,13 @@ class Oskar
     # request feedback
     if messageType is 'requestFeedback'
       userObj = @slack.getUser userId
-      statusMsg = "Hey #{userObj.profile.first_name}, how are you doing today? Please reply with a number between 0 and 9. I\'ll keep track of everything for you."
+      # statusMsg = "Hey #{userObj.profile.first_name}, how are you doing today? Please reply with a number between 0 and 9. I\'ll keep track of everything for you."
+      statusMsg = "Hey #{userObj.profile.first_name}, How is it going? Just reply with a number between 1 and 5.\n"
+      statusMsg += '5) Awesome :heart_eyes_cat:\n
+                    4) Alright :smile:\n
+                    3) Somewhere in between :neutral_face:\n
+                    2) A bit down :pensive:\n
+                    1) Really shit :tired_face:\n'
 
     # channel info
     if messageType is 'revealChannelStatus'
@@ -190,7 +199,7 @@ class Oskar
       if !obj.status
         statusMsg = "Oh, it looks like I haven\'t heard from #{obj.user.profile.first_name} for a while. Sorry!"
       else
-        statusMsg = "#{obj.user.profile.first_name} is feeling *#{obj.status}* on a scale from 0 to 9."
+        statusMsg = "#{obj.user.profile.first_name} is feeling *#{obj.status}* on a scale from 1 to 5."
         if obj.message
           statusMsg += "\r\nThe last time I asked him what\'s up he replied: #{obj.message}"
 
@@ -200,7 +209,7 @@ class Oskar
 
     # invalid input
     if messageType is 'invalidInput'
-      statusMsg = 'Oh it looks like you want to tell me how you feel, but unfortunately I only understand numbers between 0 and 9'
+      statusMsg = 'Oh it looks like you want to tell me how you feel, but unfortunately I only understand numbers between 1 and 5'
 
     # low feedback
     if messageType is 'lowFeedback'

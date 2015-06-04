@@ -4,6 +4,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-shell'
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-env'
+  grunt.loadNpmTasks('grunt-sass');
 
   grunt.initConfig
     watch:
@@ -13,7 +14,9 @@ module.exports = (grunt) ->
           '!node_modules' # ...except dependencies
         ]
         tasks: ['coffee']
-
+      libsass:
+        files: '**/*.scss'
+        tasks: ['sass']
     env:
       dev:
         NODE_ENV: 'development'
@@ -29,6 +32,13 @@ module.exports = (grunt) ->
         options:
           stdout: true
 
+    sass:
+      files:
+        cwd: 'src/public/sass'
+        src: ['**/*.scss']
+        dest: 'src/public/css'
+        ext: '.css'
+        expand: true
     coffee:
       options:
         bare: true
