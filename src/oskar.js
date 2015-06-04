@@ -52,6 +52,11 @@ Oskar = (function() {
         return res.render('pages/index');
       };
     })(this));
+    this.app.get('/faq', (function(_this) {
+      return function(req, res) {
+        return res.render('pages/faq');
+      };
+    })(this));
     this.app.get('/dashboard', (function(_this) {
       return function(req, res) {
         var userIds, users;
