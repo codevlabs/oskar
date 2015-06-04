@@ -61,15 +61,22 @@ Oskar = (function() {
         });
         return _this.mongo.getAllUserFeedback(userIds).then(function(statuses) {
           var filteredStatuses;
+          console.log(statuses);
           filteredStatuses = [];
           statuses.forEach(function(status) {
-            return filteredStatuses[status.id] = status.feedback;
+            filteredStatuses[status.id] = status.feedback;
+            return filteredStatuses[status.id].date = new Date(status.feedback.timestamp);
           });
           return res.render('pages/dashboard', {
             users: users,
             statuses: filteredStatuses
           });
         });
+      };
+    })(this));
+    this.app.get('/status/:userId', (function(_this) {
+      return function(req, res) {
+        return console.log(req);
       };
     })(this));
     return this.app.listen(this.app.get('port'), function() {

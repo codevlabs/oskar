@@ -2,3 +2,7 @@ nav.top-nav.mini {
   background-color: #999;
   padding: 0.23333rem 1.66667rem !important;
 }
+
+.entry-summary span {
+  color: #AAA;
+}

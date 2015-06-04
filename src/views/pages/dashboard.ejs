@@ -7,7 +7,7 @@
 
   <body class="home blog logged-in admin-bar customize-support">
 
-    <% include ../partials/header %>
+    <% include ../partials/internal-header %>
 
     <div class="main-content">
       <section class="post-listing text-left feed">
@@ -16,7 +16,7 @@
 
             <% users.forEach(function(user) { %>
               <article class="post-listing__listing-item hentry">
-                <a href="https://logbook.hanno.co/offline-first-matters-developers-know/">
+                <a href="/status/<%= user.id %>">
                   <div class="row">
                     <div class="medium-1 columns hide-for-small">
                       <img class="thumbnail post-listing__listing-item__thumbnail" src="<%= user.profile.image_48 %>">
@@ -27,7 +27,9 @@
                           <%= statuses[user.id].status %>
                         <% } %></h2>
                       <p class="entry-summary">
-                        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
+                        <span>Last reported:</span>
+                        <%= statuses[user.id].date.getDate() %>.<%= statuses[user.id].date.getMonth() + 1 %>.<%= statuses[user.id].date.getFullYear() %>
+                        <%= statuses[user.id].date.getHours() %>:<%= statuses[user.id].date.getMinutes() %>
                         <% if(statuses[user.id] && statuses[user.id].message) {%>
                           <%= statuses[user.id].message %>
                         <% } %>

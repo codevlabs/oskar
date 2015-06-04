@@ -46,10 +46,15 @@ class Oskar
       userIds = users.map (user) ->
         return user.id
       @mongo.getAllUserFeedback(userIds).then (statuses) =>
+        console.log statuses
         filteredStatuses = []
         statuses.forEach (status) ->
           filteredStatuses[status.id] = status.feedback
+          filteredStatuses[status.id].date = new Date(status.feedback.timestamp)
         res.render('pages/dashboard', { users: users, statuses: filteredStatuses })
+
+    @app.get '/status/:userId', (req, res) =>
+      console.log req
 
     @app.listen @app.get('port'), ->
       console.log "Node app is running on port 5000"
