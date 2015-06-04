@@ -44,3 +44,40 @@ nav.top-nav.mini {
 .status-5 {
   color: #2ECC40;
 }
+
+article:hover {
+  opacity: 0.75;
+}
+
+article:hover h2 {
+  color: #000 !important;
+}
+
+.comment {
+  width: 24px;
+  opacity: 0.5;
+  margin-left: 6px;
+}
+
+.tpd-content {
+  font-size: 14px;
+}
+
+.post-listing-single {
+
+}
+
+.post-listing-single .post-listing__listing-item .thumbnail {
+  display: inline;
+  width: 96px;
+  margin-bottom: 16px;
+}
+
+.post-listing .post-listing__listing-item .entry-summary {
+  max-width: none;
+}
+
+#container {
+  min-width: 310px; max-width: 800px; height: 400px; margin: 0 auto;
+  margin-top: 3em;
+}

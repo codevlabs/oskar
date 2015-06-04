@@ -87,12 +87,16 @@ Oskar = (function() {
     this.app.get('/status/:userId', (function(_this) {
       return function(req, res) {
         return _this.mongo.getUserData(req.params.userId).then(function(data) {
-          var graphData;
+          var graphData, userData;
           graphData = data.feedback.map(function(row) {
             return [row.timestamp, parseInt(row.status)];
           });
+          userData = _this.slack.getUser(data.id);
+          userData.status = data.feedback[data.feedback.length - 1];
+          userData.date = new Date(userData.status.timestamp);
+          userData.statusString = StringHelper.convertStatusToText(userData.status.status);
           return res.render('pages/status', {
-            userData: data,
+            userData: userData,
             graphData: JSON.stringify(graphData)
           });
         });

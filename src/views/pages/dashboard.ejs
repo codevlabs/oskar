@@ -5,49 +5,54 @@
     <% include ../partials/internal-head %>
   </head>
 
-  <body class="home blog logged-in admin-bar customize-support">
+  <body>
 
     <% include ../partials/internal-header %>
 
-    <div class="main-content">
-      <section class="post-listing text-left feed">
-        <div class="row">
-          <div class="columns">
+    <div class="container">
 
-            <% users.forEach(function(user) { %>
-              <article class="post-listing__listing-item hentry">
-                <a href="/status/<%= user.id %>">
-                  <div class="row">
-                    <div class="medium-1 columns">
-                      <img class="thumbnail post-listing__listing-item__thumbnail" src="<%= user.profile.image_48 %>">
+      <div class="main-content">
+        <section class="post-listing">
+          <div class="row">
+
+              <% users.forEach(function(user) { %>
+                <article class="post-listing__listing-item hentry">
+                  <a href="/status/<%= user.id %>">
+                    <div class="row">
+                      <div class="medium-1 columns">
+                        <img class="thumbnail post-listing__listing-item__thumbnail" src="<%= user.profile.image_48 %>">
+                      </div>
+                      <div class="medium-11 columns">
+                        <h2 class="post-listing__listing-item__entry-title entry-title">
+                          <%= user.profile.first_name %> is feeling <% if(statuses[user.id] && statuses[user.id].status) {%>
+                          <span class="status-<%= statuses[user.id].status %>"><%= statuses[user.id].statusString %></span>
+                          <% } %>
+                          <% if(statuses[user.id] && statuses[user.id].message) {%>
+                            <span class="tipped" data-tipped-options="size: 'large'" title="<%= statuses[user.id].message %>"><img class="comment" src="/public/images/icon-comment.png" /></span>
+                          <% } %>
+                        </h2>
+                        <p class="entry-summary">
+                          <span>Last reported:</span>
+                          <abbr class="timeago" title="<%= statuses[user.id].date.toISOString() %>">
+                            <%= statuses[user.id].date.getDate() %>.<%= statuses[user.id].date.getMonth() + 1 %>.<%= statuses[user.id].date.getFullYear() %>
+                            <%= statuses[user.id].date.getHours() %>:<%= statuses[user.id].date.getMinutes() %>
+                          </abbr>
+                        </p>
+                      </div>
                     </div>
-                    <div class="medium-11 columns">
-                      <h2 class="post-listing__listing-item__entry-title entry-title">
-                        <%= user.profile.first_name %> is feeling <% if(statuses[user.id] && statuses[user.id].status) {%>
-                        <span class="status-<%= statuses[user.id].status %>"><%= statuses[user.id].statusString %></span>
-                        <% } %></h2>
-                      <p class="entry-summary">
-                        <span>Last reported:</span>
-                        <%= statuses[user.id].date.getDate() %>.<%= statuses[user.id].date.getMonth() + 1 %>.<%= statuses[user.id].date.getFullYear() %>
-                        <%= statuses[user.id].date.getHours() %>:<%= statuses[user.id].date.getMinutes() %>
-                        <% if(statuses[user.id] && statuses[user.id].message) {%>
-                          <%= statuses[user.id].message %>
-                        <% } %>
-                      </p>
-                    </div>
-                  </div>
-                </a>
-              </article>
-            <% }); %>
+                  </a>
+                </article>
+              <% }); %>
 
           </div>
-        </div>
-      </section>
-    </div>
+        </section>
+      </div>
 
-    <footer>
-        <% include ../partials/internal-footer %>
-    </footer>
+      <footer>
+          <% include ../partials/internal-footer %>
+      </footer>
+
+    </div>
 
   </body>
 </html>

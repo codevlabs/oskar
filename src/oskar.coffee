@@ -45,8 +45,6 @@ class Oskar
     @app.get '/faq', (req, res) =>
       res.render('pages/faq')
 
-
-
     @app.get '/dashboard', (req, res) =>
       users = @slack.getUsers()
       userIds = users.map (user) ->
@@ -66,7 +64,13 @@ class Oskar
       @mongo.getUserData(req.params.userId).then (data) =>
         graphData = data.feedback.map (row) ->
           return [row.timestamp, parseInt(row.status)]
-        res.render('pages/status', { userData: data, graphData: JSON.stringify(graphData) })
+
+        userData = @slack.getUser(data.id)
+        userData.status = data.feedback[data.feedback.length - 1]
+        userData.date = new Date(userData.status.timestamp)
+        userData.statusString = StringHelper.convertStatusToText(userData.status.status)
+
+        res.render('pages/status', { userData: userData, graphData: JSON.stringify(graphData) })
 
     @app.listen @app.get('port'), ->
       console.log "Node app is running on port 5000"
