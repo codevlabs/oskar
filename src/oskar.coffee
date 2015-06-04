@@ -3,6 +3,7 @@ MongoClient = require './modules/mongoClient'
 SlackClient = require './modules/slackClient'
 TimeHelper = require './helper/timeHelper'
 InputHelper = require './helper/inputHelper'
+StringHelper = require './helper/stringHelper'
 
 class Oskar
 
@@ -55,6 +56,7 @@ class Oskar
         statuses.forEach (status) ->
           filteredStatuses[status.id] = status.feedback
           filteredStatuses[status.id].date = new Date(status.feedback.timestamp)
+          filteredStatuses[status.id].statusString = StringHelper.convertStatusToText(status.feedback.status)
         users.sort (a, b) ->
           filteredStatuses[a.id].status < filteredStatuses[b.id].status
 
@@ -137,8 +139,8 @@ class Oskar
 
     @mongo.saveUserFeedback message.user, message.text
 
-    # if feedback is lower than 5, ask user for additional feedback
-    if (parseInt(message.text) < 5)
+    # if feedback is lower than 3, ask user for additional feedback
+    if (parseInt(message.text) < 3)
       @slack.allowUserComment message.user
       return @composeMessage message.user, 'lowFeedback'
 

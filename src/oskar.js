@@ -1,4 +1,4 @@
-var InputHelper, MongoClient, Oskar, SlackClient, TimeHelper, express,
+var InputHelper, MongoClient, Oskar, SlackClient, StringHelper, TimeHelper, express,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 express = require('express');
@@ -10,6 +10,8 @@ SlackClient = require('./modules/slackClient');
 TimeHelper = require('./helper/timeHelper');
 
 InputHelper = require('./helper/inputHelper');
+
+StringHelper = require('./helper/stringHelper');
 
 Oskar = (function() {
   function Oskar(mongo, slack) {
@@ -69,7 +71,8 @@ Oskar = (function() {
           filteredStatuses = [];
           statuses.forEach(function(status) {
             filteredStatuses[status.id] = status.feedback;
-            return filteredStatuses[status.id].date = new Date(status.feedback.timestamp);
+            filteredStatuses[status.id].date = new Date(status.feedback.timestamp);
+            return filteredStatuses[status.id].statusString = StringHelper.convertStatusToText(status.feedback.status);
           });
           users.sort(function(a, b) {
             return filteredStatuses[a.id].status < filteredStatuses[b.id].status;
@@ -161,7 +164,7 @@ Oskar = (function() {
       return this.composeMessage(message.user, 'invalidInput');
     }
     this.mongo.saveUserFeedback(message.user, message.text);
-    if (parseInt(message.text) < 5) {
+    if (parseInt(message.text) < 3) {
       this.slack.allowUserComment(message.user);
       return this.composeMessage(message.user, 'lowFeedback');
     }

@@ -5,7 +5,7 @@ InputHelper = (function() {
 
   InputHelper.isValidStatus = function(status) {
     var numberPattern;
-    numberPattern = /^[0-9]$/;
+    numberPattern = /^[1-5]$/;
     if (!status.match(numberPattern)) {
       return false;
     }

@@ -1,7 +1,7 @@
 class InputHelper
 
   @isValidStatus: (status) ->
-    numberPattern = /^[0-9]$/
+    numberPattern = /^[1-5]$/
     if !status.match numberPattern
       return false
     return true

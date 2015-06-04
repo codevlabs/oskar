@@ -20,3 +20,27 @@ nav.top-nav.mini {
     padding: 5rem 0;
   }
 }
+
+.post-listing .post-listing__listing-item {
+  padding-bottom: 0.56666rem;
+}
+
+.status-1 {
+  color: #e23d28;
+}
+
+.status-2 {
+  color: #e23d28;
+}
+
+.status-3 {
+  color: #FF851B;
+}
+
+.status-4 {
+  color: #2ECC40;
+}
+
+.status-5 {
+  color: #2ECC40;
+}

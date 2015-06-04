@@ -24,7 +24,7 @@
                     <div class="medium-11 columns">
                       <h2 class="post-listing__listing-item__entry-title entry-title">
                         <%= user.profile.first_name %> is feeling <% if(statuses[user.id] && statuses[user.id].status) {%>
-                          <%= statuses[user.id].status %>
+                        <span class="status-<%= statuses[user.id].status %>"><%= statuses[user.id].statusString %></span>
                         <% } %></h2>
                       <p class="entry-summary">
                         <span>Last reported:</span>
