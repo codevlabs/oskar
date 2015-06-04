@@ -49,7 +49,14 @@ class Oskar
         filteredStatuses = []
         statuses.forEach (status) ->
           filteredStatuses[status.id] = status.feedback
+          filteredStatuses[status.id].date = new Date(status.feedback.timestamp)
         res.render('pages/dashboard', { users: users, statuses: filteredStatuses })
+
+    @app.get '/status/:userId', (req, res) =>
+      @mongo.getUserData(req.params.userId).then (data) =>
+        graphData = data.feedback.map (row) ->
+          return [row.timestamp, parseInt(row.status)]
+        res.render('pages/status', { userData: data, graphData: JSON.stringify(graphData) })
 
     @app.listen @app.get('port'), ->
       console.log "Node app is running on port 5000"
@@ -142,9 +149,15 @@ class Oskar
 
   revealStatusForUser: (userId, targetUserId) =>
     userObj = @slack.getUser targetUserId
+
+    # return for disabled users
+    if userObj is null
+      return
+
     @mongo.getLatestUserFeedback(targetUserId).then (res) =>
-      if (res)
-        res.user = userObj
+      if res is null
+        res = {}
+      res.user = userObj
       @composeMessage userId, 'revealUserStatus', res
 
   handleFeedbackMessage: (message) =>
@@ -161,6 +174,7 @@ class Oskar
 
     # channel info
     if messageType is 'revealChannelStatus'
+      statusMsg = ""
       obj.forEach (user) =>
         userObj = @slack.getUser user.id
         statusMsg += "#{userObj.profile.first_name} is feeling *#{user.feedback.status}*"
@@ -170,11 +184,14 @@ class Oskar
 
     # user info
     if messageType is 'revealUserStatus'
-      if !obj
+
+      console.log obj
+
+      if !obj.status
         statusMsg = "Oh, it looks like I haven\'t heard from #{obj.user.profile.first_name} for a while. Sorry!"
       else
         statusMsg = "#{obj.user.profile.first_name} is feeling *#{obj.status}* on a scale from 0 to 9."
-        if res.message
+        if obj.message
           statusMsg += "\r\nThe last time I asked him what\'s up he replied: #{obj.message}"
 
     # already submitted

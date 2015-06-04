@@ -63,11 +63,26 @@ Oskar = (function() {
           var filteredStatuses;
           filteredStatuses = [];
           statuses.forEach(function(status) {
-            return filteredStatuses[status.id] = status.feedback;
+            filteredStatuses[status.id] = status.feedback;
+            return filteredStatuses[status.id].date = new Date(status.feedback.timestamp);
           });
           return res.render('pages/dashboard', {
             users: users,
             statuses: filteredStatuses
+          });
+        });
+      };
+    })(this));
+    this.app.get('/status/:userId', (function(_this) {
+      return function(req, res) {
+        return _this.mongo.getUserData(req.params.userId).then(function(data) {
+          var graphData;
+          graphData = data.feedback.map(function(row) {
+            return [row.timestamp, parseInt(row.status)];
+          });
+          return res.render('pages/status', {
+            userData: data,
+            graphData: JSON.stringify(graphData)
           });
         });
       };
@@ -166,11 +181,15 @@ Oskar = (function() {
   Oskar.prototype.revealStatusForUser = function(userId, targetUserId) {
     var userObj;
     userObj = this.slack.getUser(targetUserId);
+    if (userObj === null) {
+      return;
+    }
     return this.mongo.getLatestUserFeedback(targetUserId).then((function(_this) {
       return function(res) {
-        if (res) {
-          res.user = userObj;
+        if (res === null) {
+          res = {};
         }
+        res.user = userObj;
         return _this.composeMessage(userId, 'revealUserStatus', res);
       };
     })(this));
@@ -189,6 +208,7 @@ Oskar = (function() {
       statusMsg = "Hey " + userObj.profile.first_name + ", how are you doing today? Please reply with a number between 0 and 9. I\'ll keep track of everything for you.";
     }
     if (messageType === 'revealChannelStatus') {
+      statusMsg = "";
       obj.forEach((function(_this) {
         return function(user) {
           userObj = _this.slack.getUser(user.id);
@@ -201,11 +221,12 @@ Oskar = (function() {
       })(this));
     }
     if (messageType === 'revealUserStatus') {
-      if (!obj) {
+      console.log(obj);
+      if (!obj.status) {
         statusMsg = "Oh, it looks like I haven\'t heard from " + obj.user.profile.first_name + " for a while. Sorry!";
       } else {
         statusMsg = "" + obj.user.profile.first_name + " is feeling *" + obj.status + "* on a scale from 0 to 9.";
-        if (res.message) {
+        if (obj.message) {
           statusMsg += "\r\nThe last time I asked him what\'s up he replied: " + obj.message;
         }
       }

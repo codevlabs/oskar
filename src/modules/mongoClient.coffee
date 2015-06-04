@@ -117,6 +117,20 @@ class MongoClient
 					else
 						reject()
 
+	getUserData: (userId) ->
+
+		promise = new Promise (resolve, reject) =>
+
+			@collection.find({ id: userId }).toArray (err, docs) =>
+
+				if (err is not null)
+					return reject()
+
+				if (docs.length is 0)
+					return resolve(false)
+
+				resolve(docs[0])
+
 	getLatestUserFeedback: (userId) ->
 
 		promise = new Promise (resolve, reject) =>

@@ -161,6 +161,25 @@ MongoClient = (function() {
     })(this));
   };
 
+  MongoClient.prototype.getUserData = function(userId) {
+    var promise;
+    return promise = new Promise((function(_this) {
+      return function(resolve, reject) {
+        return _this.collection.find({
+          id: userId
+        }).toArray(function(err, docs) {
+          if (err === !null) {
+            return reject();
+          }
+          if (docs.length === 0) {
+            return resolve(false);
+          }
+          return resolve(docs[0]);
+        });
+      };
+    })(this));
+  };
+
   MongoClient.prototype.getLatestUserFeedback = function(userId) {
     var promise;
     return promise = new Promise((function(_this) {

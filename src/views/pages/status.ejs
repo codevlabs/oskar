@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <% include ../partials/internal-head %>
+  </head>
+
+  <body class="home blog logged-in admin-bar customize-support">
+
+    <% include ../partials/internal-header %>
+
+    <div class="main-content">
+      <section>
+        <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+      </section>
+    </div>
+
+    <footer>
+        <% include ../partials/internal-footer %>
+
+      <script>
+        $(function () {
+            $('#container').highcharts({
+                chart: {
+                  backgroundColor: '#f5f7f8',
+                },
+                legend: {
+                  enabled: false
+                },
+                title: {
+                    text: 'How is <%= userData.real_name %> feeling?',
+                    x: -20, //center
+                    margin: 50
+                },
+                xAxis: {
+                  type: 'datetime',
+                  minRange: 7 * 24 * 3600000 // fourteen days
+                },
+                yAxis: {
+                    title: {
+                        text: 'Status'
+                    },
+                    min: 0,
+                    max: 9
+                },
+                tooltip: {
+                    valueSuffix: ''
+                },
+                series: [{
+                    name: '<%= userData.real_name %>',
+                    data: <%= graphData %>
+                }]
+            });
+        });
+      </script>
+
+    </footer>
+
+  </body>
+</html>
