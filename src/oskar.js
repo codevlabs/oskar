@@ -226,7 +226,7 @@ Oskar = (function() {
     if (messageType === 'requestFeedback') {
       userObj = this.slack.getUser(userId);
       statusMsg = "Hey " + userObj.profile.first_name + ", How is it going? Just reply with a number between 1 and 5.\n";
-      statusMsg += '5) Awesome :heart_eyes_cat:\n 4) Alright :smile:\n 3) Somewhere in between :neutral_face:\n 2) A bit down :pensive:\n 1) Really shit :tired_face:\n';
+      statusMsg += '5) Awesome :heart_eyes_cat:\n 4) Really good :smile:\n 3) Alright :neutral_face:\n 2) A bit down :pensive:\n 1) Pretty bad :tired_face:\n';
     }
     if (messageType === 'revealChannelStatus') {
       statusMsg = "";
