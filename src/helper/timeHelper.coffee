@@ -1,27 +1,31 @@
+time = require('time')(Date);
+
 class TimeHelper
 
   @hasTimestampExpired: (intervalInHours, timestamp) ->
     intervalInSeconds = intervalInHours * 3600 * 1000
-    nowMinusInterval = Date.now() - intervalInSeconds
+    nowMinusInterval = (time.time() * 1000) - intervalInSeconds
 
     if (timestamp < nowMinusInterval)
       return true
     else
       return false
 
-  @isWeekend: (timestamp, diff) ->
+  @isWeekend: (timestamp, diff = 0) ->
     date = @getLocalDate timestamp, diff
-    return date.getDay() is (6 or 7)
+    return (date.getUTCDay() is 6 or date.getUTCDay() is 0)
 
   @getUTCDate: ->
-    now = new Date();
-    now_utc = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),  now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds())
+    now = new time.Date()
+    now.setTimezone 'UTC'
 
   @getLocalDate: (timestamp, diff) ->
+
     if timestamp is null
       date = @getUTCDate()
     else
-      date = new Date(timestamp)
+      date = new time.Date(timestamp)
+      date.setTimezone 'UTC'
 
     newHours = date.getUTCHours() + diff
     new Date(date.setUTCHours newHours)

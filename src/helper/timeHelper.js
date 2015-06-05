@@ -1,4 +1,6 @@
-var TimeHelper;
+var TimeHelper, time;
+
+time = require('time')(Date);
 
 TimeHelper = (function() {
   function TimeHelper() {}
@@ -6,7 +8,7 @@ TimeHelper = (function() {
   TimeHelper.hasTimestampExpired = function(intervalInHours, timestamp) {
     var intervalInSeconds, nowMinusInterval;
     intervalInSeconds = intervalInHours * 3600 * 1000;
-    nowMinusInterval = Date.now() - intervalInSeconds;
+    nowMinusInterval = (time.time() * 1000) - intervalInSeconds;
     if (timestamp < nowMinusInterval) {
       return true;
     } else {
@@ -16,14 +18,17 @@ TimeHelper = (function() {
 
   TimeHelper.isWeekend = function(timestamp, diff) {
     var date;
+    if (diff == null) {
+      diff = 0;
+    }
     date = this.getLocalDate(timestamp, diff);
-    return date.getDay() === (6 || 7);
+    return date.getUTCDay() === 6 || date.getUTCDay() === 0;
   };
 
   TimeHelper.getUTCDate = function() {
-    var now, now_utc;
-    now = new Date();
-    return now_utc = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
+    var now;
+    now = new time.Date();
+    return now.setTimezone('UTC');
   };
 
   TimeHelper.getLocalDate = function(timestamp, diff) {
@@ -31,7 +36,8 @@ TimeHelper = (function() {
     if (timestamp === null) {
       date = this.getUTCDate();
     } else {
-      date = new Date(timestamp);
+      date = new time.Date(timestamp);
+      date.setTimezone('UTC');
     }
     newHours = date.getUTCHours() + diff;
     return new Date(date.setUTCHours(newHours));
