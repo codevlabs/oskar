@@ -141,6 +141,11 @@ Oskar = (function() {
   };
 
   Oskar.prototype.requestUserFeedback = function(userId, status) {
+    var user;
+    user = this.slack.getUser(userId);
+    if (user && user.presence !== 'active') {
+      return;
+    }
     return this.mongo.getLatestUserTimestampForProperty('feedback', userId).then((function(_this) {
       return function(res) {
         if (res === false) {

@@ -105,6 +105,10 @@ class Oskar
 
   requestUserFeedback: (userId, status) ->
 
+    user = @slack.getUser userId
+    if (user and user.presence isnt 'active')
+      return
+
     @mongo.getLatestUserTimestampForProperty('feedback', userId).then (res) =>
 
       # if user doesnt exist, skip

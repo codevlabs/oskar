@@ -117,6 +117,9 @@ describe 'oskar', ->
       before ->
         composeMessageStub = sinon.stub oskar, 'composeMessage'
 
+      beforeEach ->
+        composeMessageStub.reset()
+
       data =
         userId: 'user1'
         status: 'active'
@@ -128,6 +131,7 @@ describe 'oskar', ->
 
         userObj =
           id: 'user1'
+          presence: 'active'
 
         getUserStub.returns userObj
 
@@ -154,6 +158,24 @@ describe 'oskar', ->
       it 'should not request feedback from an existing user if status is not active or triggered', (done) ->
 
         data.status = 'away'
+        getLatestUserTimestampStub.returns(whenLib yesterday)
+
+        oskar.presenceHandler data
+
+        setTimeout ->
+          composeMessageStub.called.should.be.equal false
+          done()
+        , 100
+
+      it 'should not request user feedback if user isn\'t active', (done) ->
+
+        userObj =
+          userId: 'user2'
+          presence: 'away'
+
+        getUserStub.returns userObj
+
+        data.status = 'triggered'
         oskar.presenceHandler data
         getLatestUserTimestampStub.returns(whenLib yesterday)
 

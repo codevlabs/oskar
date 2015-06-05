@@ -103,6 +103,21 @@ describe 'SlackClient', ->
         spy.args[0][0].userId.should.be.equal('***REMOVED***')
         spy.args[0][0].status.should.be.equal('away')
 
+      it 'should set the user status when user changes presence', ->
+
+        data =
+          id: 'U025P99EH'
+
+        slackClient.presenceChangeHandler data, 'away'
+
+        user = slackClient.getUser data.id
+        user.presence.should.be.equal 'away'
+
+        slackClient.presenceChangeHandler data, 'active'
+
+        user = slackClient.getUser data.id
+        user.presence.should.be.equal 'active'
+
       it 'should return false when message handler is called with no user', ->
         message =
           user: undefined
