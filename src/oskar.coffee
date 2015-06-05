@@ -56,7 +56,7 @@ class Oskar
           filteredStatuses[status.id].date = new Date(status.feedback.timestamp)
           filteredStatuses[status.id].statusString = StringHelper.convertStatusToText(status.feedback.status)
         users.sort (a, b) ->
-          filteredStatuses[a.id].status < filteredStatuses[b.id].status
+          filteredStatuses[a.id].status > filteredStatuses[b.id].status
 
         res.render('pages/dashboard', { users: users, statuses: filteredStatuses })
 

@@ -75,7 +75,7 @@ Oskar = (function() {
             return filteredStatuses[status.id].statusString = StringHelper.convertStatusToText(status.feedback.status);
           });
           users.sort(function(a, b) {
-            return filteredStatuses[a.id].status < filteredStatuses[b.id].status;
+            return filteredStatuses[a.id].status > filteredStatuses[b.id].status;
           });
           return res.render('pages/dashboard', {
             users: users,
