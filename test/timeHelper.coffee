@@ -28,6 +28,19 @@ describe 'TimeHelper', ->
     timestamp = Date.parse('Sat, 02 May 2015 15:00:00 GMT');
     isWeekend = timeHelper.isWeekend(timestamp, 0)
     isWeekend.should.be.equal(true)
+    timestamp = Date.parse('Sun, 03 May 2015 15:00:00 GMT');
+    isWeekend = timeHelper.isWeekend(timestamp, 0)
+    isWeekend.should.be.equal(true)
+
+  it 'should return false when date is not a weekend anymore due to timezone diff', ->
+    timestamp = Date.parse('Sun, 03 May 2015 20:00:00 GMT');
+    isWeekend = timeHelper.isWeekend(timestamp, 5)
+    isWeekend.should.be.equal(false)
+
+  it 'should return false when date is not a weekend yet due to timezone diff', ->
+    timestamp = Date.parse('Sat, 02 May 2015 08:00:00 GMT');
+    isWeekend = timeHelper.isWeekend(timestamp, -9)
+    isWeekend.should.be.equal(false)
 
   it 'should return false when date is not a day of the weekend', ->
     timestamp = Date.parse('Fri, 01 May 2015 15:00:00 GMT');
@@ -52,18 +65,8 @@ describe 'TimeHelper', ->
   it 'should return the current local time for a UTC date plus timezone difference', ->
     timestamp = Date.parse('Fri, 22 May 2015 15:00:00 GMT')
     diff = 8
-    localTime = timeHelper.getLocalDate(timestamp, diff)
-    localTime.getUTCHours().should.be.equal(23)
-
-    timestamp = Date.parse('Thu, 21 May 2015 21:00:00 GMT')
-    diff = -8
-    localTime = timeHelper.getLocalDate(timestamp, diff)
-    localTime.getUTCHours().should.be.equal(13)
-
-    timestamp = Date.parse('Thu, 21 May 2015 00:00:00 GMT')
-    diff = -3
-    localTime = timeHelper.getLocalDate(timestamp, diff)
-    localTime.getUTCHours().should.be.equal(21)
+    localDate = timeHelper.getLocalDate(timestamp, diff)
+    localDate.getUTCHours().should.be.equal(23)
 
   it 'should return true if time falls between a specific interval', ->
     intervalMin = 6

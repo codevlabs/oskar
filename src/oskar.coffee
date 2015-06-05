@@ -56,7 +56,7 @@ class Oskar
           filteredStatuses[status.id].date = new Date(status.feedback.timestamp)
           filteredStatuses[status.id].statusString = StringHelper.convertStatusToText(status.feedback.status)
         users.sort (a, b) ->
-          filteredStatuses[a.id].status < filteredStatuses[b.id].status
+          filteredStatuses[a.id].status > filteredStatuses[b.id].status
 
         res.render('pages/dashboard', { users: users, statuses: filteredStatuses })
 
@@ -81,6 +81,9 @@ class Oskar
     user = @slack.getUser(data.userId)
     if user is null
       return false
+
+    if data.status is 'triggered'
+      @slack.disallowUserComment data.userId
 
     @mongo.userExists(data.userId).then (res) =>
 
@@ -208,8 +211,6 @@ class Oskar
 
     # user info
     if messageType is 'revealUserStatus'
-
-      console.log obj
 
       if !obj.status
         statusMsg = "Oh, it looks like I haven\'t heard from #{obj.user.profile.first_name} for a while. Sorry!"
