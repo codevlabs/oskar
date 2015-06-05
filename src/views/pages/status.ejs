@@ -79,20 +79,6 @@
                 series: [{
                   name: '<%= userData.real_name %>',
                   data: <%= graphData %>
-                },
-                {
-                  type: 'flags',
-                  name: 'Events',
-                  color: '#333333',
-                  fillColor: 'rgba(255,255,255,0.8)',
-                  data: [
-                    { x: Date.UTC(2015, 6, 4), text: 'Highsoft won "Entrepeneur of the Year" in Sogn og Fjordane, Norway', title: 'Award' },
-                    { x: Date.UTC(2015, 6, 3), text: 'Packt Publishing published <em>Learning Highcharts by Example</em>. Since then, many other books are written about Highcharts.', title: 'First book' },
-                    { x: Date.UTC(2015, 6, 2), text: 'Highsoft nominated Norway\'s Startup of the Year', title: 'Award' },
-                    { x: Date.UTC(2015, 6, 5), text: 'Highsoft nominated Best Startup in Nordic Startup Awards', title: 'Award' }
-                  ],
-                  onSeries: '<%= userData.real_name %>',
-                  showInLegend: false
                 }]
             });
         });
