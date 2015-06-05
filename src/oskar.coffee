@@ -102,6 +102,8 @@ class Oskar
     if @slack.isUserCommentAllowed message.user
       return @handleFeedbackMessage message
 
+    @doOnboarding message.user, message
+
     # check last feedback timestamp and evaluate feedback
     @mongo.getLatestUserTimestampForProperty('feedback', message.user).then (timestamp) =>
       @evaluateFeedback message, timestamp
@@ -134,11 +136,27 @@ class Oskar
       #   return
       #
 
+      if (res is null)
+        @doOnboarding userId
+
       # if last activity (res) is null or timestamp has expired, ask for status
-      if (res is null || TimeHelper.hasTimestampExpired 20, res)
+      if (TimeHelper.hasTimestampExpired 20, res)
         @composeMessage userId, 'requestFeedback'
 
-  evaluateFeedback: (message, latestFeedbackTimestamp) ->
+  doOnboarding: (userId, message = null) ->
+
+    @mongo.getOnboardingStatus(message.user).then (res) =>
+      if (res is 0)
+        @mongo.setOnboardingStatus(userId, 1)
+        return @composeMessage userId, 'introduction'
+      if (res is 1)
+        @mongo.setOnboardingStatus(userId, 2)
+        return @composeMessage userId, 'firstMessage'
+      if (res is 2 && message isnt null)
+        @mongo.setOnboardingStatus(userId, 3)
+        return @evaluateFeedback message, null, true
+
+  evaluateFeedback: (message, latestFeedbackTimestamp, firstFeedback = false) ->
 
     # if user has already submitted feedback in the last x hours, reject
     if (latestFeedbackTimestamp && !TimeHelper.hasTimestampExpired 20, latestFeedbackTimestamp)
@@ -149,6 +167,10 @@ class Oskar
       return @composeMessage message.user, 'invalidInput'
 
     @mongo.saveUserFeedback message.user, message.text
+
+    # if first feedback, send special message
+    if firstFeedback
+      return @composeMessage message.user, 'firstMessageSuccess'
 
     # if feedback is lower than 3, ask user for additional feedback
     if (parseInt(message.text) < 3)
@@ -187,6 +209,26 @@ class Oskar
     @composeMessage message.user, 'feedbackMessageReceived'
 
   composeMessage: (userId, messageType, obj) ->
+
+    # first time user
+    if messageType is 'introduction'
+      userObj = @slack.getUser userId
+      statusMsg = "Hey there #{userObj.profile.first_name}, let me quickly introduce myself.\n
+                   My name is Oskar, I'm your new happiness coach on Slack. I'm not going to bother you a lot, but every once in a while, I'm gonna ask how you feel, ok?\n
+                   Let me know when you're ready! Ah, and if you want to know a little bit more about me and what I do, check out the <http://***REMOVED***.herokuapp.com/faq|Oskar FAQ>"
+
+    if messageType is 'firstMessage'
+      statusMsg = "Cool! I'm ready as well. From now on I'll ask you this simple question: 'How is it going?'\n"
+      statusMsg += "You can reply to it with a number between 1 and 5. OK? Let's give it a try, type a number between 1 and 5"
+
+    if messageType is 'firstMessageSuccess'
+      statusMsg = "That was easy, wasn't it? Let me now tell you what each of these numbers mean:\n"
+      statusMsg += '5) Awesome :heart_eyes_cat:\n
+                    4) Really good :smile:\n
+                    3) Alright :neutral_face:\n
+                    2) A bit down :pensive:\n
+                    1) Pretty bad :tired_face:\n'
+      statusMsg += "That's it for now. Next time I'm gonna ask you will be tomorrow when you're back online. Have a great day and see you soon!"
 
     # request feedback
     if messageType is 'requestFeedback'
