@@ -6,13 +6,13 @@ StringHelper = (function() {
   StringHelper.convertStatusToText = function(status) {
     switch (status) {
       case '1':
-        return 'really shit';
+        return 'pretty bad';
       case '2':
         return 'a bit down';
       case '3':
-        return 'somewhere in between';
-      case '4':
         return 'alright';
+      case '4':
+        return 'really good';
       default:
         return 'awesome';
     }

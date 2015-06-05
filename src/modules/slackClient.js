@@ -29,6 +29,7 @@ SlackClient = (function(_super) {
     }
     this.messageHandler = __bind(this.messageHandler, this);
     this.presenceChangeHandler = __bind(this.presenceChangeHandler, this);
+    this.setUserPresence = __bind(this.setUserPresence, this);
     this.token = '***REMOVED***';
     this.autoReconnect = true;
     this.autoMark = true;
@@ -104,6 +105,19 @@ SlackClient = (function(_super) {
     return filteredUsers[0];
   };
 
+  SlackClient.prototype.setUserPresence = function(userId, presence) {
+    var user, _i, _len, _ref, _results;
+    _ref = this.users;
+    _results = [];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      user = _ref[_i];
+      if (user.id === userId) {
+        _results.push(user.presence = presence);
+      }
+    }
+    return _results;
+  };
+
   SlackClient.prototype.allowUserComment = function(userId) {
     var user;
     user = this.getUser(userId);
@@ -127,6 +141,7 @@ SlackClient = (function(_super) {
       userId: data.id,
       status: presence
     };
+    this.setUserPresence(data.userId, presence);
     return this.emit('presence', data);
   };
 

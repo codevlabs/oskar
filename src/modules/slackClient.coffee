@@ -55,6 +55,9 @@ class SlackClient extends EventEmitter
 		filteredUsers = (user for user in @users when user.id is userId)
 		filteredUsers[0]
 
+	setUserPresence: (userId, presence) =>
+		(user.presence = presence) for user in @users when user.id is userId
+
 	allowUserComment: (userId) ->
 		user = @getUser(userId)
 		user.allowComment = true
@@ -72,6 +75,8 @@ class SlackClient extends EventEmitter
 		data =
 			userId: data.id
 			status: presence
+
+		@setUserPresence data.userId, presence
 
 		@emit 'presence', data
 
