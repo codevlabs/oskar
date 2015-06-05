@@ -88,6 +88,7 @@ describe 'oskar', ->
 
     before ->
       presenceHandlerSpy.restore()
+      disallowUserCommentStub.reset()
 
     it 'should save a non-existing user in mongo', (done) ->
       data =
@@ -107,6 +108,22 @@ describe 'oskar', ->
 
       res = oskar.presenceHandler data
       res.should.be.equal(false)
+
+    it 'should disallow user comments when triggered', ->
+      userObj =
+        userId: '***REMOVED***'
+
+      data =
+        userId: '***REMOVED***'
+        status: 'triggered'
+
+      getUserStub.returns(data)
+      oskar.presenceHandler data
+      disallowUserCommentStub.called.should.be.equal true
+
+    after ->
+      disallowUserCommentStub.reset()
+
 
     ###################################################################
     # Presence handler > requestFeedback

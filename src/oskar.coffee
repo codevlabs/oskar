@@ -82,6 +82,9 @@ class Oskar
     if user is null
       return false
 
+    if data.status is 'triggered'
+      @slack.disallowUserComment data.userId
+
     @mongo.userExists(data.userId).then (res) =>
 
       if !res
@@ -208,8 +211,6 @@ class Oskar
 
     # user info
     if messageType is 'revealUserStatus'
-
-      console.log obj
 
       if !obj.status
         statusMsg = "Oh, it looks like I haven\'t heard from #{obj.user.profile.first_name} for a while. Sorry!"

@@ -113,6 +113,9 @@ Oskar = (function() {
     if (user === null) {
       return false;
     }
+    if (data.status === 'triggered') {
+      this.slack.disallowUserComment(data.userId);
+    }
     return this.mongo.userExists(data.userId).then((function(_this) {
       return function(res) {
         if (!res) {
@@ -242,7 +245,6 @@ Oskar = (function() {
       })(this));
     }
     if (messageType === 'revealUserStatus') {
-      console.log(obj);
       if (!obj.status) {
         statusMsg = "Oh, it looks like I haven\'t heard from " + obj.user.profile.first_name + " for a while. Sorry!";
       } else {
