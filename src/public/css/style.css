@@ -1,2 +1,16 @@
 #test {
   margin-top: 50px; }
+
+h1.trigger-navigation {
+  font-size: 3rem; }
+
+.logo h3 {
+  color: #fff;
+  line-height: 1; }
+
+.hero h3 {
+  color: #fff;
+  font-size: 1.2rem; }
+
+.feature__icon {
+  margin-bottom: 15px; }
