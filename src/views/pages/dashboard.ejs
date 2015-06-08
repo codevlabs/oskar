@@ -19,10 +19,10 @@
                 <article class="post-listing__listing-item hentry">
                   <a href="/status/<%= user.id %>">
                     <div class="row">
-                      <div class="medium-1 columns">
+                      <div class="medium-3 columns">
                         <img class="thumbnail post-listing__listing-item__thumbnail" src="<%= user.profile.image_48 %>">
                       </div>
-                      <div class="medium-11 columns">
+                      <div class="medium-9 columns">
                         <h2 class="post-listing__listing-item__entry-title entry-title">
                           <%= user.profile.first_name %> is feeling <% if(statuses[user.id] && statuses[user.id].status) {%>
                           <span class="status-<%= statuses[user.id].status %>"><%= statuses[user.id].statusString %></span>
