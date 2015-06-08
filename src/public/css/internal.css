@@ -1,5 +1,5 @@
 nav.top-nav.mini {
-  background-color: #999;
+  background-color: #19263C;
   padding: 0.23333rem 1.66667rem !important;
 }
 
@@ -90,6 +90,18 @@ article:hover h2 {
 
 .post-listing .post-listing__listing-item:first-of-type {
   margin-top: 1rem;
-  padding-top: 1.66667rem;
-  border-top: 1px solid #eaeaea;
+  padding-top: 0.3rem;
+  border-bottom: 1px solid #eaeaea;
+  border-top: none;
+}
+
+.post-listing .post-listing__listing-item:last-of-type {
+  border: none;
+}
+
+.post-listing .post-listing__listing-item {
+  border-bottom: 1px solid #eaeaea;
+  padding-top: 0.3rem;
+  padding-bottom: 1rem;
+  border-top: none;
 }
