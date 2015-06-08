@@ -6,84 +6,7 @@
 </head>
 
 <body class="index">
-  <div id="st-container" class="st-container st-hideatstart">
-    <div class="hide-for-small">1
-
-      <nav id="nav-mini" class="site-menu site-menu--desktop">
-        <a class="left logo" href="/">
-          <h3>Oskar</h3>
-        </a>
-        <ul class="right inline-list">
-          <li>
-            <a href="/">Home</a>
-          </li>
-          <li>
-            <a href="/dashboard">Dashboard</a>
-          </li>
-          <li>
-            <a href="/faq">FAQ</a>
-          </li>
-          <li>
-            <a href="/signup">Signup</a>
-          </li>
-          <li>
-            <a href="/login">Login</a>
-          </li>
-        </ul>
-      </nav>
-    </div>
-    <div class="show-for-small">
-      <nav class="site-menu">
-        <div class="row">
-          <div class="columns">
-            <a class="left logo" href="/">
-              <img src="https://hanno.co/media/logos/hanno-title-235dde15.svg" width="132" alt="Hanno logo">
-            </a>
-            <a href="#" class="site-menu__trigger-menu js-trigger-menu">Menu</a>
-          </div>
-        </div>
-      </nav>
-      <nav class="site-menu--mobile">
-        <div class="row">
-          <div class="columns">
-            <ul class="site-menu--mobile__options">
-              <li>
-                <a href="/work">
-                  <h3>Work with Us</h3>
-                  <p>See how we can help you</p>
-                </a>
-              </li>
-              <li>
-                <a href="/about">
-                  <h3>About Us</h3>
-                  <p>Meet your shipmates</p>
-                </a>
-              </li>
-              <li>
-                <a href="/contact">
-                  <h3>Contact</h3>
-                  <p>Let's talk about working together</p>
-                </a>
-              </li>
-              <li>
-                <a href="https://logbook.hanno.co">
-                  <h3>Blog</h3>
-                  <p>Our <em>Logbook</em>: join us in building a better web</p>
-                </a>
-              </li>
-              <li>
-                <a href="http://playbook.hanno.co">
-                  <h3>Playbook</h3>
-                  <p>Everything you need to know about how we work</p>
-                </a>
-              </li>
-
-            </ul>
-          </div>
-        </div>
-      </nav>
-    </div>
-  </div>
+  <% include ../partials/external-navigation %>
 
 
   <div class="hero hero--home js__container-outer" style="min-height: 400px;">
@@ -108,10 +31,12 @@
       <div class="columns medium-12 large-12 text-left">
         <ul>
           <li class="question">
+            <a name="feature0"></a>
             <h3>Who is Oskar?</h3>
             <p>Oskar is a happy squirrel. He loves cracking nuts and climbing trees in his freetime, but at work he's a serious happiness manager. His job is to check in with your team mates on a daily basis so you know how they are doing.</p>
           </li>
           <li class="question">
+            <a name="feature1"></a>
             <h3>Why do we need Oskar?</h3>
             <p>Since we humans tend to forget quickly (especially when things are stressful) he checks in with your team mates every day so that you don't have to. He also takes notes if someone is not feeling alright and why. That helps you figure out when someone on your team needs some support, and as a result, foster team communication and avoid that people slip into isolation.</p>
           </li>
@@ -124,6 +49,7 @@
             <p>You might not have guessed it, but squirrels are quite empathetic. If you tell Oskar that something is not OK with you, he'll ask you why. Feel free to tell him what's on your mind. He's a friendly squirrel and won't judge you in any way. He will make sure that your team mates are in the loop so that they can jump in and help you fix whatever you're struggling with.</p>
           </li>
           <li class="question">
+            <a name="feature2"></a>
             <h3>Where can I see how other people are doing?</h3>
             <p>I'm glad you asked, because Oskar prepared a really cool dashboard where you can follow each of your teammates' current status. It also shows when each person has last reported, and the additional feedback in case someone is having a bad day. But that's not all. When you select a person, you can see their status for the last 10 days, allowing you to find patterns for someone's most recent ups or downs.</p>
           </li>

@@ -45,6 +45,15 @@ class Oskar
     @app.get '/faq', (req, res) =>
       res.render('pages/faq')
 
+    @app.get '/signup', (req, res) =>
+      res.render('pages/signup')
+
+    @app.get '/login', (req, res) =>
+      res.render('pages/login')
+
+    @app.get '/subscribe', (req, res) =>
+      res.render('pages/subscribe')
+
     @app.get '/dashboard', (req, res) =>
       users = @slack.getUsers()
       userIds = users.map (user) ->

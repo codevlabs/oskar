@@ -41,6 +41,9 @@ h1.trigger-navigation {
 .hero--home {
   min-height: 400px; }
 
+.oskar-signup {
+  background-color: #142138; }
+
 .site-menu__trigger-menu {
   color: #fff; }
   .site-menu__trigger-menu:after {
