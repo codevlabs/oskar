@@ -113,10 +113,6 @@ class Oskar
 
     @doOnboarding message.user, message
 
-    # check last feedback timestamp and evaluate feedback
-    @mongo.getLatestUserTimestampForProperty('feedback', message.user).then (timestamp) =>
-      @evaluateFeedback message, timestamp
-
   requestUserFeedback: (userId, status) ->
 
     user = @slack.getUser userId
@@ -152,17 +148,22 @@ class Oskar
       if (TimeHelper.hasTimestampExpired 20, res)
         @composeMessage userId, 'requestFeedback'
 
-  doOnboarding: (userId, message = null) ->
+  doOnboarding: (userId, message = null) =>
 
-    @mongo.getOnboardingStatus(message.user).then (res) =>
+    @mongo.getOnboardingStatus(userId).then (res) =>
       if (res is 0)
         @mongo.setOnboardingStatus(userId, 1)
         return @composeMessage userId, 'introduction'
-      if (res is 1)
+      if (res is 1 && message isnt null)
         @mongo.setOnboardingStatus(userId, 2)
         return @composeMessage userId, 'firstMessage'
       if (res is 2 && message isnt null)
         return @evaluateFeedback message, null, true
+
+      # if onboarding is completed, continue with normal feedback loop
+      if (res is 3)
+        @mongo.getLatestUserTimestampForProperty('feedback', message.user).then (timestamp) =>
+          @evaluateFeedback message, timestamp
 
   evaluateFeedback: (message, latestFeedbackTimestamp, firstFeedback = false) ->
 
@@ -178,7 +179,7 @@ class Oskar
 
     # if first feedback, send special message
     if firstFeedback
-      @mongo.setOnboardingStatus(userId, 3)
+      @mongo.setOnboardingStatus(message.user, 3)
       return @composeMessage message.user, 'firstMessageSuccess'
 
     # if feedback is lower than 3, ask user for additional feedback
@@ -227,7 +228,7 @@ class Oskar
                    Let me know when you're ready! Ah, and if you want to know a little bit more about me and what I do, check out the <http://***REMOVED***.herokuapp.com/faq|Oskar FAQ>"
 
     if messageType is 'firstMessage'
-      statusMsg = "Cool! I'm ready as well. From now on I'll ask you this simple question: 'How is it going?'\n"
+      statusMsg = "Cool! I'm ready as well. From now on I'll ask you this simple question: 'How is it going?' "
       statusMsg += "You can reply to it with a number between 1 and 5. OK? Let's give it a try, type a number between 1 and 5"
 
     if messageType is 'firstMessageSuccess'
