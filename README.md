@@ -34,6 +34,14 @@ In order to disable specific channels or users, go to `src/slackClient.coffee` a
 - In `src/slackClient.coffee`, replace the @token variable in the constructur with the one of your Slackbot (to create a slack bot go to https://yourteam.slack.com/services/new/bot)
 - Run `grunt watch` to make changes to the code, as it will compile stuff from CoffeeScript to JS.
 
+## Set up local dev env
+- Download NodeJS install it: https://nodejs.org/download/
+- Go to Oskar folder and install Grunt: npm install grunt -g
+- Then run this command: npm install
+- Start the server: grunt static
+- You can reach the site at http://localhost:5000
+- Compile & watch Sass files: grunt watch
+
 ## Unit tests
 
 Oskar is being tested with [Mocha](http://mochajs.org/) and [should.js](https://github.com/tj/should.js/)
