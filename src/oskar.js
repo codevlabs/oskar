@@ -20,6 +20,7 @@ Oskar = (function() {
     this.revealStatusForUser = __bind(this.revealStatusForUser, this);
     this.revealStatusForChannel = __bind(this.revealStatusForChannel, this);
     this.revealStatus = __bind(this.revealStatus, this);
+    this.doOnboarding = __bind(this.doOnboarding, this);
     this.messageHandler = __bind(this.messageHandler, this);
     this.presenceHandler = __bind(this.presenceHandler, this);
     this.app = express();
@@ -136,12 +137,7 @@ Oskar = (function() {
     if (this.slack.isUserCommentAllowed(message.user)) {
       return this.handleFeedbackMessage(message);
     }
-    this.doOnboarding(message.user, message);
-    return this.mongo.getLatestUserTimestampForProperty('feedback', message.user).then((function(_this) {
-      return function(timestamp) {
-        return _this.evaluateFeedback(message, timestamp);
-      };
-    })(this));
+    return this.doOnboarding(message.user, message);
   };
 
   Oskar.prototype.requestUserFeedback = function(userId, status) {
@@ -176,18 +172,23 @@ Oskar = (function() {
     if (message == null) {
       message = null;
     }
-    return this.mongo.getOnboardingStatus(message.user).then((function(_this) {
+    return this.mongo.getOnboardingStatus(userId).then((function(_this) {
       return function(res) {
         if (res === 0) {
           _this.mongo.setOnboardingStatus(userId, 1);
           return _this.composeMessage(userId, 'introduction');
         }
-        if (res === 1) {
+        if (res === 1 && message !== null) {
           _this.mongo.setOnboardingStatus(userId, 2);
           return _this.composeMessage(userId, 'firstMessage');
         }
         if (res === 2 && message !== null) {
           return _this.evaluateFeedback(message, null, true);
+        }
+        if (res === 3) {
+          return _this.mongo.getLatestUserTimestampForProperty('feedback', message.user).then(function(timestamp) {
+            return _this.evaluateFeedback(message, timestamp);
+          });
         }
       };
     })(this));
@@ -205,7 +206,7 @@ Oskar = (function() {
     }
     this.mongo.saveUserFeedback(message.user, message.text);
     if (firstFeedback) {
-      this.mongo.setOnboardingStatus(userId, 3);
+      this.mongo.setOnboardingStatus(message.user, 3);
       return this.composeMessage(message.user, 'firstMessageSuccess');
     }
     if (parseInt(message.text) < 3) {
@@ -263,7 +264,7 @@ Oskar = (function() {
       statusMsg = "Hey there " + userObj.profile.first_name + ", let me quickly introduce myself.\n My name is Oskar, I'm your new happiness coach on Slack. I'm not going to bother you a lot, but every once in a while, I'm gonna ask how you feel, ok?\n Let me know when you're ready! Ah, and if you want to know a little bit more about me and what I do, check out the <http://***REMOVED***.herokuapp.com/faq|Oskar FAQ>";
     }
     if (messageType === 'firstMessage') {
-      statusMsg = "Cool! I'm ready as well. From now on I'll ask you this simple question: 'How is it going?'\n";
+      statusMsg = "Cool! I'm ready as well. From now on I'll ask you this simple question: 'How is it going?' ";
       statusMsg += "You can reply to it with a number between 1 and 5. OK? Let's give it a try, type a number between 1 and 5";
     }
     if (messageType === 'firstMessageSuccess') {
