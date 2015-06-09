@@ -1,4 +1,4 @@
-###################################################################
+
 # Setup the tests
 ###################################################################
 should = require 'should'
@@ -47,6 +47,7 @@ describe 'oskar', ->
 
   oskar = new Oskar(mongo, slack)
   composeMessageStub = null
+  doOnboardingStub = null
 
   # timestamps
   today = Date.now()
@@ -133,6 +134,7 @@ describe 'oskar', ->
 
       before ->
         composeMessageStub = sinon.stub oskar, 'composeMessage'
+        doOnboardingStub = sinon.stub oskar, 'doOnboarding'
 
       beforeEach ->
         composeMessageStub.reset()
@@ -140,9 +142,6 @@ describe 'oskar', ->
       data =
         userId: 'user1'
         status: 'active'
-
-      beforeEach ->
-        composeMessageStub.reset()
 
       it 'should request feedback from an existing user if timestamp expired', (done) ->
 
@@ -200,6 +199,22 @@ describe 'oskar', ->
           composeMessageStub.called.should.be.equal false
           done()
         , 100
+
+      it 'should trigger the onboarding process when feedback is null', (done) ->
+
+        userObj =
+          userId: 'user3'
+          presence: 'active'
+
+        getUserStub.returns userObj
+        getLatestUserTimestampStub.returns(whenLib null)
+        oskar.requestUserFeedback 'user3', 'active'
+
+        setTimeout =>
+          doOnboardingStub.called.should.be.equal true
+          done()
+        , 100
+
 
   ###################################################################
   # Message handler

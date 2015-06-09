@@ -177,3 +177,27 @@ describe 'MongoClient', ->
 
           done()
 
+  describe 'MongoClientOnboardingStatus', ->
+
+    it 'should return the current onboarding status 0 for the user if no status has been saved before', (done) ->
+
+      userId = 'U025P99EH'
+      mongoClient.getOnboardingStatus(userId).then (res) ->
+        res.should.be.equal 0
+        done()
+
+    it 'should save the onboarding status for the user', (done) ->
+
+      userId = 'U025P99EH'
+      mongoClient.setOnboardingStatus(userId).then (res) =>
+
+        res.should.have.property 'result'
+        done()
+
+    it 'should return the saved value', (done) ->
+
+      userId = 'U025P99EH'
+      mongoClient.setOnboardingStatus(userId, 1).then (res) =>
+        mongoClient.getOnboardingStatus(userId).then (res) =>
+          res.should.be.equal(1)
+          done()

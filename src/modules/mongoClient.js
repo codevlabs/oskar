@@ -271,6 +271,52 @@ MongoClient = (function() {
     })(this));
   };
 
+  MongoClient.prototype.getOnboardingStatus = function(userId) {
+    var promise;
+    return promise = new Promise((function(_this) {
+      return function(resolve, reject) {
+        return _this.collection.find({
+          id: userId
+        }).toArray(function(err, docs) {
+          if (err === !null) {
+            return reject();
+          }
+          if (docs.length === 0) {
+            return resolve(false);
+          }
+          if (!docs[0].hasOwnProperty('onboarding')) {
+            return resolve(0);
+          }
+          return resolve(docs[0].onboarding);
+        });
+      };
+    })(this));
+  };
+
+  MongoClient.prototype.setOnboardingStatus = function(userId, status) {
+    var promise;
+    return promise = new Promise((function(_this) {
+      return function(resolve, reject) {
+        var find, update;
+        find = {
+          id: userId
+        };
+        update = {
+          $set: {
+            'onboarding': status
+          }
+        };
+        return _this.collection.update(find, update, function(err, result) {
+          if (err === null) {
+            return resolve(result);
+          } else {
+            return reject();
+          }
+        });
+      };
+    })(this));
+  };
+
   return MongoClient;
 
 })();
