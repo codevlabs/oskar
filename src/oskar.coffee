@@ -143,10 +143,10 @@ class Oskar
       # userLocalDate = timeHelper.getLocalDate null, user.tz_offset / 3600
       # if !timeHelper.isDateInsideInterval 8, 12, userLocalDate
       #   return
-      #
 
+      # if no feedback has been tracked so far, do onboarding
       if (res is null)
-        @doOnboarding userId
+        return @doOnboarding userId
 
       # if last activity (res) is null or timestamp has expired, ask for status
       if (TimeHelper.hasTimestampExpired 20, res)
@@ -162,7 +162,6 @@ class Oskar
         @mongo.setOnboardingStatus(userId, 2)
         return @composeMessage userId, 'firstMessage'
       if (res is 2 && message isnt null)
-        @mongo.setOnboardingStatus(userId, 3)
         return @evaluateFeedback message, null, true
 
   evaluateFeedback: (message, latestFeedbackTimestamp, firstFeedback = false) ->
@@ -179,6 +178,7 @@ class Oskar
 
     # if first feedback, send special message
     if firstFeedback
+      @mongo.setOnboardingStatus(userId, 3)
       return @composeMessage message.user, 'firstMessageSuccess'
 
     # if feedback is lower than 3, ask user for additional feedback

@@ -151,6 +151,7 @@ Oskar = (function() {
     if (this.slack.isUserCommentAllowed(message.user)) {
       return this.handleFeedbackMessage(message);
     }
+    this.doOnboarding(message.user, message);
     return this.mongo.getLatestUserTimestampForProperty('feedback', message.user).then((function(_this) {
       return function(timestamp) {
         return _this.evaluateFeedback(message, timestamp);
@@ -176,14 +177,41 @@ Oskar = (function() {
         if (TimeHelper.isWeekend()) {
           return;
         }
-        if (res === null || TimeHelper.hasTimestampExpired(20, res)) {
+        if (res === null) {
+          return _this.doOnboarding(userId);
+        }
+        if (TimeHelper.hasTimestampExpired(20, res)) {
           return _this.composeMessage(userId, 'requestFeedback');
         }
       };
     })(this));
   };
 
-  Oskar.prototype.evaluateFeedback = function(message, latestFeedbackTimestamp) {
+  Oskar.prototype.doOnboarding = function(userId, message) {
+    if (message == null) {
+      message = null;
+    }
+    return this.mongo.getOnboardingStatus(message.user).then((function(_this) {
+      return function(res) {
+        if (res === 0) {
+          _this.mongo.setOnboardingStatus(userId, 1);
+          return _this.composeMessage(userId, 'introduction');
+        }
+        if (res === 1) {
+          _this.mongo.setOnboardingStatus(userId, 2);
+          return _this.composeMessage(userId, 'firstMessage');
+        }
+        if (res === 2 && message !== null) {
+          return _this.evaluateFeedback(message, null, true);
+        }
+      };
+    })(this));
+  };
+
+  Oskar.prototype.evaluateFeedback = function(message, latestFeedbackTimestamp, firstFeedback) {
+    if (firstFeedback == null) {
+      firstFeedback = false;
+    }
     if (latestFeedbackTimestamp && !TimeHelper.hasTimestampExpired(20, latestFeedbackTimestamp)) {
       return this.composeMessage(message.user, 'alreadySubmitted');
     }
@@ -191,6 +219,10 @@ Oskar = (function() {
       return this.composeMessage(message.user, 'invalidInput');
     }
     this.mongo.saveUserFeedback(message.user, message.text);
+    if (firstFeedback) {
+      this.mongo.setOnboardingStatus(userId, 3);
+      return this.composeMessage(message.user, 'firstMessageSuccess');
+    }
     if (parseInt(message.text) < 3) {
       this.slack.allowUserComment(message.user);
       return this.composeMessage(message.user, 'lowFeedback');
@@ -241,6 +273,19 @@ Oskar = (function() {
 
   Oskar.prototype.composeMessage = function(userId, messageType, obj) {
     var statusMsg, userObj;
+    if (messageType === 'introduction') {
+      userObj = this.slack.getUser(userId);
+      statusMsg = "Hey there " + userObj.profile.first_name + ", let me quickly introduce myself.\n My name is Oskar, I'm your new happiness coach on Slack. I'm not going to bother you a lot, but every once in a while, I'm gonna ask how you feel, ok?\n Let me know when you're ready! Ah, and if you want to know a little bit more about me and what I do, check out the <http://***REMOVED***.herokuapp.com/faq|Oskar FAQ>";
+    }
+    if (messageType === 'firstMessage') {
+      statusMsg = "Cool! I'm ready as well. From now on I'll ask you this simple question: 'How is it going?'\n";
+      statusMsg += "You can reply to it with a number between 1 and 5. OK? Let's give it a try, type a number between 1 and 5";
+    }
+    if (messageType === 'firstMessageSuccess') {
+      statusMsg = "That was easy, wasn't it? Let me now tell you what each of these numbers mean:\n";
+      statusMsg += '5) Awesome :heart_eyes_cat:\n 4) Really good :smile:\n 3) Alright :neutral_face:\n 2) A bit down :pensive:\n 1) Pretty bad :tired_face:\n';
+      statusMsg += "That's it for now. Next time I'm gonna ask you will be tomorrow when you're back online. Have a great day and see you soon!";
+    }
     if (messageType === 'requestFeedback') {
       userObj = this.slack.getUser(userId);
       statusMsg = "Hey " + userObj.profile.first_name + ", How is it going? Just reply with a number between 1 and 5.\n";
