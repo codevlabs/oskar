@@ -203,4 +203,38 @@ class MongoClient
 
 				resolve docs[0][property].pop().timestamp
 
+	getOnboardingStatus: (userId) ->
+
+		promise = new Promise (resolve, reject) =>
+
+			@collection.find({ id: userId }).toArray (err, docs) =>
+
+				if (err is not null)
+					return reject()
+
+				if (docs.length is 0)
+					return resolve(false)
+
+				if (!docs[0].hasOwnProperty 'onboarding')
+					return resolve 0
+
+				resolve (docs[0].onboarding)
+
+	setOnboardingStatus: (userId, status) ->
+
+		promise = new Promise (resolve, reject) =>
+
+				find =
+					id: userId
+
+				update =
+					$set:
+						'onboarding': status
+
+				@collection.update find, update, (err, result) =>
+					if (err is null)
+						resolve(result)
+					else
+						reject()
+
 module.exports = MongoClient
