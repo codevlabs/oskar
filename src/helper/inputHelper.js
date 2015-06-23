@@ -22,6 +22,15 @@ InputHelper = (function() {
     return null;
   };
 
+  InputHelper.isAskingForHelp = function(input) {
+    var messagePattern;
+    messagePattern = /help/i;
+    if (input.match(messagePattern)) {
+      return true;
+    }
+    return false;
+  };
+
   return InputHelper;
 
 })();

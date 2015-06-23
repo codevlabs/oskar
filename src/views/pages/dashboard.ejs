@@ -27,9 +27,9 @@
                           <%= user.profile.first_name %> is feeling <% if(statuses[user.id] && statuses[user.id].status) {%>
                           <span class="status-<%= statuses[user.id].status %>"><%= statuses[user.id].statusString %></span>
                           <% } %>
-                          <% if(statuses[user.id] && statuses[user.id].message) {%>
+<!--                           <% if(statuses[user.id] && statuses[user.id].message) {%>
                             <span class="tipped" data-tipped-options="size: 'large'" title="<%= statuses[user.id].message %>"><img class="comment" src="/public/images/icon-comment.png" /></span>
-                          <% } %>
+                          <% } %> -->
                         </h2>
                         <p class="entry-summary">
                           <span>Last reported:</span>
@@ -38,6 +38,11 @@
                             <%= statuses[user.id].date.getHours() %>:<%= statuses[user.id].date.getMinutes() %>
                           </abbr>
                         </p>
+                        <% if(statuses[user.id] && statuses[user.id].message) {%>
+                          <p class="feedback-message">
+                            <%= statuses[user.id].message %>
+                          </p>
+                        <% } %>
                       </div>
                     </div>
                   </a>

@@ -1,13 +1,15 @@
-express = require 'express'
-MongoClient = require './modules/mongoClient'
-SlackClient = require './modules/slackClient'
-TimeHelper = require './helper/timeHelper'
-InputHelper = require './helper/inputHelper'
-StringHelper = require './helper/stringHelper'
+express          = require 'express'
+MongoClient      = require './modules/mongoClient'
+SlackClient      = require './modules/slackClient'
+routes           = require './modules/routes'
+TimeHelper       = require './helper/timeHelper'
+InputHelper      = require './helper/inputHelper'
+OnboardingHelper = require './helper/onboardingHelper'
+OskarTexts       = require './content/oskarTexts'
 
 class Oskar
 
-  constructor: (mongo, slack) ->
+  constructor: (mongo, slack, onboardingHelper) ->
     @app = express()
     @app.set 'view engine', 'ejs'
     @app.set 'views', 'src/views/'
@@ -17,11 +19,14 @@ class Oskar
     @mongo.connect()
 
     @slack = slack || new SlackClient()
-    @slack.connect()
+    @slack.connect().then () =>
+      @onboardingHelper.retainOnboardingStatusForUsers @slack.getUserIds()
+
+    @onboardingHelper = onboardingHelper || new OnboardingHelper @mongo
 
     @setupRoutes()
 
-    # dev environment shouldnt run events or interval
+    # dev environment shouldnt listen to slack events or run interval
     if process.env.NODE_ENV is 'development'
       return
 
@@ -32,54 +37,15 @@ class Oskar
       @checkForUserStatus (@slack)
     , 3600 * 1000
 
-  setupEvents: () ->
+  setupEvents: () =>
     @slack.on 'presence', @presenceHandler
     @slack.on 'message', @messageHandler
+    @onboardingHelper.on 'message', @onboardingHandler
 
   setupRoutes: () ->
     @app.set 'port', process.env.PORT || 5000
 
-    @app.get '/', (req, res) =>
-      res.render('pages/index')
-
-    @app.get '/faq', (req, res) =>
-      res.render('pages/faq')
-
-    @app.get '/signup', (req, res) =>
-      res.render('pages/signup')
-
-    @app.get '/login', (req, res) =>
-      res.render('pages/login')
-
-    @app.get '/subscribe', (req, res) =>
-      res.render('pages/subscribe')
-
-    @app.get '/dashboard', (req, res) =>
-      users = @slack.getUsers()
-      userIds = users.map (user) ->
-        return user.id
-      @mongo.getAllUserFeedback(userIds).then (statuses) =>
-        filteredStatuses = []
-        statuses.forEach (status) ->
-          filteredStatuses[status.id] = status.feedback
-          filteredStatuses[status.id].date = new Date(status.feedback.timestamp)
-          filteredStatuses[status.id].statusString = StringHelper.convertStatusToText(status.feedback.status)
-        users.sort (a, b) ->
-          filteredStatuses[a.id].status > filteredStatuses[b.id].status
-
-        res.render('pages/dashboard', { users: users, statuses: filteredStatuses })
-
-    @app.get '/status/:userId', (req, res) =>
-      @mongo.getUserData(req.params.userId).then (data) =>
-        graphData = data.feedback.map (row) ->
-          return [row.timestamp, parseInt(row.status)]
-
-        userData = @slack.getUser(data.id)
-        userData.status = data.feedback[data.feedback.length - 1]
-        userData.date = new Date(userData.status.timestamp)
-        userData.statusString = StringHelper.convertStatusToText(userData.status.status)
-
-        res.render('pages/status', { userData: userData, graphData: JSON.stringify(graphData) })
+    routes(@app, @mongo, @slack)
 
     @app.listen @app.get('port'), ->
       console.log "Node app is running on port 5000"
@@ -87,21 +53,33 @@ class Oskar
   presenceHandler: (data) =>
 
     # return if disabled user
-    user = @slack.getUser(data.userId)
+    user = @slack.getUser data.userId
     if user is null
       return false
 
     if data.status is 'triggered'
       @slack.disallowUserComment data.userId
 
-    @mongo.userExists(data.userId).then (res) =>
+    user = @slack.getUser data.userId
+    if (user and user.presence isnt 'active')
+      return
 
+    # if user is not onboarded welcome him/her
+    if !@onboardingHelper.isOnboarded(data.userId)
+      return @onboardingHelper.welcome(data.userId)
+
+    @mongo.userExists(data.userId).then (res) =>
       if !res
         @mongo.saveUser(user).then (res) =>
           @requestUserFeedback data.userId, data.status
-      @requestUserFeedback data.userId, data.status
+      else
+        @requestUserFeedback data.userId, data.status
 
   messageHandler: (message) =>
+
+    # if user is not onboarded, run until onboarded
+    if !@onboardingHelper.isOnboarded(message.user)
+      return @onboardingHelper.advance(message.user, message.text)
 
     # if user is asking for feedback of user with ID
     if userId = InputHelper.isAskingForUserStatus(message.text)
@@ -111,64 +89,49 @@ class Oskar
     if @slack.isUserCommentAllowed message.user
       return @handleFeedbackMessage message
 
-    @doOnboarding message.user, message
+    # if user is asking for help, send a link to the FAQ
+    if InputHelper.isAskingForHelp(message.text)
+      return @composeMessage message.user, 'faq'
+
+    @mongo.getLatestUserTimestampForProperty('feedback', message.user).then (timestamp) =>
+      @evaluateFeedback message, timestamp
+
+  onboardingHandler: (message) =>
+    @composeMessage(message.userId, message.type)
 
   requestUserFeedback: (userId, status) ->
 
-    user = @slack.getUser userId
-    if (user and user.presence isnt 'active')
+    @mongo.saveUserStatus userId, status
+
+    # if user switched to anything but active or triggered, skip
+    if status != 'active' && status != 'triggered'
       return
 
-    @mongo.getLatestUserTimestampForProperty('feedback', userId).then (res) =>
+    # if it's weekend or between 0-8 at night, skip
+    user = @slack.getUser userId
+    date = TimeHelper.getLocalDate(null, user.tz_offset / 3600)
+    if (TimeHelper.isWeekend() || TimeHelper.isDateInsideInterval 0, 8, date)
+      return
+
+    @mongo.getLatestUserTimestampForProperty('feedback', userId).then (timestamp) =>
 
       # if user doesnt exist, skip
-      if res is false
+      if timestamp is false
         return
 
-      @mongo.saveUserStatus userId, status
+      # if timestamp has expired and user has not already been asked two times, ask for status
+      today = new Date()
+      @mongo.getUserFeedbackCount(userId, today).then (count) =>
 
-      # if user switched to anything but active or triggered, skip
-      if status != 'active' && status != 'triggered'
-        return
-
-      # if it's weekend, skip
-      if TimeHelper.isWeekend()
-        return
-
-      # if current time is not in interval, skip
-      # userLocalDate = timeHelper.getLocalDate null, user.tz_offset / 3600
-      # if !timeHelper.isDateInsideInterval 8, 12, userLocalDate
-      #   return
-
-      # if no feedback has been tracked so far, do onboarding
-      if (res is null)
-        return @doOnboarding userId
-
-      # if last activity (res) is null or timestamp has expired, ask for status
-      if (TimeHelper.hasTimestampExpired 20, res)
-        @composeMessage userId, 'requestFeedback'
-
-  doOnboarding: (userId, message = null) =>
-
-    @mongo.getOnboardingStatus(userId).then (res) =>
-      if (res is 0)
-        @mongo.setOnboardingStatus(userId, 1)
-        return @composeMessage userId, 'introduction'
-      if (res is 1 && message isnt null)
-        @mongo.setOnboardingStatus(userId, 2)
-        return @composeMessage userId, 'firstMessage'
-      if (res is 2 && message isnt null)
-        return @evaluateFeedback message, null, true
-
-      # if onboarding is completed, continue with normal feedback loop
-      if (res is 3)
-        @mongo.getLatestUserTimestampForProperty('feedback', message.user).then (timestamp) =>
-          @evaluateFeedback message, timestamp
+        if (count < 2 && TimeHelper.hasTimestampExpired 6, timestamp)
+          requestsCount = @slack.getfeedbackRequestsCount(userId)
+          @slack.setfeedbackRequestsCount(userId, requestsCount + 1)
+          @composeMessage userId, 'requestFeedback', requestsCount
 
   evaluateFeedback: (message, latestFeedbackTimestamp, firstFeedback = false) ->
 
     # if user has already submitted feedback in the last x hours, reject
-    if (latestFeedbackTimestamp && !TimeHelper.hasTimestampExpired 20, latestFeedbackTimestamp)
+    if (latestFeedbackTimestamp && !TimeHelper.hasTimestampExpired 4, latestFeedbackTimestamp)
       return @composeMessage message.user, 'alreadySubmitted'
 
     # if user didn't send valid feedback
@@ -176,16 +139,16 @@ class Oskar
       return @composeMessage message.user, 'invalidInput'
 
     @mongo.saveUserFeedback message.user, message.text
-
-    # if first feedback, send special message
-    if firstFeedback
-      @mongo.setOnboardingStatus(message.user, 3)
-      return @composeMessage message.user, 'firstMessageSuccess'
+    @slack.setfeedbackRequestsCount(message.user, 0)
 
     # if feedback is lower than 3, ask user for additional feedback
-    if (parseInt(message.text) < 3)
+    if (parseInt(message.text) <= 3)
       @slack.allowUserComment message.user
       return @composeMessage message.user, 'lowFeedback'
+
+    if (parseInt(message.text) > 3)
+      @slack.allowUserComment message.user
+      return @composeMessage message.user, 'highFeedback'
 
     @composeMessage message.user, 'feedbackReceived'
 
@@ -220,76 +183,44 @@ class Oskar
 
   composeMessage: (userId, messageType, obj) ->
 
-    # first time user
-    if messageType is 'introduction'
-      userObj = @slack.getUser userId
-      statusMsg = "Hey there #{userObj.profile.first_name}, let me quickly introduce myself.\n
-                   My name is Oskar, I'm your new happiness coach on Slack. I'm not going to bother you a lot, but every once in a while, I'm gonna ask how you feel, ok?\n
-                   Let me know when you're ready! Ah, and if you want to know a little bit more about me and what I do, check out the <http://***REMOVED***.herokuapp.com/faq|Oskar FAQ>"
-
-    if messageType is 'firstMessage'
-      statusMsg = "Cool! I'm ready as well. From now on I'll ask you this simple question: 'How is it going?' "
-      statusMsg += "You can reply to it with a number between 1 and 5. OK? Let's give it a try, type a number between 1 and 5"
-
-    if messageType is 'firstMessageSuccess'
-      statusMsg = "That was easy, wasn't it? Let me now tell you what each of these numbers mean:\n"
-      statusMsg += '5) Awesome :heart_eyes_cat:\n
-                    4) Really good :smile:\n
-                    3) Alright :neutral_face:\n
-                    2) A bit down :pensive:\n
-                    1) Pretty bad :tired_face:\n'
-      statusMsg += "That's it for now. Next time I'm gonna ask you will be tomorrow when you're back online. Have a great day and see you soon!"
+    # to pick varying messages from content file
+    random =  Math.floor(Math.random() * (4 - 1)) + 1
 
     # request feedback
     if messageType is 'requestFeedback'
       userObj = @slack.getUser userId
-      # statusMsg = "Hey #{userObj.profile.first_name}, how are you doing today? Please reply with a number between 0 and 9. I\'ll keep track of everything for you."
-      statusMsg = "Hey #{userObj.profile.first_name}, How is it going? Just reply with a number between 1 and 5.\n"
-      statusMsg += '5) Awesome :heart_eyes_cat:\n
-                    4) Really good :smile:\n
-                    3) Alright :neutral_face:\n
-                    2) A bit down :pensive:\n
-                    1) Pretty bad :tired_face:\n'
+      if obj < 1
+        statusMsg = OskarTexts.requestFeedback.random[random-1].format userObj.profile.first_name
+        statusMsg += OskarTexts.requestFeedback.selection
+      else
+        console.log obj
+        statusMsg = OskarTexts.requestFeedback.options[obj-1]
 
     # channel info
-    if messageType is 'revealChannelStatus'
+    else if messageType is 'revealChannelStatus'
       statusMsg = ""
       obj.forEach (user) =>
         userObj = @slack.getUser user.id
-        statusMsg += "#{userObj.profile.first_name} is feeling *#{user.feedback.status}*"
+        statusMsg += OskarTexts.revealChannelStatus.status.format userObj.profile.first_name, user.feedback.status
         if user.feedback.message
-          statusMsg += " (#{user.feedback.message})"
+          statusMsg += OskarTexts.revealChannelStatus.message.format user.feedback.message
         statusMsg += ".\r\n"
 
     # user info
-    if messageType is 'revealUserStatus'
-
+    else if messageType is 'revealUserStatus'
       if !obj.status
-        statusMsg = "Oh, it looks like I haven\'t heard from #{obj.user.profile.first_name} for a while. Sorry!"
+        statusMsg = OskarTexts.revealUserStatus.error.format obj.user.profile.first_name
       else
-        statusMsg = "#{obj.user.profile.first_name} is feeling *#{obj.status}* on a scale from 1 to 5."
+        statusMsg = OskarTexts.revealUserStatus.status.format obj.user.profile.first_name, obj.status
         if obj.message
-          statusMsg += "\r\nThe last time I asked him what\'s up he replied: #{obj.message}"
+          statusMsg += OskarTexts.revealUserStatus.message.format obj.message
 
-    # already submitted
-    if messageType is 'alreadySubmitted'
-      statusMsg = 'Oops, looks like I\'ve already received some feedback from you in the last 20 hours.'
+    # faq
+    else if messageType is 'faq'
+      statusMsg = OskarTexts.faq
 
-    # invalid input
-    if messageType is 'invalidInput'
-      statusMsg = 'Oh it looks like you want to tell me how you feel, but unfortunately I only understand numbers between 1 and 5'
-
-    # low feedback
-    if messageType is 'lowFeedback'
-      statusMsg = 'Feel free to share with me what\'s wrong. I will treat it with confidence'
-
-    # feedback already received
-    if messageType is 'feedbackReceived'
-      statusMsg = 'Thanks a lot, buddy! Keep up the good work!'
-
-    # feedback received
-    if messageType is 'feedbackMessageReceived'
-      statusMsg = 'Thanks, my friend. I really appreciate your openness.'
+    # everything else
+    else statusMsg = OskarTexts[messageType][random-1]
 
     if userId && statusMsg
       @slack.postMessage(userId, statusMsg)

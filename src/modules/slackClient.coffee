@@ -1,9 +1,10 @@
-Slack = require '../vendor/client'
-mongoClient = require '../modules/mongoClient'
-InputHelper = require '../helper/inputHelper'
-timeHelper = require '../helper/timeHelper'
-Promise = require 'promise'
+Slack          = require '../vendor/client'
+mongoClient    = require '../modules/mongoClient'
+InputHelper    = require '../helper/inputHelper'
+timeHelper     = require '../helper/timeHelper'
+Promise        = require 'promise'
 {EventEmitter} = require 'events'
+config         = require 'config'
 
 class SlackClient extends EventEmitter
 
@@ -11,13 +12,13 @@ class SlackClient extends EventEmitter
 	@mongo = null
 
 	constructor: (mongo = null) ->
-		@token = '***REMOVED***'
-		@autoReconnect = true
-		@autoMark = true
-		@users = []
-		@channels = []
-		@disabledUsers = ['***REMOVED***', '***REMOVED***', 'USLACKBOT']
-		@disabledChannels = ['***REMOVED***']
+		@token            = config.get('slack.token')
+		@autoReconnect    = true
+		@autoMark         = true
+		@users            = []
+		@channels         = []
+		@disabledUsers    = config.get 'slack.disabledUsers'
+		@disabledChannels = config.get 'slack.disabledChannels'
 		if mongo? then @mongo = mongo
 
 	connect: () ->
@@ -30,10 +31,10 @@ class SlackClient extends EventEmitter
 			@slack.on 'open', =>
 				for user, attrs of @slack.users when attrs.is_bot is false
 					@users.push attrs
-				resolve(@slack)
+				resolve @slack
 
 			@slack.on 'error', (error) ->
-				reject(error)
+				reject error
 
 			@slack.login()
 
@@ -59,19 +60,28 @@ class SlackClient extends EventEmitter
 		(user.presence = presence) for user in @users when user.id is userId
 
 	allowUserComment: (userId) ->
-		user = @getUser(userId)
+		user = @getUser userId
 		user.allowComment = true
 
 	disallowUserComment: (userId) ->
-		user = @getUser(userId)
+		user = @getUser userId
 		user.allowComment = false
 
 	isUserCommentAllowed: (userId) ->
-		user = @getUser(userId)
+		user = @getUser userId
 		typeof user isnt 'undefined' && typeof user.allowComment isnt 'undefined' && user.allowComment
 
-	presenceChangeHandler: (data, presence) =>
+	getfeedbackRequestsCount: (userId) ->
+		user = @getUser userId
+		if (typeof user isnt 'undefined' && typeof user.feedbackRequestsCount isnt 'undefined' && user.feedbackRequestsCount)
+			return user.feedbackRequestsCount
+		return 0
 
+	setfeedbackRequestsCount: (userId, count) ->
+		user = @getUser userId
+		user.feedbackRequestsCount = count
+
+	presenceChangeHandler: (data, presence) =>
 		data =
 			userId: data.id
 			status: presence
@@ -83,11 +93,11 @@ class SlackClient extends EventEmitter
 	messageHandler: (message) =>
 
 		# if user is bot, return
-		if ((@getUser message.user) is undefined)
+		if (@getUser message.user) is undefined
 			return false
 
-		# disable messages from watercooler
-		if (@disabledChannels.indexOf(message.channel) isnt -1)
+		# disable messages from disabled channels
+		if @disabledChannels.indexOf(message.channel) isnt -1
 			return false
 
 		message.type = 'input'

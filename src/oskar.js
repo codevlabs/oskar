@@ -1,4 +1,4 @@
-var InputHelper, MongoClient, Oskar, SlackClient, StringHelper, TimeHelper, express,
+var InputHelper, MongoClient, OnboardingHelper, Oskar, OskarTexts, SlackClient, TimeHelper, express, routes,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 express = require('express');
@@ -7,22 +7,27 @@ MongoClient = require('./modules/mongoClient');
 
 SlackClient = require('./modules/slackClient');
 
+routes = require('./modules/routes');
+
 TimeHelper = require('./helper/timeHelper');
 
 InputHelper = require('./helper/inputHelper');
 
-StringHelper = require('./helper/stringHelper');
+OnboardingHelper = require('./helper/onboardingHelper');
+
+OskarTexts = require('./content/oskarTexts');
 
 Oskar = (function() {
-  function Oskar(mongo, slack) {
+  function Oskar(mongo, slack, onboardingHelper) {
     this.checkForUserStatus = __bind(this.checkForUserStatus, this);
     this.handleFeedbackMessage = __bind(this.handleFeedbackMessage, this);
     this.revealStatusForUser = __bind(this.revealStatusForUser, this);
     this.revealStatusForChannel = __bind(this.revealStatusForChannel, this);
     this.revealStatus = __bind(this.revealStatus, this);
-    this.doOnboarding = __bind(this.doOnboarding, this);
+    this.onboardingHandler = __bind(this.onboardingHandler, this);
     this.messageHandler = __bind(this.messageHandler, this);
     this.presenceHandler = __bind(this.presenceHandler, this);
+    this.setupEvents = __bind(this.setupEvents, this);
     this.app = express();
     this.app.set('view engine', 'ejs');
     this.app.set('views', 'src/views/');
@@ -30,7 +35,12 @@ Oskar = (function() {
     this.mongo = mongo || new MongoClient();
     this.mongo.connect();
     this.slack = slack || new SlackClient();
-    this.slack.connect();
+    this.slack.connect().then((function(_this) {
+      return function() {
+        return _this.onboardingHelper.retainOnboardingStatusForUsers(_this.slack.getUserIds());
+      };
+    })(this));
+    this.onboardingHelper = onboardingHelper || new OnboardingHelper(this.mongo);
     this.setupRoutes();
     if (process.env.NODE_ENV === 'development') {
       return;
@@ -45,79 +55,13 @@ Oskar = (function() {
 
   Oskar.prototype.setupEvents = function() {
     this.slack.on('presence', this.presenceHandler);
-    return this.slack.on('message', this.messageHandler);
+    this.slack.on('message', this.messageHandler);
+    return this.onboardingHelper.on('message', this.onboardingHandler);
   };
 
   Oskar.prototype.setupRoutes = function() {
     this.app.set('port', process.env.PORT || 5000);
-    this.app.get('/', (function(_this) {
-      return function(req, res) {
-        return res.render('pages/index');
-      };
-    })(this));
-    this.app.get('/faq', (function(_this) {
-      return function(req, res) {
-        return res.render('pages/faq');
-      };
-    })(this));
-    this.app.get('/signup', (function(_this) {
-      return function(req, res) {
-        return res.render('pages/signup');
-      };
-    })(this));
-    this.app.get('/login', (function(_this) {
-      return function(req, res) {
-        return res.render('pages/login');
-      };
-    })(this));
-    this.app.get('/subscribe', (function(_this) {
-      return function(req, res) {
-        return res.render('pages/subscribe');
-      };
-    })(this));
-    this.app.get('/dashboard', (function(_this) {
-      return function(req, res) {
-        var userIds, users;
-        users = _this.slack.getUsers();
-        userIds = users.map(function(user) {
-          return user.id;
-        });
-        return _this.mongo.getAllUserFeedback(userIds).then(function(statuses) {
-          var filteredStatuses;
-          filteredStatuses = [];
-          statuses.forEach(function(status) {
-            filteredStatuses[status.id] = status.feedback;
-            filteredStatuses[status.id].date = new Date(status.feedback.timestamp);
-            return filteredStatuses[status.id].statusString = StringHelper.convertStatusToText(status.feedback.status);
-          });
-          users.sort(function(a, b) {
-            return filteredStatuses[a.id].status > filteredStatuses[b.id].status;
-          });
-          return res.render('pages/dashboard', {
-            users: users,
-            statuses: filteredStatuses
-          });
-        });
-      };
-    })(this));
-    this.app.get('/status/:userId', (function(_this) {
-      return function(req, res) {
-        return _this.mongo.getUserData(req.params.userId).then(function(data) {
-          var graphData, userData;
-          graphData = data.feedback.map(function(row) {
-            return [row.timestamp, parseInt(row.status)];
-          });
-          userData = _this.slack.getUser(data.id);
-          userData.status = data.feedback[data.feedback.length - 1];
-          userData.date = new Date(userData.status.timestamp);
-          userData.statusString = StringHelper.convertStatusToText(userData.status.status);
-          return res.render('pages/status', {
-            userData: userData,
-            graphData: JSON.stringify(graphData)
-          });
-        });
-      };
-    })(this));
+    routes(this.app, this.mongo, this.slack);
     return this.app.listen(this.app.get('port'), function() {
       return console.log("Node app is running on port 5000");
     });
@@ -132,79 +76,77 @@ Oskar = (function() {
     if (data.status === 'triggered') {
       this.slack.disallowUserComment(data.userId);
     }
+    user = this.slack.getUser(data.userId);
+    if (user && user.presence !== 'active') {
+      return;
+    }
+    if (!this.onboardingHelper.isOnboarded(data.userId)) {
+      return this.onboardingHelper.welcome(data.userId);
+    }
     return this.mongo.userExists(data.userId).then((function(_this) {
       return function(res) {
         if (!res) {
-          _this.mongo.saveUser(user).then(function(res) {
+          return _this.mongo.saveUser(user).then(function(res) {
             return _this.requestUserFeedback(data.userId, data.status);
           });
+        } else {
+          return _this.requestUserFeedback(data.userId, data.status);
         }
-        return _this.requestUserFeedback(data.userId, data.status);
       };
     })(this));
   };
 
   Oskar.prototype.messageHandler = function(message) {
     var userId;
+    if (!this.onboardingHelper.isOnboarded(message.user)) {
+      return this.onboardingHelper.advance(message.user, message.text);
+    }
     if (userId = InputHelper.isAskingForUserStatus(message.text)) {
       return this.revealStatus(userId, message);
     }
     if (this.slack.isUserCommentAllowed(message.user)) {
       return this.handleFeedbackMessage(message);
     }
-    return this.doOnboarding(message.user, message);
-  };
-
-  Oskar.prototype.requestUserFeedback = function(userId, status) {
-    var user;
-    user = this.slack.getUser(userId);
-    if (user && user.presence !== 'active') {
-      return;
+    if (InputHelper.isAskingForHelp(message.text)) {
+      return this.composeMessage(message.user, 'faq');
     }
-    return this.mongo.getLatestUserTimestampForProperty('feedback', userId).then((function(_this) {
-      return function(res) {
-        if (res === false) {
-          return;
-        }
-        _this.mongo.saveUserStatus(userId, status);
-        if (status !== 'active' && status !== 'triggered') {
-          return;
-        }
-        if (TimeHelper.isWeekend()) {
-          return;
-        }
-        if (res === null) {
-          return _this.doOnboarding(userId);
-        }
-        if (TimeHelper.hasTimestampExpired(20, res)) {
-          return _this.composeMessage(userId, 'requestFeedback');
-        }
+    return this.mongo.getLatestUserTimestampForProperty('feedback', message.user).then((function(_this) {
+      return function(timestamp) {
+        return _this.evaluateFeedback(message, timestamp);
       };
     })(this));
   };
 
-  Oskar.prototype.doOnboarding = function(userId, message) {
-    if (message == null) {
-      message = null;
+  Oskar.prototype.onboardingHandler = function(message) {
+    return this.composeMessage(message.userId, message.type);
+  };
+
+  Oskar.prototype.requestUserFeedback = function(userId, status) {
+    var date, user;
+    this.mongo.saveUserStatus(userId, status);
+    if (status !== 'active' && status !== 'triggered') {
+      return;
     }
-    return this.mongo.getOnboardingStatus(userId).then((function(_this) {
-      return function(res) {
-        if (res === 0) {
-          _this.mongo.setOnboardingStatus(userId, 1);
-          return _this.composeMessage(userId, 'introduction');
+    user = this.slack.getUser(userId);
+    date = TimeHelper.getLocalDate(null, user.tz_offset / 3600);
+    if (TimeHelper.isWeekend() || TimeHelper.isDateInsideInterval(0, 8, date)) {
+      return;
+    }
+    return this.mongo.getLatestUserTimestampForProperty('feedback', userId).then((function(_this) {
+      return function(timestamp) {
+        var today;
+        if (timestamp === false) {
+          return;
         }
-        if (res === 1 && message !== null) {
-          _this.mongo.setOnboardingStatus(userId, 2);
-          return _this.composeMessage(userId, 'firstMessage');
-        }
-        if (res === 2 && message !== null) {
-          return _this.evaluateFeedback(message, null, true);
-        }
-        if (res === 3) {
-          return _this.mongo.getLatestUserTimestampForProperty('feedback', message.user).then(function(timestamp) {
-            return _this.evaluateFeedback(message, timestamp);
-          });
-        }
+        today = new Date();
+        return _this.mongo.getUserFeedbackCount(userId, today).then(function(count) {
+          var requestsCount;
+          if (count < 2 && TimeHelper.hasTimestampExpired(6, timestamp)) {
+            requestsCount = _this.slack.getfeedbackRequestsCount(userId);
+            _this.slack.setfeedbackRequestsCount(userId, requestsCount + 1);
+            return _this.composeMessage(userId, 'requestFeedback', requestsCount);
+          }
+        });
       };
     })(this));
   };
@@ -213,20 +155,21 @@ Oskar = (function() {
     if (firstFeedback == null) {
       firstFeedback = false;
     }
-    if (latestFeedbackTimestamp && !TimeHelper.hasTimestampExpired(20, latestFeedbackTimestamp)) {
+    if (latestFeedbackTimestamp && !TimeHelper.hasTimestampExpired(4, latestFeedbackTimestamp)) {
       return this.composeMessage(message.user, 'alreadySubmitted');
     }
     if (!InputHelper.isValidStatus(message.text)) {
       return this.composeMessage(message.user, 'invalidInput');
     }
     this.mongo.saveUserFeedback(message.user, message.text);
-    if (firstFeedback) {
-      this.mongo.setOnboardingStatus(message.user, 3);
-      return this.composeMessage(message.user, 'firstMessageSuccess');
-    }
-    if (parseInt(message.text) < 3) {
+    this.slack.setfeedbackRequestsCount(message.user, 0);
+    if (parseInt(message.text) <= 3) {
       this.slack.allowUserComment(message.user);
       return this.composeMessage(message.user, 'lowFeedback');
+    }
+    if (parseInt(message.text) > 3) {
+      this.slack.allowUserComment(message.user);
+      return this.composeMessage(message.user, 'highFeedback');
     }
     return this.composeMessage(message.user, 'feedbackReceived');
   };
@@ -273,62 +216,42 @@ Oskar = (function() {
   };
 
   Oskar.prototype.composeMessage = function(userId, messageType, obj) {
-    var statusMsg, userObj;
-    if (messageType === 'introduction') {
-      userObj = this.slack.getUser(userId);
-      statusMsg = "Hey there " + userObj.profile.first_name + ", let me quickly introduce myself.\n My name is Oskar, I'm your new happiness coach on Slack. I'm not going to bother you a lot, but every once in a while, I'm gonna ask how you feel, ok?\n Let me know when you're ready! Ah, and if you want to know a little bit more about me and what I do, check out the <http://***REMOVED***.herokuapp.com/faq|Oskar FAQ>";
-    }
-    if (messageType === 'firstMessage') {
-      statusMsg = "Cool! I'm ready as well. From now on I'll ask you this simple question: 'How is it going?' ";
-      statusMsg += "You can reply to it with a number between 1 and 5. OK? Let's give it a try, type a number between 1 and 5";
-    }
-    if (messageType === 'firstMessageSuccess') {
-      statusMsg = "That was easy, wasn't it? Let me now tell you what each of these numbers mean:\n";
-      statusMsg += '5) Awesome :heart_eyes_cat:\n 4) Really good :smile:\n 3) Alright :neutral_face:\n 2) A bit down :pensive:\n 1) Pretty bad :tired_face:\n';
-      statusMsg += "That's it for now. Next time I'm gonna ask you will be tomorrow when you're back online. Have a great day and see you soon!";
-    }
+    var random, statusMsg, userObj;
+    random = Math.floor(Math.random() * (4 - 1)) + 1;
     if (messageType === 'requestFeedback') {
       userObj = this.slack.getUser(userId);
-      statusMsg = "Hey " + userObj.profile.first_name + ", How is it going? Just reply with a number between 1 and 5.\n";
-      statusMsg += '5) Awesome :heart_eyes_cat:\n 4) Really good :smile:\n 3) Alright :neutral_face:\n 2) A bit down :pensive:\n 1) Pretty bad :tired_face:\n';
-    }
-    if (messageType === 'revealChannelStatus') {
+      if (obj < 1) {
+        statusMsg = OskarTexts.requestFeedback.random[random - 1].format(userObj.profile.first_name);
+        statusMsg += OskarTexts.requestFeedback.selection;
+      } else {
+        console.log(obj);
+        statusMsg = OskarTexts.requestFeedback.options[obj - 1];
+      }
+    } else if (messageType === 'revealChannelStatus') {
       statusMsg = "";
       obj.forEach((function(_this) {
         return function(user) {
           userObj = _this.slack.getUser(user.id);
-          statusMsg += "" + userObj.profile.first_name + " is feeling *" + user.feedback.status + "*";
+          statusMsg += OskarTexts.revealChannelStatus.status.format(userObj.profile.first_name, user.feedback.status);
           if (user.feedback.message) {
-            statusMsg += " (" + user.feedback.message + ")";
+            statusMsg += OskarTexts.revealChannelStatus.message.format(user.feedback.message);
           }
           return statusMsg += ".\r\n";
         };
       })(this));
-    }
-    if (messageType === 'revealUserStatus') {
+    } else if (messageType === 'revealUserStatus') {
       if (!obj.status) {
-        statusMsg = "Oh, it looks like I haven\'t heard from " + obj.user.profile.first_name + " for a while. Sorry!";
+        statusMsg = OskarTexts.revealUserStatus.error.format(obj.user.profile.first_name);
       } else {
-        statusMsg = "" + obj.user.profile.first_name + " is feeling *" + obj.status + "* on a scale from 1 to 5.";
+        statusMsg = OskarTexts.revealUserStatus.status.format(obj.user.profile.first_name, obj.status);
         if (obj.message) {
-          statusMsg += "\r\nThe last time I asked him what\'s up he replied: " + obj.message;
+          statusMsg += OskarTexts.revealUserStatus.message.format(obj.message);
         }
       }
-    }
-    if (messageType === 'alreadySubmitted') {
-      statusMsg = 'Oops, looks like I\'ve already received some feedback from you in the last 20 hours.';
-    }
-    if (messageType === 'invalidInput') {
-      statusMsg = 'Oh it looks like you want to tell me how you feel, but unfortunately I only understand numbers between 1 and 5';
-    }
-    if (messageType === 'lowFeedback') {
-      statusMsg = 'Feel free to share with me what\'s wrong. I will treat it with confidence';
-    }
-    if (messageType === 'feedbackReceived') {
-      statusMsg = 'Thanks a lot, buddy! Keep up the good work!';
-    }
-    if (messageType === 'feedbackMessageReceived') {
-      statusMsg = 'Thanks, my friend. I really appreciate your openness.';
+    } else if (messageType === 'faq') {
+      statusMsg = OskarTexts.faq;
+    } else {
+      statusMsg = OskarTexts[messageType][random - 1];
     }
     if (userId && statusMsg) {
       return this.slack.postMessage(userId, statusMsg);

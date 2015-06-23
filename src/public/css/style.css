@@ -44,6 +44,15 @@ h1.trigger-navigation {
 .oskar-signup {
   background-color: #142138; }
 
+.blog-link {
+  margin-top: 1em;
+  background: #FFF;
+  padding: 1em;
+  border-radius: 1em; }
+
+form button {
+  color: #FFF; }
+
 .site-menu__trigger-menu {
   color: #fff; }
   .site-menu__trigger-menu:after {

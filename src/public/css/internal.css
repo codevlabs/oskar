@@ -105,3 +105,10 @@ article:hover h2 {
   padding-bottom: 1rem;
   border-top: none;
 }
+
+.post-listing__listing-item .feedback-message {
+  font-size: 0.75em;
+  line-height: 1.5;
+  margin-top: 0.5em;
+  color: #999;
+}

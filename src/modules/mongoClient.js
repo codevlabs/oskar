@@ -1,8 +1,10 @@
-var Mongo, MongoClient, Promise;
+var Mongo, MongoClient, Promise, config;
 
 Mongo = require('mongodb').MongoClient;
 
 Promise = require('promise');
+
+config = require('config');
 
 MongoClient = (function() {
   MongoClient.db = null;
@@ -13,7 +15,7 @@ MongoClient = (function() {
     if (url) {
       this.url = url;
     } else {
-      this.url = '***REMOVED***';
+      this.url = config.get('mongo.url');
     }
   }
 
@@ -241,6 +243,36 @@ MongoClient = (function() {
             };
           });
           return resolve(users);
+        });
+      };
+    })(this));
+  };
+
+  MongoClient.prototype.getUserFeedbackCount = function(userId, date) {
+    var promise;
+    return promise = new Promise((function(_this) {
+      return function(resolve, reject) {
+        return _this.collection.find({
+          id: userId
+        }).toArray(function(err, docs) {
+          var day, filtered, month;
+          if (err === !null) {
+            return reject();
+          }
+          if (docs.length === 0) {
+            return resolve(false);
+          }
+          filtered = [];
+          day = date.getDay();
+          month = date.getMonth();
+          if (docs[0].feedback) {
+            filtered = docs[0].feedback.filter(function(feedback) {
+              date = new Date(feedback.timestamp);
+              return date.getDay() === day && date.getMonth() === month;
+            });
+            return resolve(filtered.length);
+          }
+          return resolve(0);
         });
       };
     })(this));

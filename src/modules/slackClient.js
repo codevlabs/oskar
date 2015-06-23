@@ -1,4 +1,4 @@
-var EventEmitter, InputHelper, Promise, Slack, SlackClient, mongoClient, timeHelper,
+var EventEmitter, InputHelper, Promise, Slack, SlackClient, config, mongoClient, timeHelper,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -16,6 +16,8 @@ Promise = require('promise');
 
 EventEmitter = require('events').EventEmitter;
 
+config = require('config');
+
 SlackClient = (function(_super) {
   __extends(SlackClient, _super);
 
@@ -30,13 +32,13 @@ SlackClient = (function(_super) {
     this.messageHandler = __bind(this.messageHandler, this);
     this.presenceChangeHandler = __bind(this.presenceChangeHandler, this);
     this.setUserPresence = __bind(this.setUserPresence, this);
-    this.token = '***REMOVED***';
+    this.token = config.get('slack.token');
     this.autoReconnect = true;
     this.autoMark = true;
     this.users = [];
     this.channels = [];
-    this.disabledUsers = ['***REMOVED***', '***REMOVED***', 'USLACKBOT'];
-    this.disabledChannels = ['***REMOVED***'];
+    this.disabledUsers = config.get('slack.disabledUsers');
+    this.disabledChannels = config.get('slack.disabledChannels');
     if (mongo != null) {
       this.mongo = mongo;
     }
@@ -134,6 +136,21 @@ SlackClient = (function(_super) {
     var user;
     user = this.getUser(userId);
     return typeof user !== 'undefined' && typeof user.allowComment !== 'undefined' && user.allowComment;
+  };
+
+  SlackClient.prototype.getfeedbackRequestsCount = function(userId) {
+    var user;
+    user = this.getUser(userId);
+    if (typeof user !== 'undefined' && typeof user.feedbackRequestsCount !== 'undefined' && user.feedbackRequestsCount) {
+      return user.feedbackRequestsCount;
+    }
+    return 0;
+  };
+
+  SlackClient.prototype.setfeedbackRequestsCount = function(userId, count) {
+    var user;
+    user = this.getUser(userId);
+    return user.feedbackRequestsCount = count;
   };
 
   SlackClient.prototype.presenceChangeHandler = function(data, presence) {

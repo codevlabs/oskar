@@ -13,4 +13,10 @@ class InputHelper
       return response[1]
     return null
 
+  @isAskingForHelp: (input) ->
+    messagePattern = /help/i
+    if input.match messagePattern
+      return true
+    return false
+
 module.exports = InputHelper

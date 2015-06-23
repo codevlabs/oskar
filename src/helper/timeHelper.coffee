@@ -24,7 +24,7 @@ class TimeHelper
     if timestamp is null
       date = @getUTCDate()
     else
-      date = new time.Date(timestamp)
+      date = new time.Date timestamp
       date.setTimezone 'UTC'
 
     newHours = date.getUTCHours() + diff
