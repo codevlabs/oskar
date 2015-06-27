@@ -33,8 +33,8 @@ Oskar's configuration file can be found inside the `config` directoy. There you 
 - insert a Slack bot token that belongs to your team (you can create a new Slackbot here: https://yourteam.slack.com/services/new/bot)
 
 Additionally you can
-- disable channels that Oskar is part of (you should disable the default channel that Slack added)
-- disable users: those people won't receive any messages from Oskar
+- disable **channels** that Oskar is part of (you should disable the default channel that Slack added)
+- disable **users** if you want specific people on your team to receive Oskar messages a tall
 
 See the following instructions if you set up Oskar for the first time.
 
@@ -42,19 +42,19 @@ See the following instructions if you set up Oskar for the first time.
 
 If you're familiar with Heroku, you can quickly get Oskar up and running there with a few commands.
 
-1) If you haven't already, install a Heroku account (http://heroku.com) and download the Heroku toolbelt. Instructions on how to get started with node.js on Heroku can be found here: https://devcenter.heroku.com/articles/getting-started-with-nodejs#introduction
+1. If you haven't already, install a Heroku account (http://heroku.com) and download the Heroku toolbelt. Instructions on how to get started with node.js on Heroku can be found here: https://devcenter.heroku.com/articles/getting-started-with-nodejs#introduction
 
-2) Once you've created your Heroku account and downloaded the toolbelt, clone the Oskar repository into your directory of choice by running `git clone git@github.com:wearehanno/oskar.git`.
+2. Once you've created your Heroku account and downloaded the toolbelt, clone the Oskar repository into your directory of choice by running `git clone git@github.com:wearehanno/oskar.git`.
 
-3) Now create a new Heroku instance for this repository by running `heroku create`.
+3. Now create a new Heroku instance for this repository by running `heroku create`.
 
-4) Before we push our repository and run our app, we need to set up a MongoDB database. Run `heroku addons:create mongolab` to create a basic mongoDB. The basic plan of the extension is free but it will require you to enter your credit card details.
+4. Before we push our repository and run our app, we need to set up a MongoDB database. Run `heroku addons:create mongolab` to create a basic mongoDB. The basic plan of the extension is free but it will require you to enter your credit card details.
 
-5) Get the remote URL for your new database by running `heroku config | grep MONGOLAB_URI` and add this URL to the `mongo.url` part of the Oskar config file which you can find at `config/default.json`.
+5. Get the remote URL for your new database by running `heroku config | grep MONGOLAB_URI` and add this URL to the `mongo.url` part of the Oskar config file which you can find at `config/default.json`.
 
-6) Now push the repository to your new Heroku app by running `git push heroku master` and `heroku ps:scale web=1` to ensure that at least one instance of it is running.
+6. Now push the repository to your new Heroku app by running `git push heroku master` and `heroku ps:scale web=1` to ensure that at least one instance of it is running.
 
-7) Visit the URL that Heroku returned or run `heroku open` to see the Oskar website. Go to `http://your-oskar-url.com/dashboard` to see your team's statistics. It will ask you for a username and password that can be defined in your config file under `auth`
+7. Visit the URL that Heroku returned or run `heroku open` to see the Oskar website. Go to `http://your-oskar-url.com/dashboard` to see your team's statistics. It will ask you for a username and password that can be defined in your config file under `auth`
 
 ## Setting up a local dev environment / Contributing
 
@@ -62,7 +62,7 @@ If you're familiar with Heroku, you can quickly get Oskar up and running there w
 - Install Grunt: `npm install grunt -g`
 - Run `npm install` to install dependencies
 - Start the static part of the server without running Oskar: `grunt static`
-- You can reach the site at `http://localhost:5000`
+- You can reach the site at http://localhost:5000
 - Compile & watch Sass files: `grunt watch`
 
 ## Unit tests
