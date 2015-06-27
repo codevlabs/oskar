@@ -23,11 +23,14 @@ class SlackClient extends EventEmitter
 
 	connect: () ->
 		@slack = new Slack(@token, @autoReconnect, @autoMark)
+
+		# listen to Slack API events
 		@slack.on 'presenceChange', @presenceChangeHandler
 		@slack.on 'message', @messageHandler
 
 		promise = new Promise (resolve, reject) =>
 
+			# on open, push available users to array
 			@slack.on 'open', =>
 				for user, attrs of @slack.users when attrs.is_bot is false
 					@users.push attrs
@@ -39,7 +42,7 @@ class SlackClient extends EventEmitter
 			@slack.login()
 
 	getUsers: () ->
-		# remove slackbot and disabled users
+		# ignore slackbot and disabled users
 		users = @users.filter (user) =>
 			return @disabledUsers.indexOf(user.id) is -1
 		return users
@@ -82,6 +85,8 @@ class SlackClient extends EventEmitter
 		user.feedbackRequestsCount = count
 
 	presenceChangeHandler: (data, presence) =>
+
+		# when presence changes, set internally and send event
 		data =
 			userId: data.id
 			status: presence
@@ -100,14 +105,18 @@ class SlackClient extends EventEmitter
 		if @disabledChannels.indexOf(message.channel) isnt -1
 			return false
 
+		# send message event
 		message.type = 'input'
 		@emit 'message', message
 
+	# post message to slack
 	postMessage: (userId, message) ->
 
+		# if channels object already exists
 		if (userId in @channels)
 			return @slack.postMessage @channels[userId].channel.id, message, () ->
 
+		# otherwise open new one
 		@slack.openDM userId, (res) =>
 			@channels[userId] = res
 			@slack.postMessage res.channel.id, message, () ->

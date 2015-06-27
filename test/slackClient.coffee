@@ -3,6 +3,7 @@
 ###################################################################
 should      = require 'should'
 sinon       = require 'sinon'
+config      = require 'config'
 SlackClient = require '../src/modules/slackClient'
 slackClient = null
 connect     = null
@@ -31,11 +32,17 @@ describe 'SlackClient', ->
 
   describe 'SlackClientUsers', ->
 
-    users = null
+    users            = null
+    userIds          = null
+    disabledUsers    = null
+    disabledChannels = null
 
     before ->
       connect.then ->
-        users = slackClient.getUsers()
+        users            = slackClient.getUsers()
+        userIds          = slackClient.getUserIds()
+        disabledUsers    = config.get 'slack.disabledUsers'
+        disabledChannels = config.get 'slack.disabledChannels'
 
     describe 'PublicMethods', ->
 
@@ -43,87 +50,87 @@ describe 'SlackClient', ->
         users.length.should.be.greaterThan 0
 
       it 'should get the IDs of all users', ->
-        users = slackClient.getUserIds()
-        users[0].should.match(/^U\w+$/)
+        userIds[0].should.match(/^U\w+$/)
 
-      # it 'should not contain IDs of disabled users', ->
-      #   users = slackClient.getUserIds()
-      #   users.indexOf('***REMOVED***').should.be.equal(-1)
-      #   users.indexOf('***REMOVED***').should.be.equal(-1)
+      it 'should not contain IDs of disabled users', ->
+        if disabledUsers.length
+          disabledUsers.forEach (userId) ->
+            users.indexOf(userId).should.be.equal(-1)
 
-      # it 'should get a user', ->
-      #   user = slackClient.getUser('U025P99EH')
-      #   user.name.should.be.equal('zsolt')
-      #   user.profile.first_name.should.be.equal('Zsolt')
-      #   user.profile.last_name.should.be.equal('Kocsmarszky')
+      it 'should get a user', ->
+        user = slackClient.getUser userIds[0]
+        user.name.should.be.type 'string'
+        user.profile.first_name.should.be.type 'string'
+        user.profile.last_name.should.be.type 'string'
 
-      # it 'should return null if user is disabled', ->
-      #   user = slackClient.getUser('***REMOVED***')
-      #   should(user).be.equal(null)
+      it 'should return null if user is disabled', ->
+        if disabledUsers.length
+          user = slackClient.getUser(disabledUsers[0])
+          should(user).be.equal(null)
 
-      # it 'should allow a user comment for a user', ->
-      #   userId = 'U025P99EH'
-      #   slackClient.allowUserComment(userId)
-      #   user = slackClient.getUser(userId)
-      #   user.allowComment.should.be.equal(true)
+      it 'should allow a user comment for a user', ->
+        userId = userIds[0]
+        slackClient.allowUserComment(userId)
+        user = slackClient.getUser(userId)
+        user.allowComment.should.be.equal(true)
 
-      # it 'should disallow a user comment for a user', ->
-      #   userId = 'U025P99EH'
-      #   slackClient.disallowUserComment(userId)
-      #   user = slackClient.getUser(userId)
-      #   user.allowComment.should.be.equal(false)
+      it 'should disallow a user comment for a user', ->
+        userId = userIds[0]
+        slackClient.disallowUserComment(userId)
+        user = slackClient.getUser(userId)
+        user.allowComment.should.be.equal(false)
 
-      # it 'should return false if user comment is not yet allowed', ->
-      #   userId = 'U025P99EH'
-      #   allowed = slackClient.isUserCommentAllowed(userId)
-      #   allowed.should.be.equal(false)
+      it 'should return false if user comment is not yet allowed', ->
+        userId = userIds[0]
+        allowed = slackClient.isUserCommentAllowed(userId)
+        allowed.should.be.equal(false)
 
-      # it 'should return true if user comment is allowed after setting it', ->
-      #   userId = 'U025P99EH'
-      #   slackClient.allowUserComment(userId)
-      #   allowed = slackClient.isUserCommentAllowed(userId)
-      #   allowed.should.be.equal(true)
+      it 'should return true if user comment is allowed after setting it', ->
+        userId = userIds[0]
+        slackClient.allowUserComment(userId)
+        allowed = slackClient.isUserCommentAllowed(userId)
+        allowed.should.be.equal(true)
 
-      # it 'should return the number of times oskar has asked this user for help', ->
-      #   userId = 'U025P99EH'
-      #   number = slackClient.getfeedbackRequestsCount(userId)
-      #   number.should.be.equal(0)
+      it 'should return the number of times oskar has asked this user for help', ->
+        userId = userIds[0]
+        number = slackClient.getfeedbackRequestsCount(userId)
+        number.should.be.equal(0)
 
-      # it 'should set the number of times oskar has asked this user for help', ->
-      #   userId = 'U025P99EH'
-      #   slackClient.setfeedbackRequestsCount(userId, 1)
-      #   number = slackClient.getfeedbackRequestsCount(userId)
-      #   number.should.be.equal(1)
+      it 'should set the number of times oskar has asked this user for help', ->
+        userId = userIds[0]
+        slackClient.setfeedbackRequestsCount(userId, 1)
+        number = slackClient.getfeedbackRequestsCount(userId)
+        number.should.be.equal(1)
 
     describe 'EventHandlers', ->
 
       it 'should send a presence event when user changes presence', ->
 
         data =
-          id: 'user1'
+          id: userIds[0]
 
         spy = sinon.spy()
         slackClient.on('presence', spy);
         slackClient.presenceChangeHandler data, 'away'
 
         spy.called.should.be.equal(true);
-        spy.args[0][0].userId.should.be.equal('user1')
+        spy.args[0][0].userId.should.be.equal(userIds[0])
         spy.args[0][0].status.should.be.equal('away')
 
-      # it 'should set the user status when user changes presence', ->
+      it 'should set the user status when user changes presence', ->
 
-      #   data =
-      #     id: 'user1'
+        data =
+          id: userIds[0]
 
-      #   slackClient.presenceChangeHandler data, 'away'
+        slackClient.presenceChangeHandler data, 'away'
 
-      #   user = slackClient.getUser data.id
-      #   user.presence.should.be.equal 'away'
+        user = slackClient.getUser data.id
+        user.presence.should.be.equal 'away'
 
-      #   slackClient.presenceChangeHandler data, 'active'
+        slackClient.presenceChangeHandler data, 'active'
 
-      #   user = slackClient.getUser data.id
-      #   user.presence.should.be.equal 'active'
+        user = slackClient.getUser data.id
+        user.presence.should.be.equal 'active'
 
       it 'should return false when message handler is called with no user', ->
         message =
@@ -132,12 +139,14 @@ describe 'SlackClient', ->
         response = slackClient.messageHandler(message)
         response.should.be.equal(false)
 
-      # it 'should return false when message handler is called for a disabled channel', ->
-      #   message =
-      #     channel = '***REMOVED***'
+      it 'should return false when message handler is called for a disabled channel', ->
 
-      #   response = slackClient.messageHandler(message)
-      #   response.should.be.equal(false)
+        if disabledChannels.length
+          message =
+            channel = disabledChannels[0]
+
+          response = slackClient.messageHandler(message)
+          response.should.be.equal(false)
 
       it 'should return false when message handler if user is slackbot', ->
 
@@ -147,26 +156,27 @@ describe 'SlackClient', ->
         response = slackClient.messageHandler(message)
         response.should.be.equal(false)
 
-      # it 'should return false when message handler is called with a disabled channel', ->
+      it 'should return false when message handler is called with a disabled channel', ->
 
-      #   message =
-      #     channel = '***REMOVED***'
+        if disabledChannels.length
+          message =
+            channel = disabledChannels[0]
 
-      #   response = slackClient.messageHandler(message)
-      #   response.should.be.equal(false)
+        response = slackClient.messageHandler(message)
+        response.should.be.equal(false)
 
-      # it 'should trigger a message event when message handler is called with a user and valid text is passed', ->
+      it 'should trigger a message event when message handler is called with a user and valid text is passed', ->
 
-      #   message =
-      #     user: 'user1'
-      #     text: 'How is <@user2>?'
+        message =
+          user: userIds[0]
+          text: 'How is <@#{userIds[1]}>?'
 
-      #   spy = sinon.spy()
-      #   slackClient.on 'message', spy
+        spy = sinon.spy()
+        slackClient.on 'message', spy
 
-      #   slackClient.messageHandler message
-      #   spy.called.should.be.equal true
+        slackClient.messageHandler message
+        spy.called.should.be.equal true
 
-      #   spy.args[0][0].type.should.be.equal 'input'
-      #   spy.args[0][0].user.should.be.equal 'user1'
-      #   spy.args[0][0].text.should.be.equal 'How is <@user2>?'
+        spy.args[0][0].type.should.be.equal 'input'
+        spy.args[0][0].user.should.be.equal userIds[0]
+        spy.args[0][0].text.should.be.equal 'How is <@#{userIds[1]}>?'

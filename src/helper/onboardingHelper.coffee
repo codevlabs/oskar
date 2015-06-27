@@ -3,6 +3,7 @@ InputHelper    = require './inputHelper'
 
 class OnboardingHelper extends EventEmitter
 
+  # mongo is passed in for some DB operations, onoboardingStatus is used for retaining status during runtime
   constructor: (mongo, userIds) ->
     @mongo = mongo
     @onboardingStatus = {}
@@ -26,6 +27,8 @@ class OnboardingHelper extends EventEmitter
       @mongo.setOnboardingStatus userId, status
 
   welcome: (userId) =>
+
+    # only welcome if status is 0
     if @getOnboardingStatus(userId) > 0
       return
 
@@ -36,6 +39,7 @@ class OnboardingHelper extends EventEmitter
     @setOnboardingStatus userId, 1
     @emit 'message', data
 
+  # move on according to status and update user with message
   advance: (userId, message = null) =>
     status = @getOnboardingStatus userId
 

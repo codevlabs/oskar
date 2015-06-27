@@ -2,6 +2,7 @@ time = require('time')(Date);
 
 class TimeHelper
 
+  # pass an interval (e.g. 6 hours) and compare to timestamp
   @hasTimestampExpired: (intervalInHours, timestamp) ->
     intervalInSeconds = intervalInHours * 3600 * 1000
     nowMinusInterval = (time.time() * 1000) - intervalInSeconds
@@ -19,6 +20,7 @@ class TimeHelper
     now = new time.Date()
     now.setTimezone 'UTC'
 
+  # get local date of user by adding local diff to UTC timestamp
   @getLocalDate: (timestamp, diff) ->
 
     if timestamp is null

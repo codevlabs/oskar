@@ -10,6 +10,8 @@ OskarTexts       = require './content/oskarTexts'
 class Oskar
 
   constructor: (mongo, slack, onboardingHelper) ->
+
+    # set up app, mongo and slack
     @app = express()
     @app.set 'view engine', 'ejs'
     @app.set 'views', 'src/views/'
@@ -26,7 +28,7 @@ class Oskar
 
     @setupRoutes()
 
-    # dev environment shouldnt listen to slack events or run interval
+    # dev environment shouldnt listen to slack events or run the interval
     if process.env.NODE_ENV is 'development'
       return
 
@@ -43,31 +45,34 @@ class Oskar
     @onboardingHelper.on 'message', @onboardingHandler
 
   setupRoutes: () ->
-    @app.set 'port', process.env.PORT || 5000
 
     routes(@app, @mongo, @slack)
 
+    @app.set 'port', process.env.PORT || 5000
     @app.listen @app.get('port'), ->
       console.log "Node app is running on port 5000"
 
   presenceHandler: (data) =>
 
-    # return if disabled user
+    # return if user has been disabled
     user = @slack.getUser data.userId
     if user is null
       return false
 
+    # every hour, disable possibility to comment
     if data.status is 'triggered'
       @slack.disallowUserComment data.userId
 
+    # if presence is not active, return
     user = @slack.getUser data.userId
     if (user and user.presence isnt 'active')
       return
 
-    # if user is not onboarded welcome him/her
+    # if user is not onboarded, do so
     if !@onboardingHelper.isOnboarded(data.userId)
       return @onboardingHelper.welcome(data.userId)
 
+    # if a user exists, create, otherwise go ahead without
     @mongo.userExists(data.userId).then (res) =>
       if !res
         @mongo.saveUser(user).then (res) =>
@@ -93,9 +98,11 @@ class Oskar
     if InputHelper.isAskingForHelp(message.text)
       return @composeMessage message.user, 'faq'
 
+    # if feedback is long enough ago, evaluate
     @mongo.getLatestUserTimestampForProperty('feedback', message.user).then (timestamp) =>
       @evaluateFeedback message, timestamp
 
+  # is called from onboarding helper to compose messages
   onboardingHandler: (message) =>
     @composeMessage(message.userId, message.type)
 
@@ -123,6 +130,8 @@ class Oskar
       today = new Date()
       @mongo.getUserFeedbackCount(userId, today).then (count) =>
 
+        console.log count
+
         if (count < 2 && TimeHelper.hasTimestampExpired 6, timestamp)
           requestsCount = @slack.getfeedbackRequestsCount(userId)
           @slack.setfeedbackRequestsCount(userId, requestsCount + 1)
@@ -138,10 +147,11 @@ class Oskar
     if !InputHelper.isValidStatus message.text
       return @composeMessage message.user, 'invalidInput'
 
+    # if feedback valid, save and set count to 0
     @mongo.saveUserFeedback message.user, message.text
     @slack.setfeedbackRequestsCount(message.user, 0)
 
-    # if feedback is lower than 3, ask user for additional feedback
+    # get user feedback
     if (parseInt(message.text) <= 3)
       @slack.allowUserComment message.user
       return @composeMessage message.user, 'lowFeedback'
@@ -153,6 +163,8 @@ class Oskar
     @composeMessage message.user, 'feedbackReceived'
 
   revealStatus: (userId, message) =>
+
+    # distinguish between channel and user
     if userId is 'channel'
       @revealStatusForChannel(message.user)
     else
@@ -166,7 +178,7 @@ class Oskar
   revealStatusForUser: (userId, targetUserId) =>
     userObj = @slack.getUser targetUserId
 
-    # return for disabled users
+    # return if user has been disabled or is not available
     if userObj is null
       return
 
@@ -177,13 +189,15 @@ class Oskar
       @composeMessage userId, 'revealUserStatus', res
 
   handleFeedbackMessage: (message) =>
+
+    # after receiving it, save and disallow comments
     @slack.disallowUserComment message.user
     @mongo.saveUserFeedbackMessage message.user, message.text
     @composeMessage message.user, 'feedbackMessageReceived'
 
   composeMessage: (userId, messageType, obj) ->
 
-    # to pick varying messages from content file
+    # random number to pick varying messages from content file
     random =  Math.floor(Math.random() * (4 - 1)) + 1
 
     # request feedback
@@ -225,6 +239,7 @@ class Oskar
     if userId && statusMsg
       @slack.postMessage(userId, statusMsg)
 
+  # interval to request feedback every hour
   checkForUserStatus: (slack) =>
     userIds = slack.getUserIds()
     userIds.forEach (userId) ->

@@ -60,8 +60,8 @@ Oskar = (function() {
   };
 
   Oskar.prototype.setupRoutes = function() {
-    this.app.set('port', process.env.PORT || 5000);
     routes(this.app, this.mongo, this.slack);
+    this.app.set('port', process.env.PORT || 5000);
     return this.app.listen(this.app.get('port'), function() {
       return console.log("Node app is running on port 5000");
     });
@@ -141,6 +141,7 @@ Oskar = (function() {
         today = new Date();
         return _this.mongo.getUserFeedbackCount(userId, today).then(function(count) {
           var requestsCount;
+          console.log(count);
           if (count < 2 && TimeHelper.hasTimestampExpired(6, timestamp)) {
             requestsCount = _this.slack.getfeedbackRequestsCount(userId);
             _this.slack.setfeedbackRequestsCount(userId, requestsCount + 1);

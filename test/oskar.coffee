@@ -161,8 +161,8 @@ describe 'oskar', ->
 
         getUserStub.returns userObj
 
-        oskar.presenceHandler data
         getLatestUserTimestampStub.returns(whenLib yesterday)
+        oskar.presenceHandler data
 
         setTimeout ->
           composeMessageStub.called.should.be.equal true
