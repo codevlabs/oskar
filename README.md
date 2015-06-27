@@ -6,18 +6,16 @@
 
 Oskar is a Slackbot that tracks satisfaction of your team members. Every day it asks people for their current mood. This metric is stored in a database and tracked over time, allowing the team to understand which members are struggling or doing extremely well.
 
-Everyone can ask Oskar for another team member's status, or a list of all team member's current status, and what they struggle with.
-
-It is not meant to be a way of comparing people but to surface issues, unblock each other and eliminate isolation (especially in remote teams).
+Everyone on your team can ask Oskar for another team member's or the entire team's current status. It is not meant to be a way of comparing people but to surface issues, unblock each other and eliminate isolation (especially in remote teams).
 
 ## How to
 
-Oskar automatically asks you two times a day about your current mood. You can reply to him with a number between 1 to 5. He will then ask for feedback to know what's the trigger for your current low or high.
+Oskar automatically asks you two times a day how you're doing. You can reply to him with a number between 1 to 5, and he will then ask you for feedback to know what's the trigger for your current low or high.
 
 All data is collected in a database and made visible via the dashboard, which can be found at the URL:
 `http://your-oskar-url.com/dashboard` (find instruction on how to set a username/password below)
 
-You can also use the following commands talking directly to Oskar to find out how others are doing:
+You can send the following commands directly to Oskar:
 - `How is @member?` - Tells you how a specific team member is doing
 - `How is @channel?` - Returns the current status for the whole group
 
@@ -26,13 +24,13 @@ You can also use the following commands talking directly to Oskar to find out ho
 - Oskar is build on node.js with express.js.
 - It is written in CoffeeScript (such as the node slack client it uses)
 - It uses a MongoDB database to store team member feedback
-- It runs on Heroku
+- It (usually, but not only) runs on Heroku
 
 ## Configuring Oskar
 
 Oskar's configuration file can be found inside the `config` directoy. There you should:
-- define the url to a fresh and empty MongoDB database (to create a mongoDB on Heroku, go to https://elements.heroku.com/addons/mongolab)
-- insert a Slack bot token that belongs to your team (You can create a new Slackbot here: https://yourteam.slack.com/services/new/bot)
+- define the url to a fresh and empty MongoDB database (to create a mongoDB on Heroku for example, go to https://elements.heroku.com/addons/mongolab)
+- insert a Slack bot token that belongs to your team (you can create a new Slackbot here: https://yourteam.slack.com/services/new/bot)
 
 Additionally you can
 - disable channels that Oskar is part of (you should disable the default channel that Slack added)
@@ -58,19 +56,14 @@ If you're familiar with Heroku, you can quickly get Oskar up and running there w
 
 7) Visit the URL that Heroku returned or run `heroku open` to see the Oskar website. Go to `http://your-oskar-url.com/dashboard` to see your team's statistics. It will ask you for a username and password that can be defined in your config file under `auth`
 
-## Contributing
+## Setting up a local dev environment / Contributing
 
-- To install all necessary dependencies, use `npm install`
-- Run `grunt watch` to make changes to the code, as it will compile stuff from CoffeeScript to JS.
-
-## Set up local dev env
-
-- Download NodeJS install it: https://nodejs.org/download/
-- Go to Oskar folder and install Grunt: npm install grunt -g
-- Then run this command: npm install
-- Start the server: grunt static
-- You can reach the site at http://localhost:5000
-- Compile & watch Sass files: grunt watch
+- Download and install nodeJS: https://nodejs.org/download/
+- Install Grunt: `npm install grunt -g`
+- Run `npm install` to install dependencies
+- Start the static part of the server without running Oskar: `grunt static`
+- You can reach the site at `http://localhost:5000`
+- Compile & watch Sass files: `grunt watch`
 
 ## Unit tests
 
