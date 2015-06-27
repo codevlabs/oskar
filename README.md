@@ -12,29 +12,59 @@ It is not meant to be a way of comparing people but to surface issues, unblock e
 
 ## How to
 
-Oskar automatically asks people within an interval of 24 hours how they are doing. People can reply to question message with a number between 0-9. If the feedback is less than 5 Oskar will ask if the person is having any issues, and saves the reply to the database.
+Oskar automatically asks you two times a day about your current mood. You can reply to him with a number between 1 to 5. He will then ask for feedback to know what's the trigger for your current low or high.
 
-Team members can use the following commands:
+All data is collected in a database and made visible via the dashboard, which can be found at the URL:
+`http://your-oskar-url.com/dashboard` (find instruction on how to set a username/password below)
+
+You can also use the following commands talking directly to Oskar to find out how others are doing:
 - `How is @member?` - Tells you how a specific team member is doing
 - `How is @channel?` - Returns the current status for the whole group
-
-In order to disable specific channels or users, go to `src/slackClient.coffee` and add them to the variables `@disabledUsers` and `@disabledChannels`
 
 ## Tech stack
 
 - Oskar is build on node.js with express.js.
-- Such as the node slack client (and because of it), it is written in CoffeeScript.
+- It is written in CoffeeScript (such as the node slack client it uses)
 - It uses a MongoDB database to store team member feedback
-- It runs on Heroku (https://polar-temple-7947.herokuapp.com/)
+- It runs on Heroku
 
-## Installation
+## Configuring Oskar
+
+Oskar's configuration file can be found inside the `config` directoy. There you should:
+- define the url to a fresh and empty MongoDB database (to create a mongoDB on Heroku, go to https://elements.heroku.com/addons/mongolab)
+- insert a Slack bot token that belongs to your team (You can create a new Slackbot here: https://yourteam.slack.com/services/new/bot)
+
+Additionally you can
+- disable channels that Oskar is part of (you should disable the default channel that Slack added)
+- disable users: those people won't receive any messages from Oskar
+
+See the following instructions if you set up Oskar for the first time.
+
+## Setting up Oskar on Heroku
+
+If you're familiar with Heroku, you can quickly get Oskar up and running there with a few commands.
+
+1) If you haven't already, install a Heroku account (http://heroku.com) and download the Heroku toolbelt. Instructions on how to get started with node.js on Heroku can be found here: https://devcenter.heroku.com/articles/getting-started-with-nodejs#introduction
+
+2) Once you've created your Heroku account and downloaded the toolbelt, clone the Oskar repository into your directory of choice by running `git clone git@github.com:wearehanno/oskar.git`.
+
+3) Now create a new Heroku instance for this repository by running `heroku create`.
+
+4) Before we push our repository and run our app, we need to set up a MongoDB database. Run `heroku addons:create mongolab` to create a basic mongoDB. The basic plan of the extension is free but it will require you to enter your credit card details.
+
+5) Get the remote URL for your new database by running `heroku config | grep MONGOLAB_URI` and add this URL to the `mongo.url` part of the Oskar config file which you can find at `config/default.json`.
+
+6) Now push the repository to your new Heroku app by running `git push heroku master` and `heroku ps:scale web=1` to ensure that at least one instance of it is running.
+
+7) Visit the URL that Heroku returned or run `heroku open` to see the Oskar website. Go to `http://your-oskar-url.com/dashboard` to see your team's statistics. It will ask you for a username and password that can be defined in your config file under `auth`
+
+## Contributing
 
 - To install all necessary dependencies, use `npm install`
-- In `src/mongoClient.coffee`, replace the url in the constructor with the URL of your mongoDB (to create a mongoDB on Heroku, go to https://elements.heroku.com/addons/mongolab)
-- In `src/slackClient.coffee`, replace the @token variable in the constructur with the one of your Slackbot (to create a slack bot go to https://yourteam.slack.com/services/new/bot)
 - Run `grunt watch` to make changes to the code, as it will compile stuff from CoffeeScript to JS.
 
 ## Set up local dev env
+
 - Download NodeJS install it: https://nodejs.org/download/
 - Go to Oskar folder and install Grunt: npm install grunt -g
 - Then run this command: npm install
