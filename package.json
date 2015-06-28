@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "coffee-script": "~1.9.0",
+    "config": "^1.14.0",
     "ejs": "^2.3.1",
     "express": "^4.12.3",
     "log": "1.4.0",
