@@ -66,7 +66,7 @@ routes = function(app, mongo, slack) {
         userData = slack.getUser(data.id);
         userData.status = data.feedback[data.feedback.length - 1];
         userData.date = new Date(userData.status.timestamp);
-        userData.statusString = StringHelper.convertStatusToText(userData.status.status);
+        userData.statusString = OskarTexts.statusText[userData.status.status];
         return res.render('pages/status', {
           userData: userData,
           graphData: JSON.stringify(graphData)

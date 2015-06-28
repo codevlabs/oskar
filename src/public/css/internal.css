@@ -84,8 +84,8 @@ article:hover h2 {
 
 
 .post-listing__listing-item {
-  width: 49%;
-  float: left;
+ /* width: 49%;
+  float: left;*/
 }
 
 .post-listing .post-listing__listing-item:first-of-type {
@@ -106,9 +106,25 @@ article:hover h2 {
   border-top: none;
 }
 
+  .post-listing .post-listing__listing-item .post-listing__listing-item__thumbnail {
+    display: inline;
+  }
+
+.post-listing .post-listing__listing-item--detail {
+  width: 100%;
+}
+
 .post-listing__listing-item .feedback-message {
   font-size: 0.75em;
   line-height: 1.5;
+  min-height: 3em;
   margin-top: 0.5em;
+  padding-right: 1em;
   color: #999;
+}
+
+@media only screen and (max-width: 40em) {
+  .post-listing__listing-item__content {
+    text-align: center;
+  }
 }

@@ -16,20 +16,17 @@
           <div class="row">
 
               <% users.forEach(function(user) { %>
-                <article class="post-listing__listing-item hentry">
+                <article class="post-listing__listing-item">
                   <a href="/status/<%= user.id %>">
                     <div class="row">
-                      <div class="medium-3 columns">
-                        <img class="thumbnail post-listing__listing-item__thumbnail" src="<%= user.profile.image_48 %>">
+                      <div class="medium-2 columns text-center">
+                        <img class="thumbnail post-listing__listing-item__thumbnail" src="<%= user.profile.image_192 %>">
                       </div>
-                      <div class="medium-9 columns">
+                      <div class="medium-10 columns post-listing__listing-item__content">
                         <h2 class="post-listing__listing-item__entry-title entry-title">
                           <%= user.profile.first_name %> is feeling <% if(statuses[user.id] && statuses[user.id].status) {%>
                           <span class="status-<%= statuses[user.id].status %>"><%= statuses[user.id].statusString %></span>
                           <% } %>
-<!--                           <% if(statuses[user.id] && statuses[user.id].message) {%>
-                            <span class="tipped" data-tipped-options="size: 'large'" title="<%= statuses[user.id].message %>"><img class="comment" src="/public/images/icon-comment.png" /></span>
-                          <% } %> -->
                         </h2>
                         <p class="entry-summary">
                           <span>Last reported:</span>
@@ -38,11 +35,11 @@
                             <%= statuses[user.id].date.getHours() %>:<%= statuses[user.id].date.getMinutes() %>
                           </abbr>
                         </p>
-                        <% if(statuses[user.id] && statuses[user.id].message) {%>
-                          <p class="feedback-message">
+                        <p class="feedback-message">
+                          <% if(statuses[user.id] && statuses[user.id].message) {%>
                             <%= statuses[user.id].message %>
-                          </p>
-                        <% } %>
+                          <% } %>
+                        </p>
                       </div>
                     </div>
                   </a>
