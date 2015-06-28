@@ -25,6 +25,7 @@
     "url": "https://github.com/wearehanno/oskar/issues"
   },
   "dependencies": {
+    "basic-auth-connect": "^1.0.0",
     "coffee-script": "~1.9.0",
     "config": "^1.14.0",
     "ejs": "^2.3.1",
