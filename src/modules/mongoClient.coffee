@@ -197,13 +197,13 @@ class MongoClient
 					return resolve false
 
 				filtered = []
-				day = date.getDay()
+				day = date.getDate()
 				month =	date.getMonth()
 
 				if docs[0].feedback
 					filtered = docs[0].feedback.filter (feedback) ->
 						date = new Date feedback.timestamp
-						return (date.getDay() is day && date.getMonth() is month)
+						return (date.getDate() is day && date.getMonth() is month)
 
 					return resolve filtered.length
 

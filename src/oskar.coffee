@@ -130,8 +130,6 @@ class Oskar
       today = new Date()
       @mongo.getUserFeedbackCount(userId, today).then (count) =>
 
-        console.log count
-
         if (count < 2 && TimeHelper.hasTimestampExpired 6, timestamp)
           requestsCount = @slack.getfeedbackRequestsCount(userId)
           @slack.setfeedbackRequestsCount(userId, requestsCount + 1)

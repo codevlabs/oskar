@@ -263,12 +263,12 @@ MongoClient = (function() {
             return resolve(false);
           }
           filtered = [];
-          day = date.getDay();
+          day = date.getDate();
           month = date.getMonth();
           if (docs[0].feedback) {
             filtered = docs[0].feedback.filter(function(feedback) {
               date = new Date(feedback.timestamp);
-              return date.getDay() === day && date.getMonth() === month;
+              return date.getDate() === day && date.getMonth() === month;
             });
             return resolve(filtered.length);
           }

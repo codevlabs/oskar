@@ -141,7 +141,6 @@ Oskar = (function() {
         today = new Date();
         return _this.mongo.getUserFeedbackCount(userId, today).then(function(count) {
           var requestsCount;
-          console.log(count);
           if (count < 2 && TimeHelper.hasTimestampExpired(6, timestamp)) {
             requestsCount = _this.slack.getfeedbackRequestsCount(userId);
             _this.slack.setfeedbackRequestsCount(userId, requestsCount + 1);
