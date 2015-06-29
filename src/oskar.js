@@ -212,7 +212,28 @@ Oskar = (function() {
   Oskar.prototype.handleFeedbackMessage = function(message) {
     this.slack.disallowUserComment(message.user);
     this.mongo.saveUserFeedbackMessage(message.user, message.text);
-    return this.composeMessage(message.user, 'feedbackMessageReceived');
+    this.composeMessage(message.user, 'feedbackMessageReceived');
+    return this.mongo.getLatestUserFeedback(message.user).then((function(_this) {
+      return function(res) {
+        return _this.distributeUserStatus(message.user, res, message.text);
+      };
+    })(this));
+  };
+
+  Oskar.prototype.distributeUserStatus = function(userId, status, feedback) {
+    var user, userIds, userStatus;
+    user = this.slack.getUser(userId);
+    userStatus = {
+      first_name: user.user.profile.first_name,
+      status: status,
+      feedback: feedback
+    };
+    userIds = this.slack.getUserIds();
+    return userIds.forEach((function(_this) {
+      return function(user) {
+        return _this.composeMessage(user, 'newUserFeedback', userStatus);
+      };
+    })(this));
   };
 
   Oskar.prototype.composeMessage = function(userId, messageType, obj) {
@@ -248,6 +269,8 @@ Oskar = (function() {
           statusMsg += OskarTexts.revealUserStatus.message.format(obj.message);
         }
       }
+    } else if (messageType === 'newUserFeedback') {
+      statusMsg = OskarTexts.newUserFeedback.format(obj.first_name, obj.status, obj.feedback);
     } else if (messageType === 'faq') {
       statusMsg = OskarTexts.faq;
     } else {

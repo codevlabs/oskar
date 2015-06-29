@@ -467,6 +467,43 @@ describe 'oskar', ->
       spy.secondCall.args[0].userId.should.be.equal 'testuser2'
       spy.secondCall.args[0].status.should.be.equal 'triggered'
 
+    it 'should send a user\'s feedback to everyone alongside the status', (done) ->
+
+      distributeUserStatusSpy = sinon.spy Oskar.prototype, 'distributeUserStatus'
+
+      message =
+        text: 'not feeling so great'
+        user: 'user1'
+
+      getLatestUserFeedbackStub.returns(whenLib 5)
+      oskar.handleFeedbackMessage message
+
+      setTimeout ->
+        distributeUserStatusSpy.args[0][0].should.be.equal message.user
+        distributeUserStatusSpy.args[0][1].should.be.type 'number'
+        distributeUserStatusSpy.args[0][2].should.be.equal message.text
+        distributeUserStatusSpy.called.should.be.equal true
+        done()
+      , 100
+
+    it 'should send a message to the whole team with user status', ->
+
+      team = ['teammate1', 'teammate2', 'teammate3']
+
+      getUserIdsStub.returns team
+
+      oskar.distributeUserStatus('user1', 5, 'feeling awesome')
+
+      # make sure message is going to all users
+      composeMessageStub.args[0][0].should.be.equal team[0]
+      composeMessageStub.args[1][0].should.be.equal team[1]
+      composeMessageStub.args[2][0].should.be.equal team[2]
+
+      composeMessageStub.args[0][1].should.be.equal 'newUserFeedback'
+      composeMessageStub.args[0][2].should.have.property 'first_name'
+      composeMessageStub.args[0][2].should.have.property 'status'
+      composeMessageStub.args[0][2].should.have.property 'feedback'
+
   ###################################################################
   # Onboarding handler
   ###################################################################

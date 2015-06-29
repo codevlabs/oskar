@@ -193,6 +193,25 @@ class Oskar
     @mongo.saveUserFeedbackMessage message.user, message.text
     @composeMessage message.user, 'feedbackMessageReceived'
 
+    # send feedback to everyone
+    @mongo.getLatestUserFeedback(message.user).then (res) =>
+      @distributeUserStatus message.user, res, message.text
+
+  distributeUserStatus: (userId, status, feedback) ->
+
+    user = @slack.getUser userId
+
+    # compose user details
+    userStatus =
+      first_name : user.user.profile.first_name
+      status     : status
+      feedback   : feedback
+
+    # send update to all users
+    userIds = @slack.getUserIds()
+    userIds.forEach (user) =>
+      @composeMessage user, 'newUserFeedback', userStatus
+
   composeMessage: (userId, messageType, obj) ->
 
     # random number to pick varying messages from content file
@@ -226,6 +245,9 @@ class Oskar
         statusMsg = OskarTexts.revealUserStatus.status.format obj.user.profile.first_name, obj.status
         if obj.message
           statusMsg += OskarTexts.revealUserStatus.message.format obj.message
+
+    else if messageType is 'newUserFeedback'
+      statusMsg = OskarTexts.newUserFeedback.format obj.first_name, obj.status, obj.feedback
 
     # faq
     else if messageType is 'faq'

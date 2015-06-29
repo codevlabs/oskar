@@ -45,6 +45,8 @@ OskarTexts =
     status: "{0} is feeling *{1}* on a scale from 1 to 5."
     message: "\r\nThe last time I asked him what\'s up he replied: {0}"
 
+  newUserFeedback: 'Hey, I just received some feedback from one of your colleagues:\n{0} is feeling *{1}* ({2})'
+
   alreadySubmitted: [
     "Oops, looks like I\'ve already received some feedback from you in the last 4 hours.",
     "You already told me how you feel in the last 4 hours, don\'t you remember?",
