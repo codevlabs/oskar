@@ -469,7 +469,7 @@ describe 'oskar', ->
 
     it 'should send a user\'s feedback to everyone alongside the status', (done) ->
 
-      distributeUserStatusSpy = sinon.spy Oskar.prototype, 'distributeUserStatus'
+      broadcastUserStatusSpy = sinon.spy Oskar.prototype, 'broadcastUserStatus'
 
       message =
         text: 'not feeling so great'
@@ -479,10 +479,10 @@ describe 'oskar', ->
       oskar.handleFeedbackMessage message
 
       setTimeout ->
-        distributeUserStatusSpy.args[0][0].should.be.equal message.user
-        distributeUserStatusSpy.args[0][1].should.be.type 'number'
-        distributeUserStatusSpy.args[0][2].should.be.equal message.text
-        distributeUserStatusSpy.called.should.be.equal true
+        broadcastUserStatusSpy.args[0][0].should.be.equal message.user
+        broadcastUserStatusSpy.args[0][1].should.be.type 'number'
+        broadcastUserStatusSpy.args[0][2].should.be.equal message.text
+        broadcastUserStatusSpy.called.should.be.equal true
         done()
       , 100
 
@@ -492,7 +492,7 @@ describe 'oskar', ->
 
       getUserIdsStub.returns team
 
-      oskar.distributeUserStatus('user1', 5, 'feeling awesome')
+      oskar.broadcastUserStatus('user1', 5, 'feeling awesome')
 
       # make sure message is going to all users
       composeMessageStub.args[0][0].should.be.equal team[0]

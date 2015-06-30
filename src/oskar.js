@@ -215,12 +215,12 @@ Oskar = (function() {
     this.composeMessage(message.user, 'feedbackMessageReceived');
     return this.mongo.getLatestUserFeedback(message.user).then((function(_this) {
       return function(res) {
-        return _this.distributeUserStatus(message.user, res, message.text);
+        return _this.broadcastUserStatus(message.user, res, message.text);
       };
     })(this));
   };
 
-  Oskar.prototype.distributeUserStatus = function(userId, status, feedback) {
+  Oskar.prototype.broadcastUserStatus = function(userId, status, feedback) {
     var user, userIds, userStatus;
     user = this.slack.getUser(userId);
     userStatus = {

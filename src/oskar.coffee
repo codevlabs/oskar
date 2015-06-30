@@ -195,9 +195,9 @@ class Oskar
 
     # send feedback to everyone
     @mongo.getLatestUserFeedback(message.user).then (res) =>
-      @distributeUserStatus message.user, res, message.text
+      @broadcastUserStatus message.user, res, message.text
 
-  distributeUserStatus: (userId, status, feedback) ->
+  broadcastUserStatus: (userId, status, feedback) ->
 
     user = @slack.getUser userId
 
