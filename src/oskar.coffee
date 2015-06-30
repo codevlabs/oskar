@@ -149,13 +149,16 @@ class Oskar
     @mongo.saveUserFeedback message.user, message.text
     @slack.setfeedbackRequestsCount(message.user, 0)
 
+    @slack.allowUserComment message.user
+
     # get user feedback
     if (parseInt(message.text) <= 3)
-      @slack.allowUserComment message.user
       return @composeMessage message.user, 'lowFeedback'
 
+    if (parseInt(message.text) is 3)
+      return @composeMessage message.user, 'averageFeedback'
+
     if (parseInt(message.text) > 3)
-      @slack.allowUserComment message.user
       return @composeMessage message.user, 'highFeedback'
 
     @composeMessage message.user, 'feedbackReceived'

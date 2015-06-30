@@ -67,6 +67,12 @@ OskarTexts =
     "No worries, my friend! You will already feel a bit better when you tell me what\'s on your mind?"
   ]
 
+  averageFeedback: [
+    "OK. Go get em :tiger: ..if you've got something you want to share feel free. If not have a grrreat day!",
+    "OK. Go get em :tiger: ..if you've got something you want to share feel free. If not have a grrreat day!",
+    "OK. Go get em :tiger: ..if you've got something you want to share feel free. If not have a grrreat day!"
+  ]
+
   highFeedback: [
     "Great to hear that. Wanna share with me what makes you feel so good?",
     "Woohoo, looks like you\'re on fire today. Wanna tell me what makes you feel so excited?",
