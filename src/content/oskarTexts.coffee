@@ -18,6 +18,8 @@ OskarTexts =
 
   firstMessageSuccess: "That was easy, wasn't it? Let me now tell you what each of these numbers mean:\n5) Awesome :heart_eyes_cat:\n4) Really good :smile:\n3) Alright :neutral_face:\n2) A bit down :pensive:\n1) Pretty bad :tired_face:\n'That's it for now. Next time I'm gonna ask you will be tomorrow when you're back online. Have a great day and see you soon!" # todo: is now afternoon or next day"
 
+  firstMessageFailure: "Oh it looks like you want to tell me how you feel, but unfortunately I only understand numbers between 1 and 5"
+
   requestFeedback:
     random: [
       "Hey {0}, How is it going? Just reply with a number between 1 and 5.\n",
@@ -45,7 +47,7 @@ OskarTexts =
     status: "{0} is feeling *{1}* on a scale from 1 to 5."
     message: "\r\nThe last time I asked him what\'s up he replied: {0}"
 
-  newUserFeedback: 'Hey, I just received some feedback from one of your colleagues:\n{0} is feeling *{1}* ({2})'
+  newUserFeedback: "Hey, I just received some feedback from one of your colleagues:\n{0} is feeling *{1}* ({2})"
 
   alreadySubmitted: [
     "Oops, looks like I\'ve already received some feedback from you in the last 4 hours.",

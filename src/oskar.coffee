@@ -224,7 +224,6 @@ class Oskar
         statusMsg = OskarTexts.requestFeedback.random[random-1].format userObj.profile.first_name
         statusMsg += OskarTexts.requestFeedback.selection
       else
-        console.log obj
         statusMsg = OskarTexts.requestFeedback.options[obj-1]
 
     # channel info
