@@ -143,7 +143,8 @@ describe 'SlackClient', ->
 
         if disabledChannels.length
           message =
-            channel = disabledChannels[0]
+            user: 'user1'
+            channel: disabledChannels[0]
 
           response = slackClient.messageHandler(message)
           response.should.be.equal(false)
