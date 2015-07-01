@@ -28,6 +28,7 @@ Oskar = (function() {
     this.messageHandler = __bind(this.messageHandler, this);
     this.presenceHandler = __bind(this.presenceHandler, this);
     this.setupEvents = __bind(this.setupEvents, this);
+    console.log(process.env.TRAVIS);
     this.app = express();
     this.app.set('view engine', 'ejs');
     this.app.set('views', 'src/views/');
@@ -163,12 +164,14 @@ Oskar = (function() {
     }
     this.mongo.saveUserFeedback(message.user, message.text);
     this.slack.setfeedbackRequestsCount(message.user, 0);
+    this.slack.allowUserComment(message.user);
     if (parseInt(message.text) <= 3) {
-      this.slack.allowUserComment(message.user);
       return this.composeMessage(message.user, 'lowFeedback');
     }
+    if (parseInt(message.text) === 3) {
+      return this.composeMessage(message.user, 'averageFeedback');
+    }
     if (parseInt(message.text) > 3) {
-      this.slack.allowUserComment(message.user);
       return this.composeMessage(message.user, 'highFeedback');
     }
     return this.composeMessage(message.user, 'feedbackReceived');
@@ -223,12 +226,16 @@ Oskar = (function() {
   Oskar.prototype.broadcastUserStatus = function(userId, status, feedback) {
     var user, userIds, userStatus;
     user = this.slack.getUser(userId);
+    console.log("User who submitted feedback");
+    console.log(user);
     userStatus = {
       first_name: user.user.profile.first_name,
       status: status,
       feedback: feedback
     };
     userIds = this.slack.getUserIds();
+    console.log("Users to be notified");
+    console.log(userIds);
     return userIds.forEach((function(_this) {
       return function(user) {
         return _this.composeMessage(user, 'newUserFeedback', userStatus);
@@ -245,7 +252,6 @@ Oskar = (function() {
         statusMsg = OskarTexts.requestFeedback.random[random - 1].format(userObj.profile.first_name);
         statusMsg += OskarTexts.requestFeedback.selection;
       } else {
-        console.log(obj);
         statusMsg = OskarTexts.requestFeedback.options[obj - 1];
       }
     } else if (messageType === 'revealChannelStatus') {

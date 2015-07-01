@@ -11,6 +11,8 @@ class Oskar
 
   constructor: (mongo, slack, onboardingHelper) ->
 
+    console.log process.env.TRAVIS
+
     # set up app, mongo and slack
     @app = express()
     @app.set 'view engine', 'ejs'
