@@ -1,14 +1,14 @@
 {
   "mongo" : {
-    "url"   : "***REMOVED***"
+    "url"   : ""
   },
   "slack"            : {
-    "token"            : "***REMOVED***",
-    "disabledUsers"    : ["***REMOVED***", "***REMOVED***", "USLACKBOT"],
-    "disabledChannels" : ["***REMOVED***"]
+    "token"            : "",
+    "disabledUsers"    : ["USLACKBOT"],
+    "disabledChannels" : []
   },
   "auth": {
-    "username": "hanno",
-    "password": "***REMOVED***"
+    "username": "",
+    "password": ""
   }
 }

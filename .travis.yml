@@ -6,5 +6,5 @@ before_install: npm install -g grunt-cli
 services: mongodb
 deploy:
   provider: heroku
-  api_key: "***REMOVED***"
+  api_key: ""
   app: ***REMOVED***
