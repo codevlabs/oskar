@@ -160,6 +160,7 @@ describe 'SlackClient', ->
 
         if disabledChannels.length
           message =
+            user: 'user1'
             channel: disabledChannels[0]
 
         response = slackClient.messageHandler(message)
