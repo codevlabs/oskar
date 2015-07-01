@@ -11,7 +11,7 @@ class MongoClient
 		if url
 			@url = url
 		else
-			@url = process.env.slacktoken || config.get 'mongo.url'
+			@url = config.get 'mongo.url'
 
 	connect: () ->
 
