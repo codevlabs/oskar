@@ -99,7 +99,7 @@ class SlackClient extends EventEmitter
 	messageHandler: (message) =>
 
 		# if user is bot, return
-		if (@getUser message.user) is undefined
+		if !message? || (@getUser message.user) is undefined
 			return false
 
 		# disable messages from disabled channels
