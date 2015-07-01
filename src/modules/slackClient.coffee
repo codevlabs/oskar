@@ -12,6 +12,7 @@ class SlackClient extends EventEmitter
 	@mongo = null
 
 	constructor: (mongo = null) ->
+		console.log process.env.slacktoken
 		@token            = process.env.slacktoken || config.get('slack.token')
 		@autoReconnect    = true
 		@autoMark         = true
