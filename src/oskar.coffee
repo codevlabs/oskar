@@ -203,6 +203,8 @@ class Oskar
   broadcastUserStatus: (userId, status, feedback) ->
 
     user = @slack.getUser userId
+    console.log "User who submitted feedback"
+    console.log user
 
     # compose user details
     userStatus =
@@ -212,6 +214,9 @@ class Oskar
 
     # send update to all users
     userIds = @slack.getUserIds()
+    console.log "Users to be notified"
+    console.log userIds
+
     userIds.forEach (user) =>
       @composeMessage user, 'newUserFeedback', userStatus
 
