@@ -4,7 +4,7 @@
 
 ## Description
 
-Oskar is a Slackbot that tracks satisfaction of your team members. Every day it asks people for their current mood. This metric is stored in a database and tracked over time, allowing the team to understand which members are struggling or doing extremely well.
+Oskar is a Slackbot that tracks satisfaction of your team members. Every day it asks people how they're doing. This metric is stored in a database and tracked over time, allowing the team to understand which members are struggling or doing extremely well.
 
 Everyone on your team can ask Oskar for another team member's or the entire team's current status. It is not meant to be a way of comparing people but to surface issues, unblock each other and eliminate isolation (especially in remote teams).
 
