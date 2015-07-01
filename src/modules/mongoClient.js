@@ -15,7 +15,7 @@ MongoClient = (function() {
     if (url) {
       this.url = url;
     } else {
-      this.url = config.get('mongo.url');
+      this.url = process.env.slacktoken || config.get('mongo.url');
     }
   }
 

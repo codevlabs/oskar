@@ -28,7 +28,6 @@ Oskar = (function() {
     this.messageHandler = __bind(this.messageHandler, this);
     this.presenceHandler = __bind(this.presenceHandler, this);
     this.setupEvents = __bind(this.setupEvents, this);
-    console.log(process.env.TRAVIS);
     this.app = express();
     this.app.set('view engine', 'ejs');
     this.app.set('views', 'src/views/');
