@@ -32,7 +32,6 @@ SlackClient = (function(_super) {
     this.messageHandler = __bind(this.messageHandler, this);
     this.presenceChangeHandler = __bind(this.presenceChangeHandler, this);
     this.setUserPresence = __bind(this.setUserPresence, this);
-    console.log(process.env.slacktoken);
     this.token = process.env.slacktoken || config.get('slack.token');
     this.autoReconnect = true;
     this.autoMark = true;

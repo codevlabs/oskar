@@ -299,9 +299,8 @@ describe 'oskar', ->
       targetUserObj =
         id   : 'USER2',
         name : 'paul'
-        user :
-          profile:
-            first_name: 'Paul'
+        profile:
+          first_name: 'Paul'
 
       res =
         status: 8
