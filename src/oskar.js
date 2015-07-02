@@ -231,8 +231,6 @@ Oskar = (function() {
       feedback: feedback
     };
     userIds = this.slack.getUserIds();
-    console.log("Users to be notified");
-    console.log(userIds);
     return userIds.forEach((function(_this) {
       return function(user) {
         return _this.composeMessage(user, 'newUserFeedback', userStatus);

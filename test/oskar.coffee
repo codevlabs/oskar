@@ -592,6 +592,17 @@ describe 'oskar', ->
       oskar.composeMessage 'user1', 'requestFeedback', 0
       # console.log postMessageStub.args
 
+    it 'should compose a new user feedback message', ->
+
+      obj =
+        first_name : 'Marcel'
+        status     : '3'
+        feedback   : 'alright'
+
+      postMessageStub.reset()
+      oskar.composeMessage 'user1', 'newUserFeedback', obj
+      console.log postMessageStub.args
+
     it 'should compose a channel status message', ->
 
       users = [

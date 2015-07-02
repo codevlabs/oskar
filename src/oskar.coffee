@@ -212,8 +212,6 @@ class Oskar
 
     # send update to all users
     userIds = @slack.getUserIds()
-    console.log "Users to be notified"
-    console.log userIds
 
     userIds.forEach (user) =>
       @composeMessage user, 'newUserFeedback', userStatus

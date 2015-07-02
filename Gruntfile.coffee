@@ -63,6 +63,12 @@ module.exports = (grunt) ->
         src: ['*.coffee']
         dest: 'src/helper'
         ext: '.js'
+      content:
+        expand: true
+        cwd: 'src/content'
+        src: ['*.coffee']
+        dest: 'src/content'
+        ext: '.js'
 
   grunt.registerTask 'prepublish', ['coffee']
   grunt.registerTask 'static', ['env', 'shell:run']
