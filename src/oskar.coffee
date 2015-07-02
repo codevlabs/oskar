@@ -203,12 +203,10 @@ class Oskar
   broadcastUserStatus: (userId, status, feedback) ->
 
     user = @slack.getUser userId
-    console.log "User who submitted feedback"
-    console.log user
 
     # compose user details
     userStatus =
-      first_name : user.user.profile.first_name
+      first_name : user.profile.first_name
       status     : status
       feedback   : feedback
 

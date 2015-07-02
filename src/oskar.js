@@ -225,10 +225,8 @@ Oskar = (function() {
   Oskar.prototype.broadcastUserStatus = function(userId, status, feedback) {
     var user, userIds, userStatus;
     user = this.slack.getUser(userId);
-    console.log("User who submitted feedback");
-    console.log(user);
     userStatus = {
-      first_name: user.user.profile.first_name,
+      first_name: user.profile.first_name,
       status: status,
       feedback: feedback
     };
