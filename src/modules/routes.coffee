@@ -17,8 +17,8 @@ routes = (app, mongo, slack) ->
     res.render 'pages/thank-you'
 
   # protect dashboard from external access
-  username = config.get 'auth.username'
-  password = config.get 'auth.password'
+  username = process.env.AUTH_USERNAME || config.get 'auth.username'
+  password = process.env.AUTH_PASSWORD || config.get 'auth.password'
   auth = basicAuth username, password
 
   # dashboard

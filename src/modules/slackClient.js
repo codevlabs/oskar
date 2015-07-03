@@ -32,13 +32,13 @@ SlackClient = (function(_super) {
     this.messageHandler = __bind(this.messageHandler, this);
     this.presenceChangeHandler = __bind(this.presenceChangeHandler, this);
     this.setUserPresence = __bind(this.setUserPresence, this);
-    this.token = process.env.slacktoken || config.get('slack.token');
+    this.token = process.env.SLACK_TOKEN || config.get('slack.token');
     this.autoReconnect = true;
     this.autoMark = true;
     this.users = [];
     this.channels = [];
-    this.disabledUsers = config.get('slack.disabledUsers');
-    this.disabledChannels = config.get('slack.disabledChannels');
+    this.disabledUsers = process.env.DISABLED_USERS ? JSON.parse("[" + process.env.DISABLED_USERS + "]") : config.get('slack.disabledUsers');
+    this.disabledChannels = process.env.DISABLED_CHANNELS ? JSON.parse("[" + process.env.DISABLED_CHANNELS + "]") : config.get('slack.disabledChannels');
     if (mongo != null) {
       this.mongo = mongo;
     }

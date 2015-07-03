@@ -11,7 +11,7 @@ class MongoClient
 		if url
 			@url = url
 		else
-			@url = config.get 'mongo.url'
+			@url = process.env.MONGOLAB_URI || config.get 'mongo.url'
 
 	connect: () ->
 

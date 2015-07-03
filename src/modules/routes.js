@@ -28,8 +28,8 @@ routes = function(app, mongo, slack) {
       return res.render('pages/thank-you');
     };
   })(this));
-  username = config.get('auth.username');
-  password = config.get('auth.password');
+  username = process.env.AUTH_USERNAME || config.get('auth.username');
+  password = process.env.AUTH_PASSWORD || config.get('auth.password');
   auth = basicAuth(username, password);
   app.get('/dashboard', auth, (function(_this) {
     return function(req, res) {

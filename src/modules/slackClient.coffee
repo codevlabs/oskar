@@ -12,13 +12,16 @@ class SlackClient extends EventEmitter
 	@mongo = null
 
 	constructor: (mongo = null) ->
-		@token            = process.env.slacktoken || config.get('slack.token')
+		@token            = process.env.SLACK_TOKEN || config.get('slack.token')
 		@autoReconnect    = true
 		@autoMark         = true
 		@users            = []
 		@channels         = []
-		@disabledUsers    = config.get 'slack.disabledUsers'
-		@disabledChannels = config.get 'slack.disabledChannels'
+
+		# parse env vars that have to be arrays
+		@disabledUsers    = if process.env.DISABLED_USERS then JSON.parse "[" + process.env.DISABLED_USERS + "]" else config.get 'slack.disabledUsers'
+		@disabledChannels = if process.env.DISABLED_CHANNELS then JSON.parse "[" + process.env.DISABLED_CHANNELS + "]" else config.get 'slack.disabledChannels'
+
 		if mongo? then @mongo = mongo
 
 	connect: () ->
