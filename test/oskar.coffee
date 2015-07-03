@@ -474,10 +474,11 @@ describe 'oskar', ->
         text: 'not feeling so great'
         user: 'user1'
 
-      getLatestUserFeedbackStub.returns(whenLib 5)
+      getLatestUserFeedbackStub.returns(whenLib { status: 5 })
       oskar.handleFeedbackMessage message
 
       setTimeout ->
+        console.log broadcastUserStatusSpy.args
         broadcastUserStatusSpy.args[0][0].should.be.equal message.user
         broadcastUserStatusSpy.args[0][1].should.be.type 'number'
         broadcastUserStatusSpy.args[0][2].should.be.equal message.text
@@ -601,7 +602,7 @@ describe 'oskar', ->
 
       postMessageStub.reset()
       oskar.composeMessage 'user1', 'newUserFeedback', obj
-      console.log postMessageStub.args
+      # console.log postMessageStub.args
 
     it 'should compose a channel status message', ->
 

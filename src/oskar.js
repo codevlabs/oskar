@@ -217,7 +217,7 @@ Oskar = (function() {
     this.composeMessage(message.user, 'feedbackMessageReceived');
     return this.mongo.getLatestUserFeedback(message.user).then((function(_this) {
       return function(res) {
-        return _this.broadcastUserStatus(message.user, res, message.text);
+        return _this.broadcastUserStatus(message.user, res.status, message.text);
       };
     })(this));
   };

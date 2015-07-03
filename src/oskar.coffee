@@ -198,7 +198,7 @@ class Oskar
 
     # send feedback to everyone
     @mongo.getLatestUserFeedback(message.user).then (res) =>
-      @broadcastUserStatus message.user, res, message.text
+      @broadcastUserStatus message.user, res.status, message.text
 
   broadcastUserStatus: (userId, status, feedback) ->
 
