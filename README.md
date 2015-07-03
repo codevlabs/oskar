@@ -28,13 +28,24 @@ You can send the following commands directly to Oskar:
 
 ## Configuring Oskar
 
-Oskar's configuration file can be found inside the `config` directoy. There you should:
-- define the url to a fresh and empty MongoDB database (to create a mongoDB on Heroku for example, go to https://elements.heroku.com/addons/mongolab)
-- insert a Slack bot token that belongs to your team (you can create a new Slackbot here: https://yourteam.slack.com/services/new/bot)
+There are two ways of configuring Oskar.
 
-Additionally you can
-- disable **channels** that Oskar is part of (you should disable the default channel that Slack added)
-- disable **users** if you want specific people on your team to receive Oskar messages a tall
+1) Using local configuration
+You copy the contents of the file `config/default.json` and create a new file `config/local.json` with your environment's variables.
+
+2) Using Heroku env variables
+Use .env.sample to set up your Heroku env variables, either setting them via the command line (as described [here](https://devcenter.heroku.com/articles/config-vars)) or directly from the Heroku panel.
+
+Here's the config variables you need to define:
+- `mongo.url` (or `MONGOLAB_URI` for Heroku) defines the url to your MongoDB database (to create a mongoDB on Heroku, go to https://elements.heroku.com/addons/mongolab). This will be automatically generated if you create a MongoLab database as described below ("Setting up Oskar on Heroku") in step 4.
+- `slack.token` (or `SLACK_TOKEN` for Heroku) is the token of your team's Slackbot (you can create a new Slackbot here: https://yourteam.slack.com/services/new/bot)
+
+Additionally you can disable specific channels or users:
+- `slack.disabledUsers` (or `DISABLED_USERS` for Heroku) to disable **channels** that Oskar is part of (you should disable the default channel that Slack added)
+- `slack.disabledChannels` (or `DISABLED_CHANNELS` for Heroku) to disable **users** if you want specific people on your team to not receive any Oskar messages at all
+
+By default your dashboard is protected via a simple HTTP auth mechanism. (we'll try to improve this in the future)
+- `auth.username` and `auth.password` (or `AUTH_USERNAME` and `AUTH_PASSWORD` for Heroku) define your login data for the dashboard. Make sure to share those with your team.
 
 See the following instructions if you set up Oskar for the first time.
 
@@ -50,11 +61,9 @@ If you're familiar with Heroku, you can quickly get Oskar up and running there w
 
 4. Before we push our repository and run our app, we need to set up a MongoDB database. Run `heroku addons:create mongolab` to create a basic mongoDB. The basic plan of the extension is free but it will require you to enter your credit card details.
 
-5. Get the remote URL for your new database by running `heroku config | grep MONGOLAB_URI` and add this URL to the `mongo.url` part of the Oskar config file which you can find at `config/default.json`.
+5. Now push the repository to your new Heroku app by running `git push heroku master` and `heroku ps:scale web=1` to ensure that at least one instance of it is running.
 
-6. Now push the repository to your new Heroku app by running `git push heroku master` and `heroku ps:scale web=1` to ensure that at least one instance of it is running.
-
-7. Visit the URL that Heroku returned or run `heroku open` to see the Oskar website. Go to `http://your-oskar-url.com/dashboard` to see your team's statistics. It will ask you for a username and password that can be defined in your config file under `auth`
+6. Visit the URL that Heroku returned or run `heroku open` to see the Oskar website. Go to `http://your-oskar-url.com/dashboard` to see your team's statistics. It will ask you for a username and password that can be defined in your config file under `auth`
 
 ## Setting up a local dev environment / Contributing
 
