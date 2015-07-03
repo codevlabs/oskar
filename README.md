@@ -34,7 +34,7 @@ There are two ways of configuring Oskar.
 You copy the contents of the file `config/default.json` and create a new file `config/local.json` with your environment's variables.
 
 2) Using Heroku env variables
-Use .env.sample to set up your Heroku env variables, either setting them via the command line (as described [here](https://devcenter.heroku.com/articles/config-vars)) or directly from the Heroku panel.
+Use `.env.sample` to set up your Heroku env variables, either setting them via the command line (as described [here](https://devcenter.heroku.com/articles/config-vars)) or directly from the Heroku panel.
 
 Here's the config variables you need to define:
 - `mongo.url` (or `MONGOLAB_URI` for Heroku) defines the url to your MongoDB database (to create a mongoDB on Heroku, go to https://elements.heroku.com/addons/mongolab). This will be automatically generated if you create a MongoLab database as described below ("Setting up Oskar on Heroku") in step 4.
