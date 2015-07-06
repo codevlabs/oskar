@@ -51,19 +51,11 @@ See the following instructions if you set up Oskar for the first time.
 
 ## Setting up Oskar on Heroku
 
-If you're familiar with Heroku, you can quickly get Oskar up and running there with a few commands.
+You can deploy your own copy to Heroku with one click using this button:
 
-1. If you haven't already, install a Heroku account (http://heroku.com) and download the Heroku toolbelt. Instructions on how to get started with node.js on Heroku can be found here: https://devcenter.heroku.com/articles/getting-started-with-nodejs#introduction
+[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
 
-2. Once you've created your Heroku account and downloaded the toolbelt, clone the Oskar repository into your directory of choice by running `git clone git@github.com:wearehanno/oskar.git`.
-
-3. Now create a new Heroku instance for this repository by running `heroku create`.
-
-4. Before we push our repository and run our app, we need to set up a MongoDB database. Run `heroku addons:create mongolab` to create a basic mongoDB. The basic plan of the extension is free but it will require you to enter your credit card details.
-
-5. Now push the repository to your new Heroku app by running `git push heroku master` and `heroku ps:scale web=1` to ensure that at least one instance of it is running.
-
-6. Visit the URL that Heroku returned or run `heroku open` to see the Oskar website. Go to `http://your-oskar-url.com/dashboard` to see your team's statistics. It will ask you for a username and password that can be defined in your config file under `auth`
+See the [Heroku documentation](https://devcenter.heroku.com/articles/config-vars) for more info about changing the configuration variables after deployment.
 
 ## Setting up a local dev environment / Contributing
 
