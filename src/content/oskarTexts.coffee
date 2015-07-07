@@ -26,11 +26,11 @@ OskarTexts =
       "Good morning {0}! Hope you\'re well rested. What\'s your status for today on a scale from 1 to 5?\n",
       "Nice to see you, {0}, Wanna tell me how you feel? A number between 1 and 5 is enough. \n"
     ]
-    selection: "5) Awesome :heart_eyes_cat:\n
-                4) Really good :smile:\n
-                3) Alright :neutral_face:\n
-                2) A bit down :pensive:\n
-                1) Pretty bad :tired_face:\n"
+    selection: "5) :heart_eyes_cat: Awesome\n
+                4) :smile: Really good\n
+                3) :neutral_face: Alright\n
+                2) :pensive: A bit down\n
+                1) :tired_face: Pretty bad\n"
     options: [
       "Hey, didn't you see my last message? It'll only take a second of your time to tell me how you're doing ;)"
       "Hellooooo, what's up? Do you want to ignore me? Just give me a number between 1 and 5 and I'll not bother you any longer."
