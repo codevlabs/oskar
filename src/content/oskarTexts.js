@@ -25,9 +25,9 @@ OskarTexts = {
   firstMessageSuccess: "That was easy, wasn't it? Let me now tell you what each of these numbers mean:\n5) Awesome :heart_eyes_cat:\n4) Really good :smile:\n3) Alright :neutral_face:\n2) A bit down :pensive:\n1) Pretty bad :tired_face:\n'That's it for now. Next time I'm gonna ask you will be tomorrow when you're back online. Have a great day and see you soon!",
   firstMessageFailure: "Oh it looks like you want to tell me how you feel, but unfortunately I only understand numbers between 1 and 5",
   requestFeedback: {
-    random: ["Hey {0}, How is it going? Just reply with a number between 1 and 5.\n", "Good morning {0}! Hope you\'re well rested. What\'s your status for today on a scale from 1 to 5?\n", "Nice to see you, {0}, Wanna tell me how you feel? A number between 1 and 5 is enough. \n"],
-    selection: "5) Awesome :heart_eyes_cat:\n 4) Really good :smile:\n 3) Alright :neutral_face:\n 2) A bit down :pensive:\n 1) Pretty bad :tired_face:\n",
-    options: ["Hey, didn't you see my last message? It'll only take a second of your time to tell me how you're doing ;)", "Hellooooo, what's up? Do you want to ignore me? Just give me a number between 1 and 5 and I'll not bother you any longer."]
+    random: ["Hey {0}, How's everything going? Hit me with a number from 1-5, and I'll share it with the rest of the team.\n", "Hello, me again! Just checking in to see how you're feeling. Want to share?\n", "Nice to see you, {0}, Wanna tell me how you feel? A number between 1 and 5 is enough. \n"],
+    selection: "(5) :heart_eyes_cat: Awesome\n (4) :smile: Really good\n (3) :neutral_face: Alright\n (2) :pensive: A bit down\n (1) :tired_face: Pretty bad\n",
+    options: ["Hey, didn't you see my last message? It'll only take a second of your time to tell me how you're doing :wink:", "Hellooooo, what's up? Do you want to ignore me? Just give me a number between 1 and 5 and I'll not bother you any longer."]
   },
   faq: "Looks like you need some help. Here's the link to the <http://oskar.herokuapp.com/faq|Oskar FAQ>",
   revealChannelStatus: {
@@ -35,16 +35,16 @@ OskarTexts = {
     message: " ({0})"
   },
   revealUserStatus: {
-    error: "Oh, it looks like I haven\'t heard from {0} for a while. Sorry!",
-    status: "{0} is feeling *{1}* on a scale from 1 to 5.",
-    message: "\r\nThe last time I asked him what\'s up he replied: {0}"
+    error: "Hmm, it looks like I haven't heard from {0} for a while. You might want to ping them directly.",
+    status: "Looks like {0} is feeling *{1}/5* right now.",
+    message: "\r\nThe last time I asked what's up, they told me: {0}"
   },
-  newUserFeedback: "Hey, I just received some feedback from one of your colleagues:\n{0} is feeling *{1}* ({2})",
-  alreadySubmitted: ["Oops, looks like I\'ve already received some feedback from you in the last 4 hours.", "You already told me how you feel in the last 4 hours, don\'t you remember?", "I know you love those number games, but let\'s wait a bit before we play again!"],
-  invalidInput: ["Oh it looks like you want to tell me how you feel, but unfortunately I only understand numbers between 1 and 5", "Sorry my friend, but as long as I\'m in beta, I only understand numbers between 1 and 5.", "I\'d really love to understand what you\'re saying, but for now, let\'s stick to numbers between 1 and 5."],
-  lowFeedback: ["Feel free to share with me what\'s wrong. I will treat it with confidence", "Aww no :( I\'m also not doing very well today. Too little sleep. What\'s up with you?", "No worries, my friend! You will already feel a bit better when you tell me what\'s on your mind?"],
+  newUserFeedback: "Hey, I thought you might want to know that *{0}* is feeling *{1}/5*: '{2}'",
+  alreadySubmitted: ["Oops, looks like I\'ve already received some feedback from you in the last 4 hours.", "Oh, hey there! I actually have some feedback from you already, in the last 4 hours. Let's leave it a little longer before we catch up :smile:", "Easy, tiger! I know you love those number games, but let\'s wait a bit before we play again! I'll ping you in a few hours to see how you're doing."],
+  invalidInput: ["Oh! I'm not sure what you meant, there: I only understand numbers between 1 and 5. Do you mind phrasing that a little differently?", "Oh! I'm not sure what you meant, there: I only understand numbers between 1 and 5. Do you mind phrasing that a little differently?", "I\'d really love to understand what you\'re saying, but until I become a little more educated, I'll need you to stick to using numbers between 1 and 5 to tell me how you feel."],
+  lowFeedback: ["That sucks. I was really hoping you'd be feeling a little better than that. Is there anything I should know?", "Oh dear :worried: I\'m having a rough day over here too... I think I didn't get enough sleep last night. Wanna tell me a little more? Perhaps one of your teammates will be able to help out.", "No worries, my friend! You will already feel a bit better when you tell me what\'s on your mind?"],
   averageFeedback: ["OK. Go get em :tiger: ..if you've got something you want to share feel free. If not have a grrreat day!", "OK. Go get em :tiger: ..if you've got something you want to share feel free. If not have a grrreat day!", "OK. Go get em :tiger: ..if you've got something you want to share feel free. If not have a grrreat day!"],
-  highFeedback: ["Great to hear that. Wanna share with me what makes you feel so good?", "Woohoo, looks like you\'re on fire today. Wanna tell me what makes you feel so excited?", "Fantastic. I\'m sure you\'re gonna complete all your tasks today. What made you feel so awesome today?"],
+  highFeedback: [":trophy: Winning! It\'s so great to hear that. Wanna tell me why things are going so well?", ":thumbsup: looks like you\'re on :fire: today. Is there anything you\'d like to share with the team?", "There's nothing I like more than great feedback! :clap::skin-tone-4: What\'s made you feel so awesome today?"],
   feedbackReceived: ["Thanks a lot, buddy! Keep up the good work!", "You\'re a champion. Thanks for the input and have a great day!", "That\'s really helpful. I wish you good luck with everything today!"],
   feedbackMessageReceived: ["Thanks, my friend. I really appreciate your openness.", "That\'s the kind of feedback I wanted to hear. Much appreciated", "That\'s really helpful. I wish you good luck with everything today!"]
 };
