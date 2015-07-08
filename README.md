@@ -70,10 +70,23 @@ See the [Heroku documentation](https://devcenter.heroku.com/articles/config-vars
 
 Oskar is being tested with [Mocha](http://mochajs.org/) and [should.js](https://github.com/tj/should.js/)
 
-Run the unit tests for all modules be running `npm test`.
+First, we need to install MongoDB if you don't have it running already. Full instructions are [here](http://docs.mongodb.org/manual/installation/):
+
+    $ brew install mongodb
+    # Create a data folder to store MongoDB databases
+    $ sudo mkdir -p /data/db
+    $ sudo chown $USER /data/db
+
+Now we're running, we can initialise the database:
+
+    $ mongod
+
+Run the unit tests for all modules:
+
+    $ npm test
+
 To run only a single unit test call the test file explicitly, such as `npm test test/inputHelper.coffee`
 
-For the mongo tests to pass, you'll have to run a mongo database under `mongodb://localhost:27017`. If you have mongo installed, just run `mongod` on the command line.
-See here for more instructions: http://docs.mongodb.org/manual/installation/
+For the mongo tests to pass, you'll have to run a mongo database under `mongodb://localhost:27017`.
 
-You can modify the test parameters in `package.json` under `scripts.test`.
+You will need to modify the test parameters in `package.json` under `scripts.test`, to give the test suite a valid Slack API key to test with. We will shortly be updating the repository so that tests can be run on a Slack test account, though.
