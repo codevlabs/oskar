@@ -238,7 +238,7 @@ class Oskar
         statusMsg += OskarTexts.revealChannelStatus.status.format userObj.profile.first_name, user.feedback.status
         if user.feedback.message
           statusMsg += OskarTexts.revealChannelStatus.message.format user.feedback.message
-        statusMsg += ".\r\n"
+        statusMsg += "\r\n"
 
     # user info
     else if messageType is 'revealUserStatus'

@@ -44,8 +44,8 @@ OskarTexts =
 
   revealUserStatus:
     error: "Oh, it looks like I haven\'t heard from {0} for a while. Sorry!"
-    status: "{0} is feeling *{1}*/5"
-    message: "\n\r>\"{0}\""
+    status: "{0} is feeling *{1}/5* at the moment."
+    message: "\n>\"{0}\""
 
   newUserFeedback: "Hey, I thought you might want to know that *{0}* is feeling *{1}/5*: '{2}'"
 

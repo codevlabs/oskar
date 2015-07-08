@@ -258,7 +258,7 @@ Oskar = (function() {
           if (user.feedback.message) {
             statusMsg += OskarTexts.revealChannelStatus.message.format(user.feedback.message);
           }
-          return statusMsg += ".\r\n";
+          return statusMsg += "\r\n";
         };
       })(this));
     } else if (messageType === 'revealUserStatus') {
