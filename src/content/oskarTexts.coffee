@@ -39,13 +39,13 @@ OskarTexts =
   faq: "Looks like you need some help. Here's the link to the <http://oskar.herokuapp.com/faq|Oskar FAQ>"
 
   revealChannelStatus:
-    status: "{0} is feeling *{1}*"
-    message: " ({0})"
+    status: "*{0}*: *{1}/5*"
+    message: ": {0}"
 
   revealUserStatus:
-    error: "Hmm, it looks like I haven't heard from {0} for a while. You might want to ping them directly."
-    status: "Looks like {0} is feeling *{1}/5* right now."
-    message: "\r\nThe last time I asked what's up, they told me: {0}"
+    error: "Oh, it looks like I haven\'t heard from {0} for a while. Sorry!"
+    status: "{0} is feeling *{1}* on a scale from 1 to 5"
+    message: "\r: \"{0}\""
 
   newUserFeedback: "Hey, I thought you might want to know that *{0}* is feeling *{1}/5*: '{2}'"
 
