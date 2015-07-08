@@ -39,20 +39,20 @@ OskarTexts =
   faq: "Looks like you need some help. Here's the link to the <http://oskar.herokuapp.com/faq|Oskar FAQ>"
 
   revealChannelStatus:
-    status: "*{0}*: *{1}/5*"
-    message: ": {0}"
+    status: "*{0}* feels *{1}/5*"
+    message: "\n>\"{0}\""
 
   revealUserStatus:
     error: "Oh, it looks like I haven\'t heard from {0} for a while. Sorry!"
-    status: "{0} is feeling *{1}* on a scale from 1 to 5"
-    message: "\r: \"{0}\""
+    status: "{0} is feeling *{1}*/5"
+    message: "\n\r>\"{0}\""
 
   newUserFeedback: "Hey, I thought you might want to know that *{0}* is feeling *{1}/5*: '{2}'"
 
   alreadySubmitted: [
-    "Oops, looks like I\'ve already received some feedback from you in the last 4 hours.",
+    "Oops, looks like you've already told me how you feel in the last couple of hours. Let's check in again later.",
     "Oh, hey there! I actually have some feedback from you already, in the last 4 hours. Let's leave it a little longer before we catch up :smile:",
-    "Easy, tiger! I know you love those number games, but let\'s wait a bit before we play again! I'll ping you in a few hours to see how you're doing."
+    "Easy, tiger! I know you love our number games, but let\'s wait a bit before we play again! I'll ping you in a few hours to see how you're doing."
   ]
 
   invalidInput: [

@@ -31,16 +31,16 @@ OskarTexts = {
   },
   faq: "Looks like you need some help. Here's the link to the <http://oskar.herokuapp.com/faq|Oskar FAQ>",
   revealChannelStatus: {
-    status: "*{0}*: *{1}/5*",
-    message: ": {0}"
+    status: "*{0}* feels *{1}/5*",
+    message: "\n>\"{0}\""
   },
   revealUserStatus: {
     error: "Oh, it looks like I haven\'t heard from {0} for a while. Sorry!",
-    status: "{0} is feeling *{1}* on a scale from 1 to 5",
-    message: "\r: \"{0}\""
+    status: "{0} is feeling *{1}*/5",
+    message: "\n\r>\"{0}\""
   },
   newUserFeedback: "Hey, I thought you might want to know that *{0}* is feeling *{1}/5*: '{2}'",
-  alreadySubmitted: ["Oops, looks like I\'ve already received some feedback from you in the last 4 hours.", "Oh, hey there! I actually have some feedback from you already, in the last 4 hours. Let's leave it a little longer before we catch up :smile:", "Easy, tiger! I know you love those number games, but let\'s wait a bit before we play again! I'll ping you in a few hours to see how you're doing."],
+  alreadySubmitted: ["Oops, looks like you've already told me how you feel in the last couple of hours. Let's check in again later.", "Oh, hey there! I actually have some feedback from you already, in the last 4 hours. Let's leave it a little longer before we catch up :smile:", "Easy, tiger! I know you love our number games, but let\'s wait a bit before we play again! I'll ping you in a few hours to see how you're doing."],
   invalidInput: ["Oh! I'm not sure what you meant, there: I only understand numbers between 1 and 5. Do you mind phrasing that a little differently?", "Oh! I'm not sure what you meant, there: I only understand numbers between 1 and 5. Do you mind phrasing that a little differently?", "I\'d really love to understand what you\'re saying, but until I become a little more educated, I'll need you to stick to using numbers between 1 and 5 to tell me how you feel."],
   lowFeedback: ["That sucks. I was really hoping you'd be feeling a little better than that. Is there anything I should know?", "Oh dear :worried: I\'m having a rough day over here too... I think I didn't get enough sleep last night. Wanna tell me a little more? Perhaps one of your teammates will be able to help out.", "No worries, my friend! You will already feel a bit better when you tell me what\'s on your mind?"],
   averageFeedback: ["OK. Go get em :tiger: ..if you've got something you want to share feel free. If not have a grrreat day!", "OK. Go get em :tiger: ..if you've got something you want to share feel free. If not have a grrreat day!", "OK. Go get em :tiger: ..if you've got something you want to share feel free. If not have a grrreat day!"],
