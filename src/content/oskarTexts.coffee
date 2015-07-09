@@ -47,7 +47,7 @@ OskarTexts =
     status: "{0} is feeling *{1}/5* at the moment."
     message: "\n>\"{0}\""
 
-  newUserFeedback: "Hey, I thought you might want to know that *{0}* is feeling *{1}/5*: '{2}'"
+  newUserFeedback: "*{0}* is feeling *{1}/5*\n>\"{2}\""
 
   alreadySubmitted: [
     "Oops, looks like you've already told me how you feel in the last couple of hours. Let's check in again later.",
