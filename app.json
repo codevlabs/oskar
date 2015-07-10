@@ -3,7 +3,7 @@
   "description": "Oskar is a Slackbot that tracks how happy people are at work",
   "repository": "https://github.com/wearehanno/oskar",
   "website": "http://oskar.hanno.co/",
-  "logo": "http://oskar.hanno.co/public/images/oskar-logo.png",
+  "logo": "http://oskar.hanno.co/public/images/oskar-avatar-128.png",
   "keywords": ["slack", "command", "bot", "happiness"],
   "success_url": "/dashboard",
   "addons": ["mongolab"],
