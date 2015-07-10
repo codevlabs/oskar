@@ -8,7 +8,15 @@ Oskar is a Slackbot that tracks satisfaction of your team members. Every day it 
 
 Everyone on your team can ask Oskar for another team member's or the entire team's current status. It is not meant to be a way of comparing people but to surface issues, unblock each other and eliminate isolation (especially in remote teams).
 
-## How to
+## Installing him on Heroku
+
+You can deploy your own copy to Heroku with one click using this button:
+
+[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
+
+See the [Heroku documentation](https://devcenter.heroku.com/articles/config-vars) for more info about changing the configuration variables after deployment.
+
+## Using the bot
 
 Oskar automatically asks you two times a day how you're doing. You can reply to him with a number between 1 to 5, and he will then ask you for feedback to know what's the trigger for your current low or high.
 
@@ -18,6 +26,8 @@ All data is collected in a database and made visible via the dashboard, which ca
 You can send the following commands directly to Oskar:
 - `How is @member?` - Tells you how a specific team member is doing
 - `How is @channel?` - Returns the current status for the whole group
+
+# The App
 
 ## Tech stack
 
@@ -49,15 +59,9 @@ By default your dashboard is protected via a simple HTTP auth mechanism. (we'll 
 
 See the following instructions if you set up Oskar for the first time.
 
-## Setting up Oskar on Heroku
+# Development and Contributing
 
-You can deploy your own copy to Heroku with one click using this button:
-
-[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
-
-See the [Heroku documentation](https://devcenter.heroku.com/articles/config-vars) for more info about changing the configuration variables after deployment.
-
-## Setting up a local dev environment / Contributing
+## Local environment quickstart
 
 - Download and install nodeJS: https://nodejs.org/download/
 - Install Grunt: `npm install grunt -g`
