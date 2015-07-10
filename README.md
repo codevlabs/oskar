@@ -27,6 +27,8 @@ You can send the following commands directly to Oskar:
 - `How is @member?` - Tells you how a specific team member is doing
 - `How is @channel?` - Returns the current status for the whole group
 
+Oskar is not just a Slackbot. He also comes with a dashboard view, allowing you to see visualisations of team status over time. This is visible at `/dashboard`. If you're hosting on heroku, then this URL is going to be something like _http://myherokuappname.herokuapp.com/dashboard_. See below for info about restricting access to this dashboard.
+
 # The App
 
 ## Tech stack
