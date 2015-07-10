@@ -152,7 +152,7 @@ class Oskar
     @slack.allowUserComment message.user
 
     # get user feedback
-    if (parseInt(message.text) <= 3)
+    if (parseInt(message.text) < 3)
       return @composeMessage message.user, 'lowFeedback'
 
     if (parseInt(message.text) is 3)

@@ -164,7 +164,7 @@ Oskar = (function() {
     this.mongo.saveUserFeedback(message.user, message.text);
     this.slack.setfeedbackRequestsCount(message.user, 0);
     this.slack.allowUserComment(message.user);
-    if (parseInt(message.text) <= 3) {
+    if (parseInt(message.text) < 3) {
       return this.composeMessage(message.user, 'lowFeedback');
     }
     if (parseInt(message.text) === 3) {
