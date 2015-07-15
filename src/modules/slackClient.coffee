@@ -11,8 +11,9 @@ class SlackClient extends EventEmitter
 	@slack = null
 	@mongo = null
 
-	constructor: (mongo = null) ->
+	constructor: (mongo = null, token = null) ->
 		@token            = process.env.SLACK_TOKEN || config.get('slack.token')
+		@token 						= token || @token
 		@autoReconnect    = true
 		@autoMark         = true
 		@users            = []

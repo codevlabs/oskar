@@ -25,14 +25,18 @@ SlackClient = (function(_super) {
 
   SlackClient.mongo = null;
 
-  function SlackClient(mongo) {
+  function SlackClient(mongo, token) {
     if (mongo == null) {
       mongo = null;
+    }
+    if (token == null) {
+      token = null;
     }
     this.messageHandler = __bind(this.messageHandler, this);
     this.presenceChangeHandler = __bind(this.presenceChangeHandler, this);
     this.setUserPresence = __bind(this.setUserPresence, this);
     this.token = process.env.SLACK_TOKEN || config.get('slack.token');
+    this.token = token || this.token;
     this.autoReconnect = true;
     this.autoMark = true;
     this.users = [];

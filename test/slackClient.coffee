@@ -15,7 +15,7 @@ connect     = null
 describe 'SlackClient', ->
 
   before ->
-    slackClient = new SlackClient()
+    slackClient = new SlackClient(null, 'xoxb-7369872208-yv3ZYe8kqwBDn8ugClt8wchL')
     connect     = slackClient.connect()
 
   this.timeout 10000

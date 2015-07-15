@@ -188,7 +188,7 @@ describe 'oskar', ->
           done()
         , 100
 
-      it 'should request feedback according to request count', (done) ->
+      it 'should request feedback according to request count (second time)', (done) ->
 
         userObj =
           id       : 'user10'
